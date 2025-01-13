@@ -1,0 +1,138 @@
+﻿<Window x:Class="WTLayoutManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Style="{StaticResource MaterialDesignWindow}"
+        Title="WT Layout Manager" Height="600" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- ComboBox for installed terminals -->
+        <ComboBox
+              Grid.Row="0"
+              ItemsSource="{Binding Terminals}"
+              SelectedItem="{Binding SelectedTerminal}"
+              Margin="0,0,0,5"
+              Width="500">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image
+                            Width="20"
+                            Height="20"
+                            Margin="0,0,5,0"
+                            Source="{Binding ImageSource}" />
+                        <TextBlock Text="{Binding DisplayName}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <!-- Search Box -->
+        <TextBox Grid.Row="1"
+             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+             materialDesign:HintAssist.Hint="Search folders..."
+             Margin="0,0,0,5"/>
+
+        <!-- Main DataGrid -->
+        <DataGrid Grid.Row="2" 
+              ItemsSource="{Binding FoldersView}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              SelectionMode="Single"
+              CanUserSortColumns="True"
+              RowDetailsVisibilityMode="Collapsed">
+
+            <!-- Sortable columns: +/-, folder name, last run, buttons -->
+            <DataGrid.Columns>
+                <!-- Expand/Collapse column -->
+                <DataGridTemplateColumn Header="#" IsReadOnly="True" Width="40">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <!-- We'll bind a property like IsExpanded, or use an event to toggle row details -->
+                            <!-- For simplicity, you might show a Button or TextBlock with + or - -->
+                            <Button Content="{Binding SomeExpandCollapseIndicator}"
+                      Command="{Binding SomeExpandCollapseCommand}"
+                      Width="30" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Folder Name -->
+                <DataGridTextColumn Header="Folder Name"
+                            Binding="{Binding Name}"
+                            SortMemberPath="Name"
+                            Width="*"/>
+
+                <!-- Last Run -->
+                <DataGridTextColumn Header="Last Run"
+                            Binding="{Binding LastRun, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
+                            SortMemberPath="LastRun"
+                            Width="150"/>
+
+                <!-- Action Buttons -->
+                <DataGridTemplateColumn Header="Actions" IsReadOnly="True" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <!-- Run button -->
+                                <StackPanel.Resources>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Margin" Value="0,0,5,0"/>
+                                    </Style>
+                                </StackPanel.Resources>
+                                
+                                <Button Content="{materialDesign:PackIcon Kind=PlayCircleOutline}" 
+                                        ToolTip="Run"
+                                        Command="{Binding RunCommand}"/>
+                                <!-- Run as Admin -->
+                                <Button Command="{Binding RunAsCommand}" 
+                                        ToolTip="Run as Admin" 
+                                        Style="{StaticResource IconButtonStyle}" 
+                                        Content="{StaticResource CogPlayIcon}"/>
+                                <!-- Duplicate -->
+                                <Button Command="{Binding DuplicateCommand}" 
+                                        ToolTip="Duplicate" 
+                                        Style="{StaticResource IconButtonStyle}" 
+                                        Content="{StaticResource DuplicateIcon}"/>
+                                <!-- Delete -->
+                                <Button Command="{Binding DeleteCommand}" 
+                                        ToolTip="Delete"
+                                        Style="{StaticResource IconButtonStyle}" 
+                                        Content="{StaticResource DeleteIcon}"/>
+                                <!-- Open folder -->
+                                <Button Command="{Binding OpenFolderCommand}" 
+                                        ToolTip="Open Folder" 
+                                        Style="{StaticResource IconButtonStyle}"
+                                        Content="{StaticResource FolderEyeIcon}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+            <!-- RowDetails for sub-grid -->
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <!-- Sub-DataGrid showing the files -->
+                    <DataGrid ItemsSource="{Binding Files}"
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    HeadersVisibility="Column"
+                    Margin="30,0,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Filename" Binding="{Binding FileName}" Width="*" />
+                            <DataGridTextColumn Header="Modified" Binding="{Binding LastModified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="200"/>
+                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+
+        </DataGrid>
+    </Grid>
+</Window>
