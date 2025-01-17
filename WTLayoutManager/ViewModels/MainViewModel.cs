@@ -87,11 +87,18 @@ namespace WTLayoutManager.ViewModels
             // e.g. Terminal name, path, or ID
             //return new List<object> { "Windows Terminal (Default)", "Another Terminal" };
             _terminalDict = _terminalService.FindAllTerminals();
-            return _terminalDict.Select(kvp => new
+            if (_terminalDict != null)
             {
-                ImageSource = kvp.Value.LogoAbsoluteUri,
-                DisplayName = kvp.Key
-            }).ToList();
+                return _terminalDict.Select(kvp => new
+                {
+                    ImageSource = kvp.Value.LogoAbsoluteUri,
+                    DisplayName = kvp.Key
+                }).ToList();
+            }
+            else 
+            { 
+                return Enumerable.Empty<object>();
+            }
         }
     }
 }

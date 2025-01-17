@@ -62,14 +62,14 @@ namespace WTLayoutManager
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            if (!IsAdministrator())
-            {
-                // Attempt to restart the application with elevated privileges
-                RestartAsAdministrator();
-                // Shutdown the current instance
-                Shutdown();
-                return;
-            }
+            //if (!IsAdministrator())
+            //{
+            //    // Attempt to restart the application with elevated privileges
+            //    RestartAsAdministrator();
+            //    // Shutdown the current instance
+            //    Shutdown();
+            //    return;
+            //}
 
             base.OnStartup(e);
             var mainWindow = new MainWindow();

@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Windows.Management.Deployment;

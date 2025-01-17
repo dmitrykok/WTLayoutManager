@@ -1,30 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using Windows.Management.Deployment;
+using System.Diagnostics;
+using System.Windows;
+using System.IO;
+using System.IO.MemoryMappedFiles;
 
 namespace WTLayoutManager.Services
 {
     internal class TerminalService : ITerminalService
     {
         private Dictionary<string, TerminalInfo>? _packages;
-        private Dictionary<string, TerminalInfo> Packages
+        private Dictionary<string, TerminalInfo>? Packages
         {
             get
             {
-                _packages ??= TerminalPackages.FindInstalledTerminals();
-                var packages = _packages.ToDictionary(entry => entry.Key, entry => entry.Value.Clone());
-                return packages;
+                string mapName = "WTMmf_" + Guid.NewGuid().ToString();
+                const long mapSize = 1024 * 1024; // e.g. 1 MB
+
+                using (var mmf = MemoryMappedFile.CreateNew(mapName, mapSize))
+                {
+                    StartAdminProcess(mapName);
+
+                    using (var accessor = mmf.CreateViewAccessor(0, mapSize, MemoryMappedFileAccess.Read))
+                    {
+                        // We'll read from offset 0 until we hit a zero byte or the end.
+                        byte[] buffer = new byte[mapSize];
+                        accessor.ReadArray(0, buffer, 0, buffer.Length);
+
+                        // Convert to string
+                        int stringLength = 0;
+                        while (stringLength < buffer.Length && buffer[stringLength] != 0)
+                        {
+                            stringLength++;
+                        }
+
+                        string jsonString = Encoding.UTF8.GetString(buffer, 0, stringLength);
+
+                        // Deserialize the JSON
+                        if (!string.IsNullOrEmpty(jsonString))
+                        {
+                            var _packages = JsonSerializer.Deserialize<Dictionary<string, TerminalInfo>>(jsonString);
+                            // Console.WriteLine("Received {0} TerminalInfo items.", _packages?.Count ?? 0);
+                            return _packages;
+                            // Do something with the data
+                            // ...
+                        }
+                        else
+                        {
+                            MessageBox.Show(
+                                "No Terminal Packages data received.",
+                                "WTLayout Manager",
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    }
+                    return null;
+                }
             }
         }
 
-        public Dictionary<string, TerminalInfo> FindAllTerminals()
+        public Dictionary<string, TerminalInfo>? FindAllTerminals()
         {
             return Packages;
+        }
+
+        private void StartAdminProcess(string mapName)
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = "WTerminalPackages.exe",
+                UseShellExecute = true,
+                Verb = "runas",
+                CreateNoWindow = true,
+                Arguments = mapName,
+                WorkingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager", "bin"),
+            };
+
+            try
+            {
+                Process? proc = Process.Start(startInfo);
+                if (proc == null)
+                {
+                    MessageBox.Show(
+                        "Failed to start the admin process.",
+                        "WTLayout Manager",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    // Optionally store 'proc' if you want to do 'WaitForExit()' or check exit codes
+                    proc.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Error starting admin process: {ex.Message}",
+                    "WTLayout Manager",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }
