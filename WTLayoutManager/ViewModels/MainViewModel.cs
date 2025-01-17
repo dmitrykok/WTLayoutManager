@@ -6,12 +6,18 @@ using WTLayoutManager.Services;
 
 namespace WTLayoutManager.ViewModels
 {
+    public class TerminalListItem
+    {
+        public string ImageSource { get; set; }
+        public string DisplayName { get; set; }
+    }
+
     public class MainViewModel : BaseViewModel
     {
         private readonly ITerminalService _terminalService;
         Dictionary<string, TerminalInfo>? _terminalDict;
         private string _searchText;
-        private object _selectedTerminal;
+        private TerminalListItem _selectedTerminal;
 
         public MainViewModel()
         {
@@ -27,12 +33,12 @@ namespace WTLayoutManager.ViewModels
             FoldersView.Filter = FilterFolders;
 
             // Example of loading the folders
-            LoadFolders();
+            // LoadFolders();
         }
 
         public ObservableCollection<object> Terminals { get; }
 
-        public object SelectedTerminal
+        public TerminalListItem SelectedTerminal
         {
             get => _selectedTerminal;
             set
@@ -41,7 +47,7 @@ namespace WTLayoutManager.ViewModels
                 {
                     _selectedTerminal = value;
                     OnPropertyChanged();
-                    // Potentially reload folders if needed
+                    LoadFolders();
                 }
             }
         }
@@ -77,19 +83,15 @@ namespace WTLayoutManager.ViewModels
 
         private void LoadFolders()
         {
-            // Example: read directories from "C:\Users\<User>\AppData\Local\Packages\WTLayoutManager\LocalStates"
-            // For each folder, create a FolderViewModel and add to Folders
+            var selectedTerminal = _terminalDict[SelectedTerminal.DisplayName];
         }
 
-        private IEnumerable<object> LoadInstalledTerminals()
+        private IEnumerable<TerminalListItem> LoadInstalledTerminals()
         {
-            // Return a list or array of some objects representing installed terminals
-            // e.g. Terminal name, path, or ID
-            //return new List<object> { "Windows Terminal (Default)", "Another Terminal" };
             _terminalDict = _terminalService.FindAllTerminals();
             if (_terminalDict != null)
             {
-                return _terminalDict.Select(kvp => new
+                return _terminalDict.Select(kvp => new TerminalListItem
                 {
                     ImageSource = kvp.Value.LogoAbsoluteUri,
                     DisplayName = kvp.Key
@@ -97,7 +99,7 @@ namespace WTLayoutManager.ViewModels
             }
             else 
             { 
-                return Enumerable.Empty<object>();
+                return Enumerable.Empty<TerminalListItem>();
             }
         }
     }
