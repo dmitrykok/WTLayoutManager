@@ -41,23 +41,31 @@
         <!-- Main DataGrid -->
         <DataGrid Grid.Row="2" 
               ItemsSource="{Binding FoldersView}"
+              RowDetailsVisibilityMode="VisibleWhenSelected"
               AutoGenerateColumns="False"
               IsReadOnly="True"
               SelectionMode="Single"
-              CanUserSortColumns="True"
-              RowDetailsVisibilityMode="Collapsed">
+              CanUserSortColumns="True">
 
             <!-- Sortable columns: +/-, folder name, last run, buttons -->
             <DataGrid.Columns>
                 <!-- Expand/Collapse column -->
-                <DataGridTemplateColumn Header="#" IsReadOnly="True" Width="40">
+                <DataGridTemplateColumn Header=" #" 
+                                        IsReadOnly="True" 
+                                        Width="50" 
+                                        MinWidth="50" 
+                                        MaxWidth="50" 
+                                        CanUserReorder="False" 
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <!-- We'll bind a property like IsExpanded, or use an event to toggle row details -->
-                            <!-- For simplicity, you might show a Button or TextBlock with + or - -->
-                            <Button Content="{Binding SomeExpandCollapseIndicator}"
-                      Command="{Binding SomeExpandCollapseCommand}"
-                      Width="30" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button FontWeight="ExtraBold" Content="{Binding ExpandCollapseIndicator}"
+                                        Command="{Binding ToggleExpandCollapseCommand}"
+                                        Width="30"
+                                        Margin="0,0,-5,0"
+                                        Padding="0,0,0,0"/>
+                            </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -66,7 +74,14 @@
                 <DataGridTextColumn Header="Folder Name"
                             Binding="{Binding Name}"
                             SortMemberPath="Name"
-                            Width="*"/>
+                            Width="*" >
+                    <!--DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding Path}" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.CellStyle-->
+                </DataGridTextColumn>
 
                 <!-- Last Run -->
                 <DataGridTextColumn Header="Last Run"
@@ -75,40 +90,48 @@
                             Width="150"/>
 
                 <!-- Action Buttons -->
-                <DataGridTemplateColumn Header="Actions" IsReadOnly="True" Width="200">
+                <DataGridTemplateColumn Header="Actions" 
+                                        IsReadOnly="True" 
+                                        Width="160" 
+                                        MinWidth="160" 
+                                        MaxWidth="160" 
+                                        CanUserResize="False" 
+                                        CanUserReorder="False" 
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <!-- Run button -->
-                                <StackPanel.Resources>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Margin" Value="0,0,5,0"/>
-                                    </Style>
-                                </StackPanel.Resources>
-                                
                                 <Button Content="{materialDesign:PackIcon Kind=PlayCircleOutline}" 
-                                        ToolTip="Run"
-                                        Command="{Binding RunCommand}"/>
+                                        Command="{Binding RunCommand}"
+                                        ToolTip="Run" 
+                                        Margin="0,0,0,0" 
+                                        Padding="5,0,5,0" />
                                 <!-- Run as Admin -->
-                                <Button Command="{Binding RunAsCommand}" 
+                                <Button Content="{materialDesign:PackIcon Kind=ShieldCrownOutline}" 
+                                        Command="{Binding RunAsCommand}"
                                         ToolTip="Run as Admin" 
-                                        Style="{StaticResource IconButtonStyle}" 
-                                        Content="{StaticResource CogPlayIcon}"/>
+                                        Margin="0,0,0,0" 
+                                        Padding="5,0,5,0" />
                                 <!-- Duplicate -->
-                                <Button Command="{Binding DuplicateCommand}" 
+                                <Button Content="{materialDesign:PackIcon Kind=ContentDuplicate}"
+                                        Command="{Binding DuplicateCommand}" 
                                         ToolTip="Duplicate" 
-                                        Style="{StaticResource IconButtonStyle}" 
-                                        Content="{StaticResource DuplicateIcon}"/>
+                                        Margin="0,0,0,0" 
+                                        Padding="5,0,5,0" />
                                 <!-- Delete -->
-                                <Button Command="{Binding DeleteCommand}" 
-                                        ToolTip="Delete"
-                                        Style="{StaticResource IconButtonStyle}" 
-                                        Content="{StaticResource DeleteIcon}"/>
+                                <Button Content="{materialDesign:PackIcon Kind=TrashCanOutline}"
+                                        Command="{Binding DeleteCommand}"
+                                        IsEnabled="{Binding CanDelete}"
+                                        ToolTip="Delete" 
+                                        Margin="0,0,0,0" 
+                                        Padding="5,0,5,0" />
                                 <!-- Open folder -->
-                                <Button Command="{Binding OpenFolderCommand}" 
-                                        ToolTip="Open Folder" 
-                                        Style="{StaticResource IconButtonStyle}"
-                                        Content="{StaticResource FolderEyeIcon}"/>
+                                <Button Content="{materialDesign:PackIcon Kind=FolderEyeOutline}"
+                                        Command="{Binding OpenFolderCommand}" 
+                                        ToolTip="{Binding Path}" 
+                                        Margin="0,0,0,0" 
+                                        Padding="5,0,5,0" />
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -120,14 +143,16 @@
                 <DataTemplate>
                     <!-- Sub-DataGrid showing the files -->
                     <DataGrid ItemsSource="{Binding Files}"
-                    AutoGenerateColumns="False"
-                    CanUserAddRows="False"
-                    HeadersVisibility="Column"
-                    Margin="30,0,0,0">
+                            Visibility="{Binding IsExpanded}"
+                            AutoGenerateColumns="False"
+                            CanUserAddRows="False"
+                            HeadersVisibility="Column"
+                            IsReadOnly="True"
+                            Margin="30,0,0,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Filename" Binding="{Binding FileName}" Width="*" />
-                            <DataGridTextColumn Header="Modified" Binding="{Binding LastModified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="200"/>
-                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="80"/>
+                            <DataGridTextColumn Header="Filename" Binding="{Binding FileName}" Width="Auto" />
+                            <DataGridTextColumn Header="Modified" Binding="{Binding LastModified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="Auto"/>
+                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="Auto"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DataTemplate>

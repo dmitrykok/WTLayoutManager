@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
+using System.IO;
 using System.Windows.Data;
+using WTLayoutManager.Models;
 using WTLayoutManager.Services;
 
 namespace WTLayoutManager.ViewModels
@@ -83,7 +84,137 @@ namespace WTLayoutManager.ViewModels
 
         private void LoadFolders()
         {
-            var selectedTerminal = _terminalDict[SelectedTerminal.DisplayName];
+            // 1) Clear existing folder view-models
+            Folders.Clear();
+
+            // 2) Guard clauses: if dictionary or selection is null, do nothing
+            if (_terminalDict == null || SelectedTerminal == null)
+                return;
+
+            // 3) Cast or access the DisplayName from SelectedTerminal
+            //    (assuming you changed SelectedTerminal to be strongly typed with .DisplayName)
+            var key = (SelectedTerminal as TerminalListItem)?.DisplayName;
+            if (string.IsNullOrEmpty(key))
+                return;
+
+            // 4) Get the TerminalInfo from the dictionary
+            if (!_terminalDict.TryGetValue(key, out TerminalInfo terminalInfo))
+                return; // no match
+
+            // 5) Suppose you have "folders" or some property inside TerminalInfo that
+            //    lists the "LocalState" folders. We iterate over them and create FolderViewModels.
+            //    If TerminalInfo doesn't have that, adapt the logic accordingly.
+            //    This is just an example:
+
+            LoadFoldersForTerminal(terminalInfo);
+        }
+
+        private void LoadFoldersForTerminal(TerminalInfo info)
+        {
+            // Clear any existing items from Folders before re-populating
+            Folders.Clear();
+
+            // 1) Default LocalState folder path
+            //    Example: %LOCALAPPDATA%\Packages\<familyName>\LocalState
+            string defaultFolderPath = Path.Combine(
+                Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Packages"),
+                info.FamilyName,
+                "LocalState");
+
+            // Create a FolderModel for the default folder
+            var defaultFolderModel = CreateFolderModel(
+                folderPath: defaultFolderPath,
+                folderName: "LocalState (Default)", // or just "LocalState"
+                isDefault: true);
+
+            // Convert the FolderModel into FolderViewModel and add to Folders collection
+            Folders.Add(new FolderViewModel(defaultFolderModel, this));
+
+            // 2) Virtual/“custom” LocalState folders
+            //    Located under: %LOCALAPPDATA%\WTLayoutManager\<familyName>
+            //    Each subfolder is effectively a "LocalState" copy
+            string customBasePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "WTLayoutManager",
+                info.FamilyName);
+
+            if (Directory.Exists(customBasePath))
+            {
+                // For each subfolder, treat it as a "LocalState" copy
+                foreach (string subDir in Directory.GetDirectories(customBasePath))
+                {
+                    // We'll use the subfolder name for display, or you might store a separate metadata file
+                    string folderName = Path.GetFileName(subDir);
+
+                    var customFolderModel = CreateFolderModel(
+                        folderPath: subDir,
+                        folderName: folderName,
+                        isDefault: false);
+
+                    // Add
+                    Folders.Add(new FolderViewModel(customFolderModel, this));
+                }
+            }
+
+            // Done. Now Folders contains the default folder + any custom copies.
+            // The DataGrid or whatever UI is bound to FoldersView (GetDefaultView(Folders)) 
+            // and should refresh automatically.
+        }
+
+        private FolderModel CreateFolderModel(string folderPath, string folderName, bool isDefault)
+        {
+            var model = new FolderModel
+            {
+                Name = folderName,
+                Path = folderPath,
+                IsDefault = isDefault,
+                Files = new List<FileModel>() // we’ll populate below
+            };
+
+            // We only care about these 3 possible files:
+            var interestingFiles = new[] { "state.json", "elevated-state.json", "settings.json" };
+
+            // Populate the list of FileModel if files exist
+            foreach (string fileName in interestingFiles)
+            {
+                string fullPath = Path.Combine(folderPath, fileName);
+                if (File.Exists(fullPath))
+                {
+                    var fi = new FileInfo(fullPath);
+                    model.Files.Add(new FileModel
+                    {
+                        FileName = fi.Name,
+                        LastModified = fi.LastWriteTime,
+                        Size = fi.Length
+                    });
+                }
+            }
+
+            // Optionally, fill model.LastRun if you have logic to track that
+            // model.LastRun = ...
+
+            return model;
+        }
+
+        public void CollapseAllExcept(FolderViewModel keepOpen)
+        {
+            foreach (var fvm in Folders)
+            {
+                if (fvm != keepOpen)
+                {
+                    fvm.IsExpanded = "Collapsed";
+                }
+            }
+        }
+
+        private List<string> FindLocalStateFolders(TerminalInfo info)
+        {
+            // Example stub: however you discover "LocalState" folders
+            // For instance, you could look in info.InstalledLocationPath,
+            // or maybe you stored them in info.LocalStateFiles, etc.
+
+            // For now, assume info.LocalStateFiles has the full paths
+            return info.LocalStateFiles;
         }
 
         private IEnumerable<TerminalListItem> LoadInstalledTerminals()

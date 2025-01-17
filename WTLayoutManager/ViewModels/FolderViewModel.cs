@@ -5,17 +5,64 @@ namespace WTLayoutManager.ViewModels
 {
     public class FolderViewModel : BaseViewModel
     {
+        private string _isExpanded = "Collapsed";
         private readonly FolderModel _folder;
+        private readonly MainViewModel _parentViewModel;
 
-        public FolderViewModel(FolderModel folder)
+        public FolderViewModel(FolderModel folder, MainViewModel parentViewModel)
         {
             _folder = folder;
+            _parentViewModel = parentViewModel;
             // Initialize commands
             RunCommand = new RelayCommand(ExecuteRun);
             RunAsCommand = new RelayCommand(ExecuteRunAs);
             DuplicateCommand = new RelayCommand(ExecuteDuplicate);
             DeleteCommand = new RelayCommand(ExecuteDelete);
             OpenFolderCommand = new RelayCommand(ExecuteOpenFolder);
+            // ToggleExpandCollapseCommand = new RelayCommand(_ => OnToggleExpandCollapse());
+        }
+
+        public string IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded != value)
+                {
+                    _isExpanded = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ExpandCollapseIndicator));
+                }
+            }
+        }
+
+        public string ExpandCollapseIndicator
+        {
+            get => IsExpanded == "Collapsed" ? "+" : "-";
+        }
+
+        // We'll also add a command to toggle IsExpanded:
+        private ICommand _toggleExpandCollapseCommand;
+        public ICommand ToggleExpandCollapseCommand
+        {
+            get
+            {
+                return _toggleExpandCollapseCommand ??= new RelayCommand(_ =>
+                {
+                    // Let's assume we have a reference to MainViewModel or a callback
+                    // to collapse other rows. For instance:
+                    _parentViewModel.CollapseAllExcept(this);
+
+                    if (IsExpanded == "Collapsed")
+                    {
+                        IsExpanded = "Visible";
+                    }
+                    else
+                    {
+                        IsExpanded = "Collapsed";
+                    }
+                });
+            }
         }
 
         public string Name
@@ -31,7 +78,21 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        public string Path
+        {
+            get => _folder.Path;
+            set
+            {
+                if (_folder.Path != value)
+                {
+                    _folder.Path = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool IsDefault => _folder.IsDefault;
+        public bool CanDelete => !_folder.IsDefault;
 
         public DateTime? LastRun
         {
