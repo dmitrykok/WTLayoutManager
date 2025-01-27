@@ -24,7 +24,7 @@ namespace WTLayoutManager.ViewModels
         {
             // Load installed terminals
             _terminalService = new TerminalService();
-            Terminals = new ObservableCollection<object>(LoadInstalledTerminals());
+            Terminals = new ObservableCollection<TerminalListItem>(LoadInstalledTerminals());
 
             // Create the main collection of FolderViewModels
             Folders = new ObservableCollection<FolderViewModel>();
@@ -37,7 +37,7 @@ namespace WTLayoutManager.ViewModels
             // LoadFolders();
         }
 
-        public ObservableCollection<object> Terminals { get; }
+        public ObservableCollection<TerminalListItem> Terminals { get; }
 
         public TerminalListItem SelectedTerminal
         {
@@ -93,7 +93,7 @@ namespace WTLayoutManager.ViewModels
 
             // 3) Cast or access the DisplayName from SelectedTerminal
             //    (assuming you changed SelectedTerminal to be strongly typed with .DisplayName)
-            var key = (SelectedTerminal as TerminalListItem)?.DisplayName;
+            var key = SelectedTerminal.DisplayName;
             if (string.IsNullOrEmpty(key))
                 return;
 
