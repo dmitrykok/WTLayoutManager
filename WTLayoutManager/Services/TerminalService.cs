@@ -36,7 +36,7 @@ namespace WTLayoutManager.Services
 
                         string jsonString = Encoding.UTF8.GetString(buffer, 0, stringLength);
 
-                        // Deserialize the JSON
+                        // De-serialize the JSON
                         if (!string.IsNullOrEmpty(jsonString))
                         {
                             var _packages = JsonSerializer.Deserialize<Dictionary<string, TerminalInfo>>(jsonString);
