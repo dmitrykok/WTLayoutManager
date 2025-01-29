@@ -70,6 +70,8 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        public Dictionary<string, TerminalInfo>? TerminalDict { get => _terminalDict; set => _terminalDict = value; }
+
         private bool FilterFolders(object item)
         {
             if (string.IsNullOrWhiteSpace(SearchText)) return true;
@@ -88,12 +90,12 @@ namespace WTLayoutManager.ViewModels
             Folders.Clear();
 
             // 2) Guard clauses: if dictionary or selection is null, do nothing
-            if (_terminalDict == null || SelectedTerminal == null)
+            if (_terminalDict == null || _selectedTerminal == null)
                 return;
 
             // 3) Cast or access the DisplayName from SelectedTerminal
             //    (assuming you changed SelectedTerminal to be strongly typed with .DisplayName)
-            var key = SelectedTerminal.DisplayName;
+            var key = _selectedTerminal.DisplayName;
             if (string.IsNullOrEmpty(key))
                 return;
 
@@ -202,7 +204,7 @@ namespace WTLayoutManager.ViewModels
             {
                 if (fvm != keepOpen)
                 {
-                    fvm.IsExpanded = "Collapsed";
+                    fvm.IsExpanded = false;
                 }
             }
         }
