@@ -119,7 +119,8 @@ namespace WTLayoutManager.ViewModels
             // 1) Default LocalState folder path
             //    Example: %LOCALAPPDATA%\Packages\<familyName>\LocalState
             string defaultFolderPath = Path.Combine(
-                Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Packages"),
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Packages",
                 info.FamilyName,
                 "LocalState");
 

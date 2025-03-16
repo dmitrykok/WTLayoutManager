@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalPackages", "Termina
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WTerminalPackages", "WTerminalPackages\WTerminalPackages.csproj", "{C092E7CD-9C79-44DC-A640-CE9517FAF97F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalRedirect", "TerminalRedirect\TerminalRedirect.csproj", "{43EA781F-FA9F-411D-A918-A88374D5E15C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalLauncher", "TerminalLauncher\TerminalLauncher.csproj", "{E4BBB0BC-5DE9-4A79-8765-9F81FB0AF3DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{C092E7CD-9C79-44DC-A640-CE9517FAF97F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C092E7CD-9C79-44DC-A640-CE9517FAF97F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C092E7CD-9C79-44DC-A640-CE9517FAF97F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43EA781F-FA9F-411D-A918-A88374D5E15C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43EA781F-FA9F-411D-A918-A88374D5E15C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43EA781F-FA9F-411D-A918-A88374D5E15C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43EA781F-FA9F-411D-A918-A88374D5E15C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4BBB0BC-5DE9-4A79-8765-9F81FB0AF3DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4BBB0BC-5DE9-4A79-8765-9F81FB0AF3DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4BBB0BC-5DE9-4A79-8765-9F81FB0AF3DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4BBB0BC-5DE9-4A79-8765-9F81FB0AF3DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,11 +10,15 @@ namespace WTLayoutManager.ViewModels
     {
         private readonly FolderModel _folder;
         private readonly MainViewModel _parentViewModel;
+        private readonly string _localAppRoot;
+        private readonly string _localAppBin;
 
         public FolderViewModel(FolderModel folder, MainViewModel parentViewModel)
         {
             _folder = folder;
             _parentViewModel = parentViewModel;
+            _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
+            _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
             // Initialize commands
             RunCommand = new RelayCommand(ExecuteRun);
             RunAsCommand = new RelayCommand(ExecuteRunAs);
@@ -139,15 +143,30 @@ namespace WTLayoutManager.ViewModels
                             fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
                         }
 
+                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                        string batchPath = System.IO.Path.Combine(
+                            System.IO.Path.GetTempPath(),
+                            $"{System.IO.Path.GetFileName(Path)}_{timestamp}_WTLM_LaunchWithEnv.cmd"
+                        );
+                        File.WriteAllText(
+                            batchPath,
+                            $"@ECHO ON\r\n" +
+                            $"SETLOCAL\r\n" +
+                            $"SET WT_BASE_SETTINGS_PATH={Path}\r\n" +
+                            $"START \"\" \"{fileName}\"\r\n" +
+                            $"DEL \"%~f0\""
+                        );  // fileName is the real exe you want to run
+
                         var psi = new ProcessStartInfo
                         {
-                            FileName = fileName,
+                            FileName = batchPath,
                             WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                            //Arguments = $"--title \"{Name}\" --settings \"{Path}\\settings.json\"",
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            CreateNoWindow = true,
                             UseShellExecute = true           // must be true for normal user run
                         };
 
-                        Process.Start(psi);
+                        var ps = Process.Start(psi);
                     }
                 }
             }
@@ -164,35 +183,62 @@ namespace WTLayoutManager.ViewModels
         {
             try
             {
-                // Similar approach, but specify Verb="runas" to request admin privileges
+                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
+                //    Typically, you'd do something like:
+                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
+                //    But since we have multiple terminals, let's assume we
+                //    can retrieve the relevant one from the parent's _terminalDict
+                //    keyed by the parent's SelectedTerminal.
+
+                // As an example:
                 if (_parentViewModel.TerminalDict != null &&
                     _parentViewModel.SelectedTerminal != null)
                 {
                     var key = _parentViewModel.SelectedTerminal.DisplayName;
                     if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
                     {
+                        // 2) Compose the command line to run Windows Terminal
+                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
+                        //    If you want a custom config path, you might do:
+                        //       wt.exe --settings {Path}\settings.json
+                        //    Or pass the folder as a starting directory, etc.
                         var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wt.exe");
                         if (!File.Exists(fileName))
                         {
                             fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
                         }
 
+                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                        string batchPath = System.IO.Path.Combine(
+                            System.IO.Path.GetTempPath(),
+                            $"{System.IO.Path.GetFileName(Path)}_{timestamp}_WTLM_LaunchWithEnv.cmd"
+                        );
+                        File.WriteAllText(
+                            batchPath,
+                            $"@ECHO ON\r\n" +
+                            $"SETLOCAL\r\n" +
+                            $"SET WT_BASE_SETTINGS_PATH={Path}\r\n" +
+                            $"START \"\" \"{fileName}\"\r\n" +
+                            $"DEL \"%~f0\""
+                        );  // fileName is the real exe you want to run
+
                         var psi = new ProcessStartInfo
                         {
-                            FileName = fileName,
+                            FileName = batchPath,
                             WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                            //Arguments = $"--title \"{Name}\" --settings \"{Path}\\settings.json\"",
-                            UseShellExecute = true,
-                            Verb = "runas" // triggers UAC prompt
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            CreateNoWindow = true,
+                            UseShellExecute = true,           // must be true for normal user run
+                            Verb = "runas"
                         };
 
-                        Process.Start(psi);
+                        var ps = Process.Start(psi);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to run terminal as admin.\n{ex.Message}",
+                MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
                                 "WTLayoutManager",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Error);
