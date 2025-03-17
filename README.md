@@ -28,9 +28,9 @@
 
 ### Installation
 
-1. [install certificate]().
-2. [install msixbundle](https://github.com/dmitrykok/WTLayoutManager/releases/download/1.0.30.0/WTLayoutManagerBundle_1.0.30.0_x86_x64_arm64.msixbundle)
-3. Verify that the .NET runtime is installed on your system.
+1. Verify that the .NET runtime is installed on your system.
+2. [install certificate](https://github.com/dmitrykok/WTLayoutManager/releases/download/1.0.30.0/WTLayoutManagerBundle_1.0.30.0_x86_x64_arm64.cer).
+3. [install msixbundle](https://github.com/dmitrykok/WTLayoutManager/releases/download/1.0.30.0/WTLayoutManagerBundle_1.0.30.0_x86_x64_arm64.msixbundle)
 4. Run the executable application.
 
 ### Usage
