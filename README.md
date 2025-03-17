@@ -4,6 +4,10 @@
 
 **Windows Terminal Layout Manager** is an advanced yet user-friendly application designed to simplify and streamline the management of your Windows Terminal sessions. Effortlessly save, restore, and dynamically manage multiple terminal layouts, ensuring a smooth and consistent workflow.
 
+![image](https://github.com/user-attachments/assets/ce798699-c899-41f4-a8b3-6eb5f06109c0)
+
+![image](https://github.com/user-attachments/assets/857020e7-5733-4e6f-bbd9-b6e7e0fc31d5)
+
 ---
 
 ## Key Features
