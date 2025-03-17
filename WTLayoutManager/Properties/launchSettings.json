@@ -2,7 +2,6 @@
   "profiles": {
     "WTLayoutManager": {
       "commandName": "Project",
-      "workingDirectory": "C:\\Users\\dmitr\\AppData\\Local\\WTLayoutManager\\bin",
       "nativeDebugging": true
     }
   }

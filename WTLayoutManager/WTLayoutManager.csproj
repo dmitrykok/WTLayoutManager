@@ -6,12 +6,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\WindowsTerminalLayoutManager.ico</ApplicationIcon>
     <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
+    <PackageIcon>WindowsTerminalLayoutManager.PNG</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Resources\Logo.ico" />
+    <Content Include="Resources\WindowsTerminalLayoutManager.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,10 +42,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Update="Resources\WindowsTerminalLayoutManager.PNG">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /S /Y &quot;$(TargetDir)*.*&quot; &quot;C:\Users\dmitr\AppData\Local\WTLayoutManager\bin&quot;" />
-  </Target>
 
 </Project>

@@ -123,12 +123,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TerminalRedirect\TerminalRedirect.csproj">
-      <Project>{43ea781f-fa9f-411d-a918-a88374d5e15c}</Project>
-      <Name>TerminalRedirect</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="EasyHook32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

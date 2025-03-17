@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Reflection;
 
 namespace WTLayoutManager.Services
 {
@@ -73,7 +74,8 @@ namespace WTLayoutManager.Services
                 Verb = "runas",
                 CreateNoWindow = true,
                 Arguments = mapName,
-                WorkingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager", "bin"),
+                WorkingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+                //WorkingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager", "bin"),
             };
 
             try

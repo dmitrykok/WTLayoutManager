@@ -6,8 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Logo.ico</ApplicationIcon>
-    <PackageIcon>Logo.png</PackageIcon>
+    <ApplicationIcon>WindowsTerminalLayoutManager.ico</ApplicationIcon>
+    <PackageIcon>WindowsTerminalLayoutManager.PNG</PackageIcon>
     <Platforms>AnyCPU;x64;ARM64;x86</Platforms>
 	<Year>$([System.DateTime]::Now.ToString("yy"))</Year>
 	<Month>$([System.DateTime]::Now.ToString("MM"))</Month>
@@ -21,11 +21,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Logo.ico" />
+    <Content Include="WindowsTerminalLayoutManager.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TerminalPackages\TerminalPackages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="WindowsTerminalLayoutManager.PNG">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
