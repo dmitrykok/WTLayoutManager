@@ -1,0 +1,55 @@
+# Windows Terminal Layout Manager
+
+## Overview
+
+**Windows Terminal Layout Manager** is an advanced yet user-friendly application designed to simplify and streamline the management of your Windows Terminal sessions. Effortlessly save, restore, and dynamically manage multiple terminal layouts, ensuring a smooth and consistent workflow.
+
+---
+
+## Key Features
+
+- **Save & Restore Layouts**: Quickly capture your favorite terminal configurations and restore them with ease.
+- **Dynamic Management**: Adapt terminal layouts dynamically, perfect for evolving tasks and workflows.
+- **Support for Multiple Instances**: Run multiple independent Windows Terminal instances, each with distinct layout settings.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Windows Terminal
+- .NET Runtime
+- Administrator privileges (required for query installed windows terminals)
+
+### Installation
+
+1. TBD.
+2. Verify that the .NET runtime is installed on your system.
+3. Run the executable application.
+
+### Usage
+
+1. Open the Windows Terminal Layout Manager application.
+2. Set up and configure your desired terminal layouts.
+3. Save your layouts using the intuitive interface provided.
+4. Restore your saved layouts anytime by selecting them from the available options.
+
+---
+
+## License
+
+This project is released under the **MIT License**.
+
+---
+
+## Contributing
+
+Contributions are warmly welcomed! Please feel free to open an issue or submit a pull request.
+
+---
+
+## Support
+
+For any questions, feedback, or assistance, please open an issue on the project's GitHub repository.
+
