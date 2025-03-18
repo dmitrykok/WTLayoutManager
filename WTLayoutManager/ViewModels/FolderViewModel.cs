@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
-using System.Windows;
 using System.IO;
+using System.Reflection.Metadata;
+using System.Windows;
 using System.Windows.Input;
 using WTLayoutManager.Models;
+using WTLayoutManager.Services;
 
 namespace WTLayoutManager.ViewModels
 {
@@ -12,11 +14,13 @@ namespace WTLayoutManager.ViewModels
         private readonly MainViewModel _parentViewModel;
         private readonly string _localAppRoot;
         private readonly string _localAppBin;
+        private readonly IMessageBoxService _messageBoxService;
 
-        public FolderViewModel(FolderModel folder, MainViewModel parentViewModel)
+        public FolderViewModel(FolderModel folder, MainViewModel parentViewModel, IMessageBoxService messageBoxService)
         {
             _folder = folder;
             _parentViewModel = parentViewModel;
+            _messageBoxService = messageBoxService;
             _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
             _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
             // Initialize commands
@@ -25,7 +29,9 @@ namespace WTLayoutManager.ViewModels
             DuplicateCommand = new RelayCommand(ExecuteDuplicate);
             DeleteCommand = new RelayCommand(ExecuteDelete);
             OpenFolderCommand = new RelayCommand(ExecuteOpenFolder);
-            // ToggleExpandCollapseCommand = new RelayCommand(_ => OnToggleExpandCollapse());
+            EditFolderCommand = new RelayCommand(ExecuteEditFolderCommand);
+            ConfirmEditCommand = new RelayCommand(ExecuteConfirmEditCommand);
+            CancelEditCommand = new RelayCommand(ExecuteCancelEditCommand);
         }
 
         private bool _isExpanded = false;
@@ -68,7 +74,8 @@ namespace WTLayoutManager.ViewModels
             {
                 if (_folder.Name != value)
                 {
-                    _folder.Name = value;
+                    //_folder.Name = value;
+                    ExecuteDuplicateEx(null, value);
                     OnPropertyChanged();
                 }
             }
@@ -113,6 +120,9 @@ namespace WTLayoutManager.ViewModels
         public ICommand DuplicateCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand OpenFolderCommand { get; }
+        public ICommand EditFolderCommand { get; }
+        public ICommand ConfirmEditCommand { get; }
+        public ICommand CancelEditCommand { get; }
 
         private void ExecuteRun(object? parameter)
         {
@@ -172,10 +182,11 @@ namespace WTLayoutManager.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
-                                "WTLayoutManager",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
+                //                "WTLayoutManager",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
+                _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
 
@@ -238,15 +249,17 @@ namespace WTLayoutManager.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
-                                "WTLayoutManager",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
+                //                "WTLayoutManager",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
+                _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
 
+        private void ExecuteDuplicate(object? parameter) { ExecuteDuplicateEx(parameter, null); }
 
-        private void ExecuteDuplicate(object? parameter)
+        private void ExecuteDuplicateEx(object? parameter, string? exFolderName)
         {
             try
             {
@@ -256,9 +269,13 @@ namespace WTLayoutManager.ViewModels
                     var key = _parentViewModel.SelectedTerminal.DisplayName;
                     if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
                     {
-                        // 1) Build a new folder name, e.g. "LocalState_20230131_123456"
-                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                        string newFolderName = $"LocalState_{timestamp}";
+                        string? newFolderName = exFolderName;
+                        if (newFolderName == null)
+                        {
+                            // 1) Build a new folder name, e.g. "LocalState_20230131_123456"
+                            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                            newFolderName = $"LocalState_{timestamp}";
+                        }
 
                         // 2) The parent folder is e.g. %LOCALAPPDATA%\WTLayoutManager\<familyName>
                         //    But let's just assume we replicate the same directory structure as "Path"
@@ -306,17 +323,18 @@ namespace WTLayoutManager.ViewModels
                         }
 
                         // 5) Add it to the parent's Folders collection => new row in DataGrid
-                        var newFolderViewModel = new FolderViewModel(newFolderModel, _parentViewModel);
+                        var newFolderViewModel = new FolderViewModel(newFolderModel, _parentViewModel, _messageBoxService);
                         _parentViewModel.Folders.Add(newFolderViewModel);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to duplicate folder.\n{ex.Message}",
-                                "WTLayoutManager",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //MessageBox.Show($"Failed to duplicate folder.\n{ex.Message}",
+                //                "WTLayoutManager",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
+                _messageBoxService.ShowMessage($"Failed to duplicate folder.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
 
@@ -353,27 +371,32 @@ namespace WTLayoutManager.ViewModels
             {
                 if (IsDefault)
                 {
-                    MessageBox.Show("Cannot delete the default LocalState folder.",
-                                    "WTLayoutManager",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
+                    //MessageBox.Show("Cannot delete the default LocalState folder.",
+                    //                "WTLayoutManager",
+                    //                MessageBoxButton.OK,
+                    //                MessageBoxImage.Warning);
+                    _messageBoxService.ShowMessage("Cannot delete the default LocalState folder.", "Warning", DialogType.Warning);
                     return;
                 }
 
-                // Attempt to delete from disk
-                Directory.Delete(Path, true); // true => recursive
-                                              // If it's locked, an IOException or UnauthorizedAccessException might be thrown
+                if (_messageBoxService.Confirm($"Are you sure you want to delete '{Name}'?"))
+                {
+                    // Attempt to delete from disk
+                    Directory.Delete(Path, true); // true => recursive
+                                                  // If it's locked, an IOException or UnauthorizedAccessException might be thrown
 
-                // Remove it from the parent's Folders collection
-                _parentViewModel.Folders.Remove(this);
+                    // Remove it from the parent's Folders collection
+                    _parentViewModel.Folders.Remove(this);
+                }
             }
             catch (Exception ex)
             {
                 // Possibly the folder is locked (Terminal is running?), or permission error
-                MessageBox.Show($"Failed to delete folder.\n{ex.Message}",
-                                "WTLayoutManager",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //MessageBox.Show($"Failed to delete folder.\n{ex.Message}",
+                //                "WTLayoutManager",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
+                _messageBoxService.ShowMessage($"Failed to delete folder.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
 
@@ -393,12 +416,26 @@ namespace WTLayoutManager.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to open folder.\n{ex.Message}",
-                                "WTLayoutManager",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //MessageBox.Show($"Failed to open folder.\n{ex.Message}",
+                //                "WTLayoutManager",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
+                _messageBoxService.ShowMessage($"Failed to open folder.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
 
+        private void ExecuteEditFolderCommand(object? parameter)
+        {
+            // You need this property in your FolderViewModel
+        }
+
+        private void ExecuteConfirmEditCommand(object? parameter)
+        {
+            // You need this property in your FolderViewModel
+        }
+        private void ExecuteCancelEditCommand(object? parameter)
+        {
+            // You need this property in your FolderViewModel
+        }
     }
 }

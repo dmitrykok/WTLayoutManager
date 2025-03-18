@@ -10,6 +10,12 @@ namespace WTLayoutManager.Services
 {
     internal class TerminalService : ITerminalService
     {
+        public TerminalService(IMessageBoxService messageBoxService) 
+        {
+            _messageBoxService = messageBoxService;
+        }
+
+        private readonly IMessageBoxService _messageBoxService;
         private Dictionary<string, TerminalInfo>? _packages;
         private Dictionary<string, TerminalInfo>? Packages
         {
@@ -48,10 +54,11 @@ namespace WTLayoutManager.Services
                         }
                         else
                         {
-                            MessageBox.Show(
-                                "No Terminal Packages data received.",
-                                "WTLayout Manager",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            //MessageBox.Show(
+                            //    "No Terminal Packages data received.",
+                            //    "WTLayout Manager",
+                            //    MessageBoxButton.OK, MessageBoxImage.Warning);
+                            _messageBoxService.ShowMessage("No Terminal Packages data received.", "Warning", DialogType.Warning);
                         }
                     }
                     return null;
@@ -83,10 +90,11 @@ namespace WTLayoutManager.Services
                 Process? proc = Process.Start(startInfo);
                 if (proc == null)
                 {
-                    MessageBox.Show(
-                        "Failed to start the admin process.",
-                        "WTLayout Manager",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    //MessageBox.Show(
+                    //    "Failed to start the admin process.",
+                    //    "WTLayout Manager",
+                    //    MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _messageBoxService.ShowMessage("Failed to start the admin process.", "Warning", DialogType.Warning);
                 }
                 else
                 {
@@ -96,10 +104,11 @@ namespace WTLayoutManager.Services
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Error starting admin process: {ex.Message}",
-                    "WTLayout Manager",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                //MessageBox.Show(
+                //    $"Error starting admin process: {ex.Message}",
+                //    "WTLayout Manager",
+                //    MessageBoxButton.OK, MessageBoxImage.Warning);
+                _messageBoxService.ShowMessage($"Error starting admin process: {ex.Message}", "Error", DialogType.Error);
             }
         }
     }

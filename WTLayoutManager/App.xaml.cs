@@ -4,6 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Windows;
+using WTLayoutManager.Services;
 using WTLayoutManager.ViewModels;
 
 namespace WTLayoutManager
@@ -73,7 +74,7 @@ namespace WTLayoutManager
 
             base.OnStartup(e);
             var mainWindow = new MainWindow();
-            mainWindow.DataContext = new MainViewModel();
+            mainWindow.DataContext = new MainViewModel(new MessageBoxService());
             mainWindow.Show();
         }
     }
