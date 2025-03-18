@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="WT Layout Manager" Height="600" Width="800">
+        Title="WT Layout Manager" Height="600" Width="800"
+        xmlns:converters="clr-namespace:WTLayoutManager.Converters">
     
     <Window.Resources>
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
         <Style x:Key="MyCustomDataGridRowStyle"
                TargetType="DataGridRow"
                BasedOn="{StaticResource {x:Type DataGridRow}}">
@@ -47,18 +49,38 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <!-- Search Box -->
-        <TextBox Grid.Row="1"
-             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-             materialDesign:HintAssist.Hint="Search folders..."
-             Margin="0,0,0,5"/>
+        <!-- Search Box with Clear Button -->
+        <Grid Grid.Row="1" Margin="0,0,0,5">
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     materialDesign:HintAssist.Hint="Search folders..."
+                     x:Name="SearchTextBox"
+                     FontWeight="Bold"
+                     CaretBrush="Red"
+                     Foreground="White"
+                     Height="25"
+                     Padding="5,0,30,0"/>
+
+            <!-- Clear button -->
+            <Button Style="{StaticResource MaterialDesignIconButton}"
+                    Width="24"
+                    Height="24"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="0,0,5,0"
+                    Padding="0"
+                    ToolTip="Clear search"
+                    Command="{Binding ClearSearchCommand}"
+                    Visibility="{Binding Text.Length, ElementName=SearchTextBox, Converter={StaticResource IntToVisibilityConverter}}">
+                <materialDesign:PackIcon Kind="CloseBold"/>
+            </Button>
+        </Grid>
 
         <!-- Main DataGrid -->
         <DataGrid Grid.Row="2" 
               ItemsSource="{Binding FoldersView}"
               RowStyle="{StaticResource MyCustomDataGridRowStyle}"
               AutoGenerateColumns="False"
-              IsReadOnly="True"
+              IsReadOnly="False"
               SelectionMode="Single"
               CanUserSortColumns="True">
 
@@ -87,23 +109,52 @@
                 </DataGridTemplateColumn>
 
                 <!-- Folder Name -->
-                <DataGridTextColumn Header="Folder Name"
-                            Binding="{Binding Name}"
-                            SortMemberPath="Name"
-                            Width="*" >
-                    <!--DataGridTextColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="ToolTip" Value="{Binding Path}" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                        </Style>
-                    </DataGridTextColumn.CellStyle-->
-                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Folder Name" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center">
+                                <TextBlock.InputBindings>
+                                    <MouseBinding Gesture="LeftDoubleClick"
+                                                  Command="{Binding EditFolderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                  CommandParameter="{Binding}"/>
+                                </TextBlock.InputBindings>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+
+
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0" 
+                                         Cursor="Pen" 
+                                         Text="{Binding Name, UpdateSourceTrigger=Explicit}" 
+                                         VerticalAlignment="Center" 
+                                         x:Name="EditTextBox" 
+                                         Loaded="EditTextBox_Loaded"
+                                         FontWeight="Bold"
+                                         CaretBrush="Red"
+                                         Foreground="White"/>
+
+                                <Button Grid.Column="1" Content="✔" Click="ConfirmEdit_Click" Margin="2,0" Command="{Binding EditFolderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                <Button Grid.Column="2" Content="✖" Click="CancelEdit_Click" Margin="2,0" Command="{Binding EditFolderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
 
                 <!-- Last Run -->
                 <DataGridTextColumn Header="Last Run"
                             Binding="{Binding LastRun, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
                             SortMemberPath="LastRun"
-                            Width="150"/>
+                            Width="150"
+                            IsReadOnly="True"/>
 
                 <!-- Action Buttons -->
                 <DataGridTemplateColumn Header="Actions" 

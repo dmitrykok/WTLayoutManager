@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Data;
+using System.Windows.Input;
 using WTLayoutManager.Models;
 using WTLayoutManager.Services;
 
@@ -19,11 +20,13 @@ namespace WTLayoutManager.ViewModels
         Dictionary<string, TerminalInfo>? _terminalDict;
         private string _searchText;
         private TerminalListItem _selectedTerminal;
+        private readonly IMessageBoxService _messageBoxService;
 
-        public MainViewModel()
+        public MainViewModel(IMessageBoxService messageBoxService)
         {
+            _messageBoxService = messageBoxService;
             // Load installed terminals
-            _terminalService = new TerminalService();
+            _terminalService = new TerminalService(_messageBoxService);
             Terminals = new ObservableCollection<TerminalListItem>(LoadInstalledTerminals());
 
             // Create the main collection of FolderViewModels
@@ -35,6 +38,7 @@ namespace WTLayoutManager.ViewModels
 
             // Example of loading the folders
             // LoadFolders();
+            ClearSearchCommand = new RelayCommand(ExecuteClearSearchCommand);
         }
 
         public ObservableCollection<TerminalListItem> Terminals { get; }
@@ -68,6 +72,13 @@ namespace WTLayoutManager.ViewModels
                     FoldersView.Refresh();
                 }
             }
+        }
+
+        public ICommand ClearSearchCommand { get; }
+
+        private void ExecuteClearSearchCommand(object? parameter)
+        {
+            SearchText = string.Empty;
         }
 
         public Dictionary<string, TerminalInfo>? TerminalDict { get => _terminalDict; set => _terminalDict = value; }
@@ -131,7 +142,7 @@ namespace WTLayoutManager.ViewModels
                 isDefault: true);
 
             // Convert the FolderModel into FolderViewModel and add to Folders collection
-            Folders.Add(new FolderViewModel(defaultFolderModel, this));
+            Folders.Add(new FolderViewModel(defaultFolderModel, this, _messageBoxService));
 
             // 2) Virtual/“custom” LocalState folders
             //    Located under: %LOCALAPPDATA%\WTLayoutManager\<familyName>
@@ -155,7 +166,7 @@ namespace WTLayoutManager.ViewModels
                         isDefault: false);
 
                     // Add
-                    Folders.Add(new FolderViewModel(customFolderModel, this));
+                    Folders.Add(new FolderViewModel(customFolderModel, this, _messageBoxService));
                 }
             }
 
