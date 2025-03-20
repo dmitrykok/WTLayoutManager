@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Diagnostics;
-using System.Windows;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Reflection;

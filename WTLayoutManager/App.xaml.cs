@@ -48,7 +48,7 @@ namespace WTLayoutManager
                 };
                 Process.Start(startInfo);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // The user refused the elevation request or an error occurred
                 MessageBox.Show("The application requires administrator privileges to run.\n" +

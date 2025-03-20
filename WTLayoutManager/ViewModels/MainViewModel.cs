@@ -195,12 +195,22 @@ namespace WTLayoutManager.ViewModels
                 if (File.Exists(fullPath))
                 {
                     var fi = new FileInfo(fullPath);
+                    var tooltipProfiles = new ObservableCollection<ProfileInfo>(SettingsJsonParser.GetProfileInfos(fullPath));
+                    var tooltipVm = new SettingsJsonTooltipViewModel
+                    {
+                        Profiles = tooltipProfiles
+                    };
                     model.Files.Add(new FileModel
                     {
                         FileName = fi.Name,
                         LastModified = fi.LastWriteTime,
-                        Size = fi.Length
+                        Size = fi.Length,
+                        Profiles = tooltipVm
                     });
+                    if (model.LastRun == null && fileName == "state.json")
+                    {
+                        model.LastRun = fi.LastWriteTime;
+                    }
                 }
             }
 
