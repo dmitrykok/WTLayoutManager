@@ -45,13 +45,24 @@
         </DataTemplate>
         <!-- Template for a single tab's layout -->
         <DataTemplate x:Key="TabRowTemplate" DataType="{x:Type vm:TabStateViewModel}">
-            <Border BorderBrush="DarkGray" BorderThickness="1" Padding="2" Margin="2">
-                <controls:TabLayoutControl TabState="{Binding}" />
-            </Border>
+            <StackPanel Background="#FF323232" Margin="5">
+                <Border Background="#FF323232" BorderBrush="DarkGray" BorderThickness="1.5" Padding="2" Margin="2">
+                    <StackPanel>
+                        <!-- Display the tab title -->
+                        <TextBlock Text="{Binding TabTitle}" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,4" 
+                                   Foreground="{DynamicResource MaterialDesignBody}" />
+                        <Border Background="#FF323232" BorderBrush="DarkGray" BorderThickness="1.5" Padding="2" Margin="2">
+                            <controls:TabLayoutControl TabState="{Binding}" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </DataTemplate>
         <!-- Overall tooltip template: a vertical stack of tab rows -->
         <DataTemplate x:Key="StateTooltipTemplate" DataType="{x:Type vm:StateJsonTooltipViewModel}">
-            <StackPanel>
+            <StackPanel Background="#FF464646">
                 <ItemsControl ItemsSource="{Binding TabStates}" ItemTemplate="{StaticResource TabRowTemplate}" />
             </StackPanel>
         </DataTemplate>

@@ -57,8 +57,8 @@ namespace WTLayoutManager.Controls
                 // Create a visual for the pane
                 var border = new Border
                 {
-                    BorderBrush = Brushes.Gray,
-                    BorderThickness = new Thickness(0.5),
+                    BorderBrush = Brushes.DarkGray,
+                    BorderThickness = new Thickness(1.5),
                     Margin = new Thickness(1)
                 };
 
@@ -85,7 +85,7 @@ namespace WTLayoutManager.Controls
                     Text = pane.ProfileName,
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White,
-                    Background = Brushes.Black,
+                    //Background = Brushes.Black,
                     FontSize = 10
                 };
 

@@ -52,7 +52,11 @@ namespace WTLayoutManager.Services
                 if (action.Action.Equals("newTab", StringComparison.OrdinalIgnoreCase))
                 {
                     // Create a new tab.
-                    currentTab = new TabStateViewModel();
+                    currentTab = new TabStateViewModel
+                    {
+                        // Set the title from the action.
+                        TabTitle = action.TabTitle
+                    };
                     // First pane occupies full area.
                     var pane = new PaneViewModel
                     {
