@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Reflection.Metadata;
-using System.Windows;
 using System.Windows.Input;
 using WTLayoutManager.Models;
 using WTLayoutManager.Services;
@@ -319,6 +317,10 @@ namespace WTLayoutManager.ViewModels
                                     LastModified = fi.LastWriteTime,
                                     Size = fi.Length
                                 });
+                                if (newFolderModel.LastRun == null && fileName == "state.json")
+                                {
+                                    newFolderModel.LastRun = fi.LastWriteTime;
+                                }
                             }
                         }
 
