@@ -9,7 +9,7 @@ namespace WTLayoutManager.Services
 {
     public static class StateJsonParser
     {
-        public static StateJsonTooltipViewModel ParseState(string filePath)
+        public static StateJsonTooltipViewModel ParseState(string filePath, Dictionary<string, string> profileIcons)
         {
             var fileName = Path.GetFileName(filePath);
             if (!fileName.EndsWith("state.json"))
@@ -61,7 +61,7 @@ namespace WTLayoutManager.Services
                     var pane = new PaneViewModel
                     {
                         ProfileName = action.Profile,
-                        Icon = GetIconForProfile(action.Profile),
+                        Icon = GetIconForProfile(action.Profile, profileIcons),
                         X = 0,
                         Y = 0,
                         Width = 1,
@@ -87,7 +87,7 @@ namespace WTLayoutManager.Services
                         PaneViewModel newPane = new PaneViewModel
                         {
                             ProfileName = action.Profile,
-                            Icon = GetIconForProfile(action.Profile),
+                            Icon = GetIconForProfile(action.Profile, profileIcons),
                             SplitDirection = splitDir
                         };
 
@@ -261,9 +261,13 @@ namespace WTLayoutManager.Services
         /// <summary>
         /// A simple mapping from profile name to an icon path.
         /// </summary>
-        private static string GetIconForProfile(string profileName)
+        private static string GetIconForProfile(string profileName, Dictionary<string, string> profileIcons)
         {
             // In a real app, you might look up profile details from settings.json.
+            if (profileIcons.ContainsKey(profileName))
+            {
+                return profileIcons[profileName];
+            }
             return "pack://application:,,,/WTLayoutManager;component/Assets/cmd.png";
         }
     }
