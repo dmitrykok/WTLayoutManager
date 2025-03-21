@@ -6,6 +6,7 @@
         xmlns:converters="clr-namespace:WTLayoutManager.Converters"
         xmlns:services="clr-namespace:WTLayoutManager.Services"
         xmlns:vm="clr-namespace:WTLayoutManager.ViewModels"
+        xmlns:controls="clr-namespace:WTLayoutManager.Controls"
         Style="{StaticResource MaterialDesignWindow}"
         Title="WT Layout Manager" 
         Height="600" Width="800">
@@ -13,6 +14,7 @@
     <Window.Resources>
         <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
         <converters:SettingsJsonVisibilityConverter x:Key="SettingsJsonVisibilityConverter"/>
+        <converters:StateJsonVisibilityConverter x:Key="StateJsonVisibilityConverter"/>
         <Style x:Key="MyCustomDataGridRowStyle"
                TargetType="DataGridRow"
                BasedOn="{StaticResource {x:Type DataGridRow}}">
@@ -40,6 +42,18 @@
                     </ItemsControl>
                 </StackPanel>
             </Border>
+        </DataTemplate>
+        <!-- Template for a single tab's layout -->
+        <DataTemplate x:Key="TabRowTemplate" DataType="{x:Type vm:TabStateViewModel}">
+            <Border BorderBrush="DarkGray" BorderThickness="1" Padding="2" Margin="2">
+                <controls:TabLayoutControl TabState="{Binding}" />
+            </Border>
+        </DataTemplate>
+        <!-- Overall tooltip template: a vertical stack of tab rows -->
+        <DataTemplate x:Key="StateTooltipTemplate" DataType="{x:Type vm:StateJsonTooltipViewModel}">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding TabStates}" ItemTemplate="{StaticResource TabRowTemplate}" />
+            </StackPanel>
         </DataTemplate>
     </Window.Resources>
     
@@ -245,11 +259,20 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding FileName}" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding FileName}" VerticalAlignment="Center"
+                                                       Visibility="{Binding FileName, Converter={StaticResource SettingsJsonVisibilityConverter}}">
                                                 <TextBlock.ToolTip>
                                                     <ToolTip Content="{Binding Profiles}" 
                                                              ContentTemplate="{StaticResource ProfilesTooltipTemplate}"
                                                              Visibility="{Binding FileName, Converter={StaticResource SettingsJsonVisibilityConverter}}"/>
+                                                </TextBlock.ToolTip>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding FileName}" VerticalAlignment="Center"
+                                                       Visibility="{Binding FileName, Converter={StaticResource StateJsonVisibilityConverter}}">
+                                                <TextBlock.ToolTip>
+                                                    <ToolTip Content="{Binding TabStates}" 
+                                                             ContentTemplate="{StaticResource StateTooltipTemplate}"
+                                                             Visibility="{Binding FileName, Converter={StaticResource StateJsonVisibilityConverter}}"/>
                                                 </TextBlock.ToolTip>
                                             </TextBlock>
                                         </StackPanel>

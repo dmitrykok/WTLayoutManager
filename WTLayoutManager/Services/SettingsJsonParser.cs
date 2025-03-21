@@ -19,6 +19,9 @@ namespace WTLayoutManager.Services
     {
         public static IEnumerable<ProfileInfo> GetProfileInfos(string filePath)
         {
+            if (Path.GetFileName(filePath) != "settings.json")
+                yield break;
+
             if (!File.Exists(filePath))
                 yield break;
 

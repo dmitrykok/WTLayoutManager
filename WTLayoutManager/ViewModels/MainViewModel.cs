@@ -196,6 +196,7 @@ namespace WTLayoutManager.ViewModels
                 {
                     var fi = new FileInfo(fullPath);
                     var tooltipProfiles = new ObservableCollection<ProfileInfo>(SettingsJsonParser.GetProfileInfos(fullPath));
+                    var stateTooltipVm = StateJsonParser.ParseState(fullPath);
                     var tooltipVm = new SettingsJsonTooltipViewModel
                     {
                         Profiles = tooltipProfiles
@@ -205,7 +206,8 @@ namespace WTLayoutManager.ViewModels
                         FileName = fi.Name,
                         LastModified = fi.LastWriteTime,
                         Size = fi.Length,
-                        Profiles = tooltipVm
+                        Profiles = tooltipVm,
+                        TabStates = stateTooltipVm
                     });
                     if (model.LastRun == null && fileName == "state.json")
                     {
