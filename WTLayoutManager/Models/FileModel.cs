@@ -8,5 +8,6 @@ namespace WTLayoutManager.Models
         public DateTime LastModified { get; set; }
         public long Size { get; set; }
         public SettingsJsonTooltipViewModel Profiles { get; set; }
+        public StateJsonTooltipViewModel TabStates { get; set; }
     }
 }

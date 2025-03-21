@@ -175,6 +175,14 @@ namespace WTLayoutManager.ViewModels
             // and should refresh automatically.
         }
 
+        public static Dictionary<string, string> MapProfilesToIcons(ObservableCollection<ProfileInfo> profiles)
+        {
+            // Assumes each profile's ProfileName is unique.
+            return profiles
+                .GroupBy(p => p.ProfileName)
+                .ToDictionary(g => g.Key, g => g.First().IconPath);
+        }
+
         private FolderModel CreateFolderModel(string folderPath, string folderName, bool isDefault)
         {
             var model = new FolderModel
@@ -186,9 +194,10 @@ namespace WTLayoutManager.ViewModels
             };
 
             // We only care about these 3 possible files:
-            var interestingFiles = new[] { "state.json", "elevated-state.json", "settings.json" };
+            var interestingFiles = new[] { "settings.json", "state.json", "elevated-state.json" };
 
             // Populate the list of FileModel if files exist
+            var mapProfilesToIcons = new Dictionary<string, string>();
             foreach (string fileName in interestingFiles)
             {
                 string fullPath = Path.Combine(folderPath, fileName);
@@ -196,6 +205,9 @@ namespace WTLayoutManager.ViewModels
                 {
                     var fi = new FileInfo(fullPath);
                     var tooltipProfiles = new ObservableCollection<ProfileInfo>(SettingsJsonParser.GetProfileInfos(fullPath));
+                    if (mapProfilesToIcons.Count == 0)
+                        mapProfilesToIcons = MapProfilesToIcons(tooltipProfiles);
+                    var stateTooltipVm = StateJsonParser.ParseState(fullPath, mapProfilesToIcons);
                     var tooltipVm = new SettingsJsonTooltipViewModel
                     {
                         Profiles = tooltipProfiles
@@ -205,7 +217,8 @@ namespace WTLayoutManager.ViewModels
                         FileName = fi.Name,
                         LastModified = fi.LastWriteTime,
                         Size = fi.Length,
-                        Profiles = tooltipVm
+                        Profiles = tooltipVm,
+                        TabStates = stateTooltipVm
                     });
                     if (model.LastRun == null && fileName == "state.json")
                     {
