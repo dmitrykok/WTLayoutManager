@@ -9,14 +9,19 @@ namespace WTLayoutManager.Services
 {
     public static class StateJsonParser
     {
+        private class TabContext
+        {
+            public TabStateViewModel CurrentTab { get; set; }
+            public PaneViewModel CurrentFocusedPane { get; set; }
+            public List<TabStateViewModel> Tabs { get; } = new List<TabStateViewModel>();
+        }
+
         const double tolerance = 0.0001;
         // Define a delegate for the action handler:
-        public delegate void ActionHandlerDelegate(
+        private delegate void ActionHandlerDelegate(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
-            ref TabStateViewModel currentTab,
-            ref PaneViewModel currentFocusedPane,
-            List<TabStateViewModel> tabs);
+            TabContext context);
         // Build a dictionary mapping normalized action names to the handlers:
         static Dictionary<string, ActionHandlerDelegate> actionHandlers = new Dictionary<string, ActionHandlerDelegate>(StringComparer.OrdinalIgnoreCase)
         {
@@ -30,11 +35,9 @@ namespace WTLayoutManager.Services
         private static void HandleNewTab(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
-            ref TabStateViewModel currentTab,
-            ref PaneViewModel currentFocusedPane,
-            List<TabStateViewModel> tabs)
+            TabContext context)
         {
-            currentTab = new TabStateViewModel
+            context.CurrentTab = new TabStateViewModel
             {
                 TabTitle = action.TabTitle
             };
@@ -49,25 +52,23 @@ namespace WTLayoutManager.Services
                 GridRowSpan = 1,
                 GridColumnSpan = 1
             };
-            currentTab.Panes.Add(pane);
-            currentFocusedPane = pane;
-            tabs.Add(currentTab);
+            context.CurrentTab.Panes.Add(pane);
+            context.CurrentFocusedPane = pane;
+            context.Tabs.Add(context.CurrentTab);
         }
 
         private static void HandleSplitPane(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
-            ref TabStateViewModel currentTab,
-            ref PaneViewModel currentFocusedPane,
-            List<TabStateViewModel> tabs)
+            TabContext context)
         {
-            if (currentTab != null && currentFocusedPane != null)
+            if (context.CurrentTab != null && context.CurrentFocusedPane != null)
             {
                 // Clone the geometry of the currently focused pane.
-                double x = currentFocusedPane.X;
-                double y = currentFocusedPane.Y;
-                double w = currentFocusedPane.Width;
-                double h = currentFocusedPane.Height;
+                double x = context.CurrentFocusedPane.X;
+                double y = context.CurrentFocusedPane.Y;
+                double w = context.CurrentFocusedPane.Width;
+                double h = context.CurrentFocusedPane.Height;
                 double newW, newH;
                 var splitDir = action.Split?.ToLowerInvariant();
                 PaneViewModel newPane = new PaneViewModel
@@ -87,8 +88,8 @@ namespace WTLayoutManager.Services
                         newPane.Width = newW;
                         newPane.Height = h;
                         // Focused pane becomes the right half.
-                        currentFocusedPane.X = x + newW;
-                        currentFocusedPane.Width = newW;
+                        context.CurrentFocusedPane.X = x + newW;
+                        context.CurrentFocusedPane.Width = newW;
                         break;
                     case "right":
                         newW = w / 2;
@@ -98,7 +99,7 @@ namespace WTLayoutManager.Services
                         newPane.Width = newW;
                         newPane.Height = h;
                         // Focused pane becomes the left half.
-                        currentFocusedPane.Width = newW;
+                        context.CurrentFocusedPane.Width = newW;
                         break;
                     case "up":
                         newH = h / 2;
@@ -108,8 +109,8 @@ namespace WTLayoutManager.Services
                         newPane.Width = w;
                         newPane.Height = newH;
                         // Focused pane becomes the bottom half.
-                        currentFocusedPane.Y = y + newH;
-                        currentFocusedPane.Height = newH;
+                        context.CurrentFocusedPane.Y = y + newH;
+                        context.CurrentFocusedPane.Height = newH;
                         break;
                     case "down":
                         newH = h / 2;
@@ -119,32 +120,27 @@ namespace WTLayoutManager.Services
                         newPane.Width = w;
                         newPane.Height = newH;
                         // Focused pane becomes the top half.
-                        currentFocusedPane.Height = newH;
+                        context.CurrentFocusedPane.Height = newH;
                         break;
-                    //default:
-                    //    // If no valid split direction, do nothing.
-                    //    continue;
                 }
                 // Add the new pane and update focus.
-                currentTab.Panes.Add(newPane);
-                currentFocusedPane = newPane;
+                context.CurrentTab.Panes.Add(newPane);
+                context.CurrentFocusedPane = newPane;
             }
         }
 
         private static void HandleFocusPane(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
-            ref TabStateViewModel currentTab,
-            ref PaneViewModel currentFocusedPane,
-            List<TabStateViewModel> tabs)
+            TabContext context)
         {
             // FocusPane uses property "id" (an index into the current tab’s panes).
-            if (action.Id.HasValue && currentTab != null)
+            if (action.Id.HasValue && context.CurrentTab != null)
             {
                 int target = action.Id.Value;
-                if (target >= 0 && target < currentTab.Panes.Count)
+                if (target >= 0 && target < context.CurrentTab.Panes.Count)
                 {
-                    currentFocusedPane = currentTab.Panes[target];
+                    context.CurrentFocusedPane = context.CurrentTab.Panes[target];
                 }
             }
         }
@@ -152,25 +148,23 @@ namespace WTLayoutManager.Services
         private static void HandleMoveFocus(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
-            ref TabStateViewModel currentTab,
-            ref PaneViewModel currentFocusedPane,
-            List<TabStateViewModel> tabs)
+            TabContext context)
         {
-            if (currentTab != null && currentTab.Panes.Count > 0 && currentFocusedPane != null)
+            if (context.CurrentTab != null && context.CurrentTab.Panes.Count > 0 && context.CurrentFocusedPane != null)
             {
-                int currentIndex = currentTab.Panes.IndexOf(currentFocusedPane);
+                int currentIndex = context.CurrentTab.Panes.IndexOf(context.CurrentFocusedPane);
                 if (!string.IsNullOrWhiteSpace(action.Direction))
                 {
                     string dir = action.Direction.ToLowerInvariant();
                     if (dir == "previousinorder")
                     {
-                        int newIndex = (currentIndex - 1 + currentTab.Panes.Count) % currentTab.Panes.Count;
-                        currentFocusedPane = currentTab.Panes[newIndex];
+                        int newIndex = (currentIndex - 1 + context.CurrentTab.Panes.Count) % context.CurrentTab.Panes.Count;
+                        context.CurrentFocusedPane = context.CurrentTab.Panes[newIndex];
                     }
                     else if (dir == "nextinorder")
                     {
-                        int newIndex = (currentIndex + 1) % currentTab.Panes.Count;
-                        currentFocusedPane = currentTab.Panes[newIndex];
+                        int newIndex = (currentIndex + 1) % context.CurrentTab.Panes.Count;
+                        context.CurrentFocusedPane = context.CurrentTab.Panes[newIndex];
                     }
                 }
             }
@@ -179,19 +173,17 @@ namespace WTLayoutManager.Services
         private static void HandleSwitchTab(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
-            ref TabStateViewModel currentTab,
-            ref PaneViewModel currentFocusedPane,
-            List<TabStateViewModel> tabs)
+            TabContext context)
         {
             // switchToTab uses property "index".
             if (action.Index.HasValue)
             {
                 int tabIndex = action.Index.Value;
-                if (tabIndex >= 0 && tabIndex < tabs.Count)
+                if (tabIndex >= 0 && tabIndex < context.Tabs.Count)
                 {
-                    currentTab = tabs[tabIndex];
-                    if (currentTab.Panes.Count > 0)
-                        currentFocusedPane = currentTab.Panes[0];
+                    context.CurrentTab = context.Tabs[tabIndex];
+                    if (context.CurrentTab.Panes.Count > 0)
+                        context.CurrentFocusedPane = context.CurrentTab.Panes[0];
                 }
             }
         }
@@ -229,21 +221,19 @@ namespace WTLayoutManager.Services
                 return null;
 
             var tooltipVm = new StateJsonTooltipViewModel();
-            var tabs = new List<TabStateViewModel>();
-            TabStateViewModel currentTab = null;
             // We also keep a pointer to the currently focused pane.
-            PaneViewModel currentFocusedPane = null;
+            TabContext context = new TabContext();
 
             foreach (var action in layout.TabLayout)
             {
                 if (actionHandlers.TryGetValue(action.Action, out var handler))
                 {
-                    handler(action, profileIcons, ref currentTab, ref currentFocusedPane, tabs);
+                    handler(action, profileIcons, context);
                 }
             }
 
             // For each tab, compute grid layout from pane geometries.
-            foreach (var tab in tabs)
+            foreach (var tab in context.Tabs)
             {
                 ComputeGridLayout(tab);
                 tooltipVm.TabStates.Add(tab);
