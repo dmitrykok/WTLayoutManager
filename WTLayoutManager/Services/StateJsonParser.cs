@@ -152,6 +152,27 @@ namespace WTLayoutManager.Services
                         }
                     }
                 }
+                else if (action.Action.Equals("moveFocus", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (currentTab != null && currentTab.Panes.Count > 0 && currentFocusedPane != null)
+                    {
+                        int currentIndex = currentTab.Panes.IndexOf(currentFocusedPane);
+                        if (!string.IsNullOrWhiteSpace(action.Direction))
+                        {
+                            string dir = action.Direction.ToLowerInvariant();
+                            if (dir == "previousinorder")
+                            {
+                                int newIndex = (currentIndex - 1 + currentTab.Panes.Count) % currentTab.Panes.Count;
+                                currentFocusedPane = currentTab.Panes[newIndex];
+                            }
+                            else if (dir == "nextinorder")
+                            {
+                                int newIndex = (currentIndex + 1) % currentTab.Panes.Count;
+                                currentFocusedPane = currentTab.Panes[newIndex];
+                            }
+                        }
+                    }
+                }
                 else if (action.Action.Equals("switchToTab", StringComparison.OrdinalIgnoreCase))
                 {
                     // switchToTab uses property "index".

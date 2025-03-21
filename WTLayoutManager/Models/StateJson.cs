@@ -51,5 +51,9 @@ namespace WTLayoutManager.Models
         // For switchToTab actions.
         [JsonPropertyName("index")]
         public int? Index { get; set; }
+
+        // For moveFocus actions.
+        [JsonPropertyName("direction")]
+        public string Direction { get; set; }
     }
 }
