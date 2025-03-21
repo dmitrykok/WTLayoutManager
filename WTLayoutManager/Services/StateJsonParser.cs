@@ -44,132 +44,193 @@ namespace WTLayoutManager.Services
             var tooltipVm = new StateJsonTooltipViewModel();
             var tabs = new List<TabStateViewModel>();
             TabStateViewModel currentTab = null;
-            // Maintain the current focused pane's coordinates within the current tab.
-            int currentFocusRow = 0, currentFocusColumn = 0;
+            // We also keep a pointer to the currently focused pane.
+            PaneViewModel currentFocusedPane = null;
 
             foreach (var action in layout.TabLayout)
             {
                 if (action.Action.Equals("newTab", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Create a new tab; the first pane is placed at (0,0).
+                    // Create a new tab.
                     currentTab = new TabStateViewModel();
+                    // First pane occupies full area.
                     var pane = new PaneViewModel
                     {
                         ProfileName = action.Profile,
                         Icon = GetIconForProfile(action.Profile),
-                        GridRow = 0,
-                        GridColumn = 0,
+                        X = 0,
+                        Y = 0,
+                        Width = 1,
+                        Height = 1,
                         GridRowSpan = 1,
                         GridColumnSpan = 1
                     };
                     currentTab.Panes.Add(pane);
-                    currentFocusRow = 0;
-                    currentFocusColumn = 0;
+                    currentFocusedPane = pane;
                     tabs.Add(currentTab);
                 }
                 else if (action.Action.Equals("splitPane", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (currentTab != null)
+                    if (currentTab != null && currentFocusedPane != null)
                     {
-                        int newRow = currentFocusRow;
-                        int newCol = currentFocusColumn;
-                        // Determine the new pane's position based on the split direction.
-                        string splitDir = action.Split?.ToLowerInvariant();
-                        if (splitDir == "up")
-                        {
-                            newRow = currentFocusRow - 1;
-                        }
-                        else if (splitDir == "down")
-                        {
-                            newRow = currentFocusRow + 1;
-                        }
-                        else if (splitDir == "left")
-                        {
-                            newCol = currentFocusColumn - 1;
-                        }
-                        else if (splitDir == "right")
-                        {
-                            newCol = currentFocusColumn + 1;
-                        }
-                        // Create the new pane.
-                        var pane = new PaneViewModel
+                        // Clone the geometry of the currently focused pane.
+                        double x = currentFocusedPane.X;
+                        double y = currentFocusedPane.Y;
+                        double w = currentFocusedPane.Width;
+                        double h = currentFocusedPane.Height;
+                        double newW, newH;
+                        var splitDir = action.Split?.ToLowerInvariant();
+                        PaneViewModel newPane = new PaneViewModel
                         {
                             ProfileName = action.Profile,
                             Icon = GetIconForProfile(action.Profile),
-                            GridRow = newRow,
-                            GridColumn = newCol,
-                            GridRowSpan = 1,
-                            GridColumnSpan = 1,
                             SplitDirection = splitDir
                         };
-                        currentTab.Panes.Add(pane);
-                        // Update focus to the new pane.
-                        currentFocusRow = newRow;
-                        currentFocusColumn = newCol;
+
+                        switch (splitDir)
+                        {
+                            case "left":
+                                newW = w / 2;
+                                // New pane occupies left half.
+                                newPane.X = x;
+                                newPane.Y = y;
+                                newPane.Width = newW;
+                                newPane.Height = h;
+                                // Focused pane becomes the right half.
+                                currentFocusedPane.X = x + newW;
+                                currentFocusedPane.Width = newW;
+                                break;
+                            case "right":
+                                newW = w / 2;
+                                // New pane occupies right half.
+                                newPane.X = x + newW;
+                                newPane.Y = y;
+                                newPane.Width = newW;
+                                newPane.Height = h;
+                                // Focused pane becomes the left half.
+                                currentFocusedPane.Width = newW;
+                                break;
+                            case "up":
+                                newH = h / 2;
+                                // New pane occupies the top half.
+                                newPane.X = x;
+                                newPane.Y = y;
+                                newPane.Width = w;
+                                newPane.Height = newH;
+                                // Focused pane becomes the bottom half.
+                                currentFocusedPane.Y = y + newH;
+                                currentFocusedPane.Height = newH;
+                                break;
+                            case "down":
+                                newH = h / 2;
+                                // New pane occupies the bottom half.
+                                newPane.X = x;
+                                newPane.Y = y + newH;
+                                newPane.Width = w;
+                                newPane.Height = newH;
+                                // Focused pane becomes the top half.
+                                currentFocusedPane.Height = newH;
+                                break;
+                            default:
+                                // If no valid split direction, do nothing.
+                                continue;
+                        }
+                        // Add the new pane and update focus.
+                        currentTab.Panes.Add(newPane);
+                        currentFocusedPane = newPane;
                     }
                 }
                 else if (action.Action.Equals("focusPane", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Use the 'id' property to update focus.
+                    // FocusPane uses property "id" (an index into the current tab’s panes).
                     if (action.Id.HasValue && currentTab != null)
                     {
                         int target = action.Id.Value;
                         if (target >= 0 && target < currentTab.Panes.Count)
                         {
-                            currentFocusRow = currentTab.Panes[target].GridRow;
-                            currentFocusColumn = currentTab.Panes[target].GridColumn;
+                            currentFocusedPane = currentTab.Panes[target];
                         }
                     }
                 }
                 else if (action.Action.Equals("switchToTab", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Use the 'index' property to switch tabs.
+                    // switchToTab uses property "index".
                     if (action.Index.HasValue)
                     {
                         int tabIndex = action.Index.Value;
                         if (tabIndex >= 0 && tabIndex < tabs.Count)
                         {
                             currentTab = tabs[tabIndex];
-                            // Reset focus to the first pane of that tab.
                             if (currentTab.Panes.Count > 0)
-                            {
-                                currentFocusRow = currentTab.Panes[0].GridRow;
-                                currentFocusColumn = currentTab.Panes[0].GridColumn;
-                            }
+                                currentFocusedPane = currentTab.Panes[0];
                         }
                     }
                 }
-                // You can extend handling for additional actions as needed.
+                // (Other actions can be handled similarly if needed.)
             }
 
-            // Adjust coordinates so that the smallest row/column is 0 for each tab.
+            // For each tab, compute grid layout from pane geometries.
             foreach (var tab in tabs)
             {
-                if (tab.Panes.Count == 0) continue;
-                int minRow = int.MaxValue, minCol = int.MaxValue;
-                int maxRow = int.MinValue, maxCol = int.MinValue;
-                foreach (var pane in tab.Panes)
-                {
-                    if (pane.GridRow < minRow) minRow = pane.GridRow;
-                    if (pane.GridColumn < minCol) minCol = pane.GridColumn;
-                    if (pane.GridRow > maxRow) maxRow = pane.GridRow;
-                    if (pane.GridColumn > maxCol) maxCol = pane.GridColumn;
-                }
-                foreach (var pane in tab.Panes)
-                {
-                    pane.GridRow -= minRow;
-                    pane.GridColumn -= minCol;
-                }
-                tab.GridRows = maxRow - minRow + 1;
-                tab.GridColumns = maxCol - minCol + 1;
-            }
-
-            // Add all tabs to the tooltip view model.
-            foreach (var tab in tabs)
-            {
+                ComputeGridLayout(tab);
                 tooltipVm.TabStates.Add(tab);
             }
             return tooltipVm;
+        }
+
+        /// <summary>
+        /// Compute grid placement for each pane using the geometry rectangles.
+        /// This algorithm:
+        /// 1. Collects all unique X coordinates (pane.X and pane.X+pane.Width)
+        ///    and all unique Y coordinates (pane.Y and pane.Y+pane.Height).
+        /// 2. Sorts them and uses them as boundaries for grid columns and rows.
+        /// 3. For each pane, sets GridColumn and GridColumnSpan and similarly for rows.
+        /// </summary>
+        private static void ComputeGridLayout(TabStateViewModel tab)
+        {
+            var xCoords = new SortedSet<double>();
+            var yCoords = new SortedSet<double>();
+
+            foreach (var pane in tab.Panes)
+            {
+                xCoords.Add(pane.X);
+                xCoords.Add(pane.X + pane.Width);
+                yCoords.Add(pane.Y);
+                yCoords.Add(pane.Y + pane.Height);
+            }
+
+            // Convert to list for index lookup.
+            var xList = xCoords.ToList();
+            var yList = yCoords.ToList();
+
+            // The number of grid columns/rows.
+            tab.GridColumns = xList.Count - 1;
+            tab.GridRows = yList.Count - 1;
+
+            foreach (var pane in tab.Panes)
+            {
+                // Find the start column index.
+                int colStart = xList.FindIndex(x => Math.Abs(x - pane.X) < 0.0001);
+                // Find the end column index.
+                int colEnd = xList.FindIndex(x => Math.Abs(x - (pane.X + pane.Width)) < 0.0001);
+                if (colStart == -1 || colEnd == -1)
+                {
+                    colStart = 0;
+                    colEnd = 1;
+                }
+                pane.GridColumn = colStart;
+                pane.GridColumnSpan = colEnd - colStart;
+
+                int rowStart = yList.FindIndex(y => Math.Abs(y - pane.Y) < 0.0001);
+                int rowEnd = yList.FindIndex(y => Math.Abs(y - (pane.Y + pane.Height)) < 0.0001);
+                if (rowStart == -1 || rowEnd == -1)
+                {
+                    rowStart = 0;
+                    rowEnd = 1;
+                }
+                pane.GridRow = rowStart;
+                pane.GridRowSpan = rowEnd - rowStart;
+            }
         }
 
         /// <summary>
