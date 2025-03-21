@@ -248,21 +248,10 @@
                                             <TextBlock Text="{Binding FileName}" VerticalAlignment="Center">
                                                 <TextBlock.ToolTip>
                                                     <ToolTip Content="{Binding Profiles}" 
-                                                             ContentTemplate="{StaticResource ProfilesTooltipTemplate}"/>
+                                                             ContentTemplate="{StaticResource ProfilesTooltipTemplate}"
+                                                             Visibility="{Binding FileName, Converter={StaticResource SettingsJsonVisibilityConverter}}"/>
                                                 </TextBlock.ToolTip>
                                             </TextBlock>
-
-                                            <!-- Attach tooltip only to settings.json -->
-                                            <Image Width="14" Height="14" Margin="5,0,0,0"
-                                                   Source="pack://application:,,,/WTLayoutManager;component/Resources/WindowsTerminalLayoutManager.png"
-                                                   Visibility="{Binding FileName, Converter={StaticResource SettingsJsonVisibilityConverter}}"
-                                                   services:GridTooltipService.TooltipProfiles="{Binding Profiles}">
-                                                <Image.ToolTip>
-                                                    <ToolTip Content="{Binding Profiles}" 
-                                                             ContentTemplate="{StaticResource ProfilesTooltipTemplate}"/>
-                                                </Image.ToolTip>
-                                            </Image>
-
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

@@ -60,7 +60,7 @@ namespace WTLayoutManager.Services
                 // If resourceInfo is null, the resource doesn't exist
                 return resourceInfo != null;
             }
-            catch (IOException)
+            catch
             {
                 // If an exception is thrown, the resource doesn't exist
                 return false;
