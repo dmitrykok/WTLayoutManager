@@ -24,9 +24,7 @@ namespace WTLayoutManager.ViewModels
             _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
             _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
             // Initialize commands
-            //RunCommand = new RelayCommand(ExecuteRun);
             RunCommand = new RelayCommand(async _ => await ExecuteRunAsync());
-            //RunAsCommand = new RelayCommand(ExecuteRunAs);
             RunAsCommand = new RelayCommand(async _ => await ExecuteRunAsAsync());
             DuplicateCommand = new RelayCommand(ExecuteDuplicate);
             DeleteCommand = new RelayCommand(ExecuteDelete);
@@ -271,124 +269,6 @@ namespace WTLayoutManager.ViewModels
                 _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
-
-        /*private void ExecuteRun(object? parameter)
-        {
-            try
-            {
-                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
-                //    Typically, you'd do something like:
-                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
-                //    But since we have multiple terminals, let's assume we
-                //    can retrieve the relevant one from the parent's _terminalDict
-                //    keyed by the parent's SelectedTerminal.
-
-                // As an example:
-                if (_parentViewModel.TerminalDict != null &&
-                    _parentViewModel.SelectedTerminal != null)
-                {
-                    // If a terminal for this local state is already running, disable the run action.
-                    if (_runningTerminals.ContainsKey(Path))
-                    {
-                        _messageBoxService.ShowMessage("Terminal is already running for this local state.",
-                                                       "Warning", DialogType.Warning);
-                        return;
-                    }
-
-                    var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
-                    {
-                        // 2) Compose the command line to run Windows Terminal
-                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
-                        //    If you want a custom config path, you might do:
-                        //       wt.exe --settings {Path}\settings.json
-                        //    Or pass the folder as a starting directory, etc.
-                        var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
-                        if (!File.Exists(fileName))
-                        {
-                            fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                        }
-
-                        int exitCode = ProcessLauncher.LaunchProcess(fileName, $"\"{fileName}\"", IsDefault ? String.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0");
-                        if (exitCode != 0)
-                        {
-                            _messageBoxService.ShowMessage($"Process exited with code.\n{exitCode}", "Warning", DialogType.Warning);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
-            }
-        }*/
-
-        /*private void ExecuteRunAs(object? parameter)
-        {
-            try
-            {
-                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
-                //    Typically, you'd do something like:
-                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
-                //    But since we have multiple terminals, let's assume we
-                //    can retrieve the relevant one from the parent's _terminalDict
-                //    keyed by the parent's SelectedTerminal.
-
-                // As an example:
-                if (_parentViewModel.TerminalDict != null &&
-                    _parentViewModel.SelectedTerminal != null)
-                {
-                    var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
-                    {
-                        // 2) Compose the command line to run Windows Terminal
-                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
-                        //    If you want a custom config path, you might do:
-                        //       wt.exe --settings {Path}\settings.json
-                        //    Or pass the folder as a starting directory, etc.
-                        var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
-                        if (!File.Exists(fileName))
-                        {
-                            fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                        }
-
-                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                        string batchPath = System.IO.Path.Combine(
-                            System.IO.Path.GetTempPath(),
-                            $"{System.IO.Path.GetFileName(Path)}_{timestamp}_{terminalInfo.FamilyName}_WTLM_LaunchWithEnv.cmd"
-                        );
-                        File.WriteAllText(
-                            batchPath,
-                            $"@ECHO ON\r\n" +
-                            $"SETLOCAL\r\n" +
-                            $"SET WT_BASE_SETTINGS_PATH={Path}\r\n" +
-                            $"START \"\" \"{fileName}\"\r\n" +
-                            $"DEL \"%~f0\""
-                        );  // fileName is the real exe you want to run
-
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = batchPath,
-                            WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            CreateNoWindow = true,
-                            UseShellExecute = true,           // must be true for normal user run
-                            Verb = "runas"
-                        };
-
-                        var ps = Process.Start(psi);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
-                //                "WTLayoutManager",
-                //                MessageBoxButton.OK,
-                //                MessageBoxImage.Error);
-                _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
-            }
-        }*/
 
         private void ExecuteDuplicate(object? parameter) { ExecuteDuplicateEx(parameter, null); }
 

@@ -31,6 +31,7 @@ namespace WTLayoutManager.ViewModels
 
             // Create the main collection of FolderViewModels
             Folders = new ObservableCollection<FolderViewModel>();
+            Folders.CollectionChanged += Folders_CollectionChanged;
 
             // If you want a CollectionView for filtering
             FoldersView = CollectionViewSource.GetDefaultView(Folders);
@@ -39,7 +40,48 @@ namespace WTLayoutManager.ViewModels
             // Example of loading the folders
             // LoadFolders();
             ClearSearchCommand = new RelayCommand(ExecuteClearSearchCommand);
+            ReloadFoldersCommand = new RelayCommand(_ => LoadFolders());
         }
+
+        // Whenever folders are added, subscribe to their PropertyChanged so we can update TerminalsComboBoxEnabled.
+        private void Folders_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (var item in e.NewItems)
+                {
+                    if (item is FolderViewModel fvm)
+                    {
+                        fvm.PropertyChanged += FolderViewModel_PropertyChanged;
+                    }
+                }
+            }
+            if (e.OldItems != null)
+            {
+                foreach (var item in e.OldItems)
+                {
+                    if (item is FolderViewModel fvm)
+                    {
+                        fvm.PropertyChanged -= FolderViewModel_PropertyChanged;
+                    }
+                }
+            }
+            // Update the TerminalsComboBoxEnabled property when folders change.
+            OnPropertyChanged(nameof(TerminalsComboBoxEnabled));
+        }
+
+        private void FolderViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FolderViewModel.CanRunTerminal) ||
+                e.PropertyName == nameof(FolderViewModel.CanRunTerminalAs))
+            {
+                OnPropertyChanged(nameof(TerminalsComboBoxEnabled));
+            }
+        }
+
+        // Property to disable the ComboBox if any folder is running a terminal.
+        public bool TerminalsComboBoxEnabled => !Folders.Any(folder => !folder.CanRunTerminal || !folder.CanRunTerminalAs);
+
 
         public ObservableCollection<TerminalListItem> Terminals { get; }
 
@@ -75,6 +117,7 @@ namespace WTLayoutManager.ViewModels
         }
 
         public ICommand ClearSearchCommand { get; }
+        public ICommand ReloadFoldersCommand { get; }
 
         private void ExecuteClearSearchCommand(object? parameter)
         {
