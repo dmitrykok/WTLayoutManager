@@ -11,6 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WTerminalPackages", "WTermi
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "WTLayoutManagerBundle", "WTLayoutManagerBundle\WTLayoutManagerBundle.wapproj", "{5BF86597-F5EC-4488-BAD6-FAB6219F51DF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessLauncher", "ProcessLauncher\ProcessLauncher.vcxproj", "{34A4346E-9BB6-4280-EA84-56C26FF2A705}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EEE784B7-8F37-4503-B315-B73A038DF673} = {EEE784B7-8F37-4503-B315-B73A038DF673}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElevatedLauncher", "ElevatedLauncher\ElevatedLauncher.vcxproj", "{EEE784B7-8F37-4503-B315-B73A038DF673}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +102,38 @@ Global
 		{5BF86597-F5EC-4488-BAD6-FAB6219F51DF}.Release|x86.ActiveCfg = Release|x86
 		{5BF86597-F5EC-4488-BAD6-FAB6219F51DF}.Release|x86.Build.0 = Release|x86
 		{5BF86597-F5EC-4488-BAD6-FAB6219F51DF}.Release|x86.Deploy.0 = Release|x86
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|Any CPU.Build.0 = Debug|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|ARM64.ActiveCfg = Debug|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|ARM64.Build.0 = Debug|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|x64.ActiveCfg = Debug|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|x64.Build.0 = Debug|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|x86.ActiveCfg = Debug|Win32
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Debug|x86.Build.0 = Debug|Win32
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|Any CPU.ActiveCfg = Release|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|Any CPU.Build.0 = Release|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|ARM64.ActiveCfg = Release|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|ARM64.Build.0 = Release|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|x64.ActiveCfg = Release|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|x64.Build.0 = Release|x64
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|x86.ActiveCfg = Release|Win32
+		{34A4346E-9BB6-4280-EA84-56C26FF2A705}.Release|x86.Build.0 = Release|Win32
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|Any CPU.Build.0 = Debug|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|ARM64.ActiveCfg = Debug|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|ARM64.Build.0 = Debug|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|x64.ActiveCfg = Debug|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|x64.Build.0 = Debug|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|x86.ActiveCfg = Debug|Win32
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Debug|x86.Build.0 = Debug|Win32
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|Any CPU.ActiveCfg = Release|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|Any CPU.Build.0 = Release|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|ARM64.ActiveCfg = Release|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|ARM64.Build.0 = Release|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x64.ActiveCfg = Release|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x64.Build.0 = Release|x64
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x86.ActiveCfg = Release|Win32
+		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

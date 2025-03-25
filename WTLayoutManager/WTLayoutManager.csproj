@@ -46,7 +46,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TerminalPackages\TerminalPackages.csproj" />
+    <ProjectReference Include="..\ProcessLauncher\ProcessLauncher.vcxproj">
+      <Private>True</Private>
+      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </ProjectReference>
     <ProjectReference Include="..\WTerminalPackages\WTerminalPackages.csproj" />
   </ItemGroup>
 

@@ -218,13 +218,15 @@
                                 <!-- Run button -->
                                 <Button Content="{materialDesign:PackIcon Kind=PlayCircleOutline}" 
                                         Command="{Binding RunCommand}"
-                                        ToolTip="Run" 
+                                        ToolTip="Run"
+                                        IsEnabled="{Binding CanRunTerminal}"
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Run as Admin -->
                                 <Button Content="{materialDesign:PackIcon Kind=ShieldCrownOutline}" 
                                         Command="{Binding RunAsCommand}"
                                         ToolTip="Run as Admin" 
+                                        IsEnabled="{Binding CanRunTerminalAs}"
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Duplicate -->
