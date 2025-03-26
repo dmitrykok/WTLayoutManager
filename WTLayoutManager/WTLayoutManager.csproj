@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\WindowsTerminalLayoutManager.ico</ApplicationIcon>
-    <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
+    <Platforms>ARM64;x64;x86</Platforms>
     <PackageIcon>WindowsTerminalLayoutManager.PNG</PackageIcon>
   </PropertyGroup>
 
