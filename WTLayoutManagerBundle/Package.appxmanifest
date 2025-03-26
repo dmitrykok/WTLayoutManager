@@ -10,7 +10,7 @@
   <Identity
     Name="6b79d320-09e1-4140-b2a7-7b0218794aa3"
     Publisher="CN=Dm17tryK"
-    Version="1.0.73.0" />
+    Version="1.0.77.0" />
 
   <Properties>
     <DisplayName>Installer</DisplayName>

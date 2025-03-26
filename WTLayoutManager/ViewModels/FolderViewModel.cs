@@ -129,65 +129,57 @@ namespace WTLayoutManager.ViewModels
         public ICommand ConfirmEditCommand { get; }
         public ICommand CancelEditCommand { get; }
 
+        private async Task ExecuteTerminalAsync(
+            Dictionary<string, Task<int>> runningTerminals,
+            string alreadyRunningMessage,
+            string propertyName,
+            Func<string, Task<int>> launchProcess
+        )
+        {
+            if (runningTerminals.ContainsKey(Path))
+            {
+                _messageBoxService.ShowMessage(alreadyRunningMessage, "Warning", DialogType.Warning);
+                return;
+            }
+
+            var key = _parentViewModel.SelectedTerminal.DisplayName;
+            if (_parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
+            {
+                var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
+                if (!File.Exists(fileName))
+                {
+                    fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
+                }
+
+                Task<int> launchTask = launchProcess(fileName);
+                runningTerminals.Add(Path, launchTask);
+                OnPropertyChanged(propertyName);
+
+                int exitCode = await launchTask;
+                runningTerminals.Remove(Path);
+                OnPropertyChanged(propertyName);
+
+                if (exitCode != 0)
+                {
+                    _messageBoxService.ShowMessage($"Process exited with code.\n{exitCode}", "Warning", DialogType.Warning);
+                }
+            }
+        }
+
         private async Task ExecuteRunAsync()
         {
             try
             {
-                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
-                //    Typically, you'd do something like:
-                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
-                //    But since we have multiple terminals, let's assume we
-                //    can retrieve the relevant one from the parent's _terminalDict
-                //    keyed by the parent's SelectedTerminal.
-
-                // As an example:
-                if (_parentViewModel.TerminalDict != null &&
-                    _parentViewModel.SelectedTerminal != null)
-                {
-                    // If a terminal for this local state is already running, disable the run action.
-                    if (_runningTerminals.ContainsKey(Path))
-                    {
-                        _messageBoxService.ShowMessage("Terminal is already running for this local state.",
-                                                       "Warning", DialogType.Warning);
-                        return;
-                    }
-
-                    var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
-                    {
-                        // 2) Compose the command line to run Windows Terminal
-                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
-                        //    If you want a custom config path, you might do:
-                        //       wt.exe --settings {Path}\settings.json
-                        //    Or pass the folder as a starting directory, etc.
-                        var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
-                        if (!File.Exists(fileName))
-                        {
-                            fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                        }
-
-                        Task<int> launchTask = Task.Run(() =>
-                            ProcessLauncher.LaunchProcess(fileName, fileName, IsDefault ? String.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
-                        );
-
-                        // Add the task to our tracking dictionary and update UI.
-                        _runningTerminals.Add(Path, launchTask);
-                        OnPropertyChanged(nameof(CanRunTerminal));
-
-                        // Await the task so that this method completes asynchronously.
-                        int exitCode = await launchTask;
-
-                        // Remove the terminal from running list after it exits.
-                        _runningTerminals.Remove(Path);
-                        OnPropertyChanged(nameof(CanRunTerminal));
-
-                        // Optionally, notify the user of the exit code.
-                        if (exitCode != 0)
-                        {
-                            _messageBoxService.ShowMessage($"Process exited with code.\n{exitCode}", "Warning", DialogType.Warning);
-                        }
-                    }
-                }
+                await ExecuteTerminalAsync(
+                    _runningTerminals,
+                    "Terminal is already running for this local state.",
+                    nameof(CanRunTerminal),
+                    fileName => Task.Run(() => ProcessLauncher.LaunchProcess(
+                        fileName, 
+                        fileName, 
+                        IsDefault ? string.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
+                    )
+                );
             }
             catch (Exception ex)
             {
@@ -201,66 +193,17 @@ namespace WTLayoutManager.ViewModels
         {
             try
             {
-                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
-                //    Typically, you'd do something like:
-                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
-                //    But since we have multiple terminals, let's assume we
-                //    can retrieve the relevant one from the parent's _terminalDict
-                //    keyed by the parent's SelectedTerminal.
-
-                // As an example:
-                if (_parentViewModel.TerminalDict != null &&
-                    _parentViewModel.SelectedTerminal != null)
-                {
-                    // If a terminal for this local state is already running, disable the run action.
-                    if (_runningTerminalsAs.ContainsKey(Path))
-                    {
-                        _messageBoxService.ShowMessage("Terminal Admin is already running for this local state.",
-                                                       "Warning", DialogType.Warning);
-                        return;
-                    }
-
-                    var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
-                    {
-                        // 2) Compose the command line to run Windows Terminal
-                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
-                        //    If you want a custom config path, you might do:
-                        //       wt.exe --settings {Path}\settings.json
-                        //    Or pass the folder as a starting directory, etc.
-                        var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
-                        if (!File.Exists(fileName))
-                        {
-                            fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                        }
-
-                        Task<int> launchTask = Task.Run(() =>
-                            ProcessLauncher.LaunchProcessElevated(
-                                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
-                                fileName, 
-                                fileName, 
-                                IsDefault ? String.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0"
-                            )
-                        );
-
-                        // Add the task to our tracking dictionary and update UI.
-                        _runningTerminalsAs.Add(Path, launchTask);
-                        OnPropertyChanged(nameof(CanRunTerminalAs));
-
-                        // Await the task so that this method completes asynchronously.
-                        int exitCode = await launchTask;
-
-                        // Remove the terminal from running list after it exits.
-                        _runningTerminalsAs.Remove(Path);
-                        OnPropertyChanged(nameof(CanRunTerminalAs));
-
-                        // Optionally, notify the user of the exit code.
-                        if (exitCode != 0)
-                        {
-                            _messageBoxService.ShowMessage($"Process exited with code.\n{exitCode}", "Warning", DialogType.Warning);
-                        }
-                    }
-                }
+                await ExecuteTerminalAsync(
+                    _runningTerminalsAs,
+                    "Terminal Admin is already running for this local state.",
+                    nameof(CanRunTerminalAs),
+                    fileName => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
+                        System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
+                        fileName,
+                        fileName,
+                        IsDefault ? string.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
+                    )
+                );
             }
             catch (Exception ex)
             {

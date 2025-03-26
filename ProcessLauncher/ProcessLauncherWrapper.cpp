@@ -5,74 +5,10 @@
 #include <string>
 #include <vector>
 #include <msclr/marshal_cppstd.h>
+#include "WinApiHelpers.h"
 
 using namespace msclr::interop;
-
 using namespace WTLayoutManager::Services;
-
-// Helper to retrieve the last error message.
-static std::wstring GetLastErrorMessage() {
-    DWORD errorCode = GetLastError();
-    LPWSTR messageBuffer = nullptr;
-    size_t size = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        errorCode,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPWSTR)&messageBuffer,
-        0, NULL);
-    std::wstring message(messageBuffer, size);
-    LocalFree(messageBuffer);
-    return message;
-}
-
-// Helper: Merge parent's environment with additional variables.
-static LPWSTR CreateMergedEnvironmentBlock(const std::vector<std::wstring>& additionalVars)
-{
-    // Get the parent's environment block.
-    LPWCH parentEnv = GetEnvironmentStringsW();
-    if (!parentEnv) {
-        return nullptr;
-    }
-
-    // Calculate the size of the parent's environment block.
-    size_t parentSize = 0;
-    for (LPWCH p = parentEnv; *p != L'\0'; p += wcslen(p) + 1) {
-        parentSize += wcslen(p) + 1;
-    }
-    // parentSize now holds the total number of wchar_t's (excluding the final extra null)
-
-    // Convert parent's environment block into a vector for easy manipulation.
-    std::vector<std::wstring> envVars;
-    for (LPWCH p = parentEnv; *p != L'\0'; p += wcslen(p) + 1) {
-        envVars.push_back(p);
-    }
-    FreeEnvironmentStringsW(parentEnv);
-
-    // Append or override with additional variables.
-    // (For simplicity, we'll just append here.)
-    for (const auto& var : additionalVars) {
-        envVars.push_back(var);
-    }
-
-    // Calculate the total size needed for the merged environment block.
-    size_t totalSize = 0;
-    for (const auto& var : envVars) {
-        totalSize += var.size() + 1; // plus null terminator for each
-    }
-    totalSize++; // final extra null terminator
-
-    // Allocate the merged environment block.
-    LPWSTR mergedEnv = new WCHAR[totalSize];
-    WCHAR* cur = mergedEnv;
-    for (const auto& var : envVars) {
-        wcscpy_s(cur, var.size() + 1, var.c_str());
-        cur += var.size() + 1;
-    }
-    *cur = L'\0'; // double null termination
-
-    return mergedEnv;
-}
 
 int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock)
 {
@@ -86,7 +22,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     if (env.size())
     {
         std::vector<std::wstring> additional = { env.c_str() };
-        envCopy = CreateMergedEnvironmentBlock(additional);
+        envCopy = WinApiHelpers::CreateMergedEnvironmentBlock(additional);
 		dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
     }
 
@@ -114,7 +50,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 
     if (!success)
     {
-        std::wstring err = GetLastErrorMessage();
+        std::wstring err = WinApiHelpers::GetLastErrorMessage();
         throw gcnew System::Exception(gcnew System::String(err.c_str()));
     }
 
@@ -124,7 +60,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     DWORD exitCode = 0;
     if (!GetExitCodeProcess(pi.hProcess, &exitCode))
     {
-        std::wstring err = GetLastErrorMessage();
+        std::wstring err = WinApiHelpers::GetLastErrorMessage();
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
         throw gcnew System::Exception(gcnew System::String(err.c_str()));
@@ -151,6 +87,21 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
     std::wstring cmdLine = marshal_as<std::wstring>(commandLine);
     std::wstring env = marshal_as<std::wstring>(envBlock);
 
+    // Helper lambda to properly quote an argument by escaping internal quotes.
+    auto QuoteArgument = [](const std::wstring& arg) -> std::wstring {
+        std::wstring result = L"\"";
+        for (wchar_t ch : arg) {
+            if (ch == L'\"') {
+                result += L"\\\"";
+            }
+            else {
+                result += ch;
+            }
+        }
+        result += L"\"";
+        return result;
+        };
+
     // Encode parameters as a sequence of quoted strings.
     // For the environment block, we assume the caller has replaced the embedded nulls
     // with semicolons (e.g. "VAR1=Value1;VAR2=Value2").
@@ -169,7 +120,7 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
 
     if (!ShellExecuteEx(&sei))
     {
-        std::wstring err = GetLastErrorMessage();
+        std::wstring err = WinApiHelpers::GetLastErrorMessage();
         throw gcnew System::Exception(gcnew System::String(err.c_str()));
     }
 
@@ -178,7 +129,7 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
     DWORD exitCode = 0;
     if (!GetExitCodeProcess(sei.hProcess, &exitCode))
     {
-        std::wstring err = GetLastErrorMessage();
+        std::wstring err = WinApiHelpers::GetLastErrorMessage();
         CloseHandle(sei.hProcess);
         throw gcnew System::Exception(gcnew System::String(err.c_str()));
     }
@@ -186,7 +137,7 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
     if (exitCode == -1)
 	{
 		// ShellExecuteEx failed.
-		std::wstring err = GetLastErrorMessage();
+		std::wstring err = WinApiHelpers::GetLastErrorMessage();
         CloseHandle(sei.hProcess);
 		throw gcnew System::Exception(gcnew System::String(err.c_str()));
 	}

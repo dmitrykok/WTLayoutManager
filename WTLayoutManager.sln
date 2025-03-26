@@ -13,10 +13,16 @@ Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "WTLayoutManagerBundle", "WT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessLauncher", "ProcessLauncher\ProcessLauncher.vcxproj", "{34A4346E-9BB6-4280-EA84-56C26FF2A705}"
 	ProjectSection(ProjectDependencies) = postProject
+		{56B92634-D191-4586-8437-C99FB5E415F6} = {56B92634-D191-4586-8437-C99FB5E415F6}
 		{EEE784B7-8F37-4503-B315-B73A038DF673} = {EEE784B7-8F37-4503-B315-B73A038DF673}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElevatedLauncher", "ElevatedLauncher\ElevatedLauncher.vcxproj", "{EEE784B7-8F37-4503-B315-B73A038DF673}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56B92634-D191-4586-8437-C99FB5E415F6} = {56B92634-D191-4586-8437-C99FB5E415F6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApiHelpers", "WinApiHelpers\WinApiHelpers.vcxproj", "{56B92634-D191-4586-8437-C99FB5E415F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,6 +112,18 @@ Global
 		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x64.Build.0 = Release|x64
 		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x86.ActiveCfg = Release|Win32
 		{EEE784B7-8F37-4503-B315-B73A038DF673}.Release|x86.Build.0 = Release|Win32
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Debug|ARM64.Build.0 = Debug|ARM64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Debug|x64.ActiveCfg = Debug|x64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Debug|x64.Build.0 = Debug|x64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Debug|x86.ActiveCfg = Debug|Win32
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Debug|x86.Build.0 = Debug|Win32
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|ARM64.ActiveCfg = Release|ARM64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|ARM64.Build.0 = Release|ARM64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x64.ActiveCfg = Release|x64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x64.Build.0 = Release|x64
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x86.ActiveCfg = Release|Win32
+		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
