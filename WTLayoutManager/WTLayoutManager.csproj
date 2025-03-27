@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\WindowsTerminalLayoutManager.ico</ApplicationIcon>
-    <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
+    <Platforms>ARM64;x64;x86</Platforms>
     <PackageIcon>WindowsTerminalLayoutManager.PNG</PackageIcon>
   </PropertyGroup>
 
@@ -46,7 +46,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TerminalPackages\TerminalPackages.csproj" />
+    <ProjectReference Include="..\ProcessLauncher\ProcessLauncher.vcxproj">
+      <Private>True</Private>
+      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </ProjectReference>
     <ProjectReference Include="..\WTerminalPackages\WTerminalPackages.csproj" />
   </ItemGroup>
 

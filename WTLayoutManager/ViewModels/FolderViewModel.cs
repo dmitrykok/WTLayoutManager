@@ -13,6 +13,8 @@ namespace WTLayoutManager.ViewModels
         private readonly string _localAppRoot;
         private readonly string _localAppBin;
         private readonly IMessageBoxService _messageBoxService;
+        private readonly Dictionary<string, Task<int>> _runningTerminals = new Dictionary<string, Task<int>>();
+        private readonly Dictionary<string, Task<int>> _runningTerminalsAs = new Dictionary<string, Task<int>>();
 
         public FolderViewModel(FolderModel folder, MainViewModel parentViewModel, IMessageBoxService messageBoxService)
         {
@@ -22,8 +24,8 @@ namespace WTLayoutManager.ViewModels
             _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
             _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
             // Initialize commands
-            RunCommand = new RelayCommand(ExecuteRun);
-            RunAsCommand = new RelayCommand(ExecuteRunAs);
+            RunCommand = new RelayCommand(async _ => await ExecuteRunAsync());
+            RunAsCommand = new RelayCommand(async _ => await ExecuteRunAsAsync());
             DuplicateCommand = new RelayCommand(ExecuteDuplicate);
             DeleteCommand = new RelayCommand(ExecuteDelete);
             OpenFolderCommand = new RelayCommand(ExecuteOpenFolder);
@@ -31,6 +33,9 @@ namespace WTLayoutManager.ViewModels
             ConfirmEditCommand = new RelayCommand(ExecuteConfirmEditCommand);
             CancelEditCommand = new RelayCommand(ExecuteCancelEditCommand);
         }
+
+        public bool CanRunTerminal => !_runningTerminals.ContainsKey(Path);
+        public bool CanRunTerminalAs => !_runningTerminalsAs.ContainsKey(Path);
 
         private bool _isExpanded = false;
         public bool IsExpanded
@@ -88,6 +93,8 @@ namespace WTLayoutManager.ViewModels
                 {
                     _folder.Path = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanRunTerminal));
+                    OnPropertyChanged(nameof(CanRunTerminalAs));
                 }
             }
         }
@@ -122,135 +129,86 @@ namespace WTLayoutManager.ViewModels
         public ICommand ConfirmEditCommand { get; }
         public ICommand CancelEditCommand { get; }
 
-        private void ExecuteRun(object? parameter)
+        private async Task ExecuteTerminalAsync(
+            Dictionary<string, Task<int>> runningTerminals,
+            string alreadyRunningMessage,
+            string propertyName,
+            Func<string, Task<int>> launchProcess
+        )
+        {
+            if (runningTerminals.ContainsKey(Path))
+            {
+                _messageBoxService.ShowMessage(alreadyRunningMessage, "Warning", DialogType.Warning);
+                return;
+            }
+
+            var key = _parentViewModel.SelectedTerminal.DisplayName;
+            if (_parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
+            {
+                var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
+                if (!File.Exists(fileName))
+                {
+                    fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
+                }
+
+                Task<int> launchTask = launchProcess(fileName);
+                runningTerminals.Add(Path, launchTask);
+                OnPropertyChanged(propertyName);
+
+                int exitCode = await launchTask;
+                runningTerminals.Remove(Path);
+                OnPropertyChanged(propertyName);
+
+                if (exitCode != 0)
+                {
+                    _messageBoxService.ShowMessage($"Process exited with code.\n{exitCode}", "Warning", DialogType.Warning);
+                }
+            }
+        }
+
+        private async Task ExecuteRunAsync()
         {
             try
             {
-                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
-                //    Typically, you'd do something like:
-                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
-                //    But since we have multiple terminals, let's assume we
-                //    can retrieve the relevant one from the parent's _terminalDict
-                //    keyed by the parent's SelectedTerminal.
-
-                // As an example:
-                if (_parentViewModel.TerminalDict != null &&
-                    _parentViewModel.SelectedTerminal != null)
-                {
-                    var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
-                    {
-                        // 2) Compose the command line to run Windows Terminal
-                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
-                        //    If you want a custom config path, you might do:
-                        //       wt.exe --settings {Path}\settings.json
-                        //    Or pass the folder as a starting directory, etc.
-                        var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wt.exe");
-                        if ( !File.Exists(fileName) )
-                        {
-                            fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                        }
-
-                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                        string batchPath = System.IO.Path.Combine(
-                            System.IO.Path.GetTempPath(),
-                            $"{System.IO.Path.GetFileName(Path)}_{timestamp}_WTLM_LaunchWithEnv.cmd"
-                        );
-                        File.WriteAllText(
-                            batchPath,
-                            $"@ECHO ON\r\n" +
-                            $"SETLOCAL\r\n" +
-                            $"SET WT_BASE_SETTINGS_PATH={Path}\r\n" +
-                            $"START \"\" \"{fileName}\"\r\n" +
-                            $"DEL \"%~f0\""
-                        );  // fileName is the real exe you want to run
-
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = batchPath,
-                            WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            CreateNoWindow = true,
-                            UseShellExecute = true           // must be true for normal user run
-                        };
-
-                        var ps = Process.Start(psi);
-                    }
-                }
+                await ExecuteTerminalAsync(
+                    _runningTerminals,
+                    "Terminal is already running for this local state.",
+                    nameof(CanRunTerminal),
+                    fileName => Task.Run(() => ProcessLauncher.LaunchProcess(
+                        fileName, 
+                        fileName, 
+                        IsDefault ? string.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
+                    )
+                );
             }
             catch (Exception ex)
             {
-                //MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
-                //                "WTLayoutManager",
-                //                MessageBoxButton.OK,
-                //                MessageBoxImage.Error);
+                _runningTerminals.Remove(Path);
+                OnPropertyChanged(nameof(CanRunTerminal));
                 _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
             }
         }
 
-        private void ExecuteRunAs(object? parameter)
+        private async Task ExecuteRunAsAsync()
         {
             try
             {
-                // 1) Get the TerminalInfo from the parent (or the parent's dictionary)
-                //    Typically, you'd do something like:
-                //    var terminalInfo = _parentViewModel.GetCurrentTerminalInfo();
-                //    But since we have multiple terminals, let's assume we
-                //    can retrieve the relevant one from the parent's _terminalDict
-                //    keyed by the parent's SelectedTerminal.
-
-                // As an example:
-                if (_parentViewModel.TerminalDict != null &&
-                    _parentViewModel.SelectedTerminal != null)
-                {
-                    var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
-                    {
-                        // 2) Compose the command line to run Windows Terminal
-                        //    For instance, if it's registered, we can just "wt.exe" plus arguments.
-                        //    If you want a custom config path, you might do:
-                        //       wt.exe --settings {Path}\settings.json
-                        //    Or pass the folder as a starting directory, etc.
-                        var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wt.exe");
-                        if (!File.Exists(fileName))
-                        {
-                            fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                        }
-
-                        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                        string batchPath = System.IO.Path.Combine(
-                            System.IO.Path.GetTempPath(),
-                            $"{System.IO.Path.GetFileName(Path)}_{timestamp}_WTLM_LaunchWithEnv.cmd"
-                        );
-                        File.WriteAllText(
-                            batchPath,
-                            $"@ECHO ON\r\n" +
-                            $"SETLOCAL\r\n" +
-                            $"SET WT_BASE_SETTINGS_PATH={Path}\r\n" +
-                            $"START \"\" \"{fileName}\"\r\n" +
-                            $"DEL \"%~f0\""
-                        );  // fileName is the real exe you want to run
-
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = batchPath,
-                            WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            CreateNoWindow = true,
-                            UseShellExecute = true,           // must be true for normal user run
-                            Verb = "runas"
-                        };
-
-                        var ps = Process.Start(psi);
-                    }
-                }
+                await ExecuteTerminalAsync(
+                    _runningTerminalsAs,
+                    "Terminal Admin is already running for this local state.",
+                    nameof(CanRunTerminalAs),
+                    fileName => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
+                        System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
+                        fileName,
+                        fileName,
+                        IsDefault ? string.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
+                    )
+                );
             }
             catch (Exception ex)
             {
-                //MessageBox.Show($"Failed to run terminal.\n{ex.Message}",
-                //                "WTLayoutManager",
-                //                MessageBoxButton.OK,
-                //                MessageBoxImage.Error);
+                _runningTerminalsAs.Remove(Path);
+                OnPropertyChanged(nameof(CanRunTerminalAs));
                 _messageBoxService.ShowMessage($"Failed to run terminal.\n{ex.Message}", "Error", DialogType.Error);
             }
         }

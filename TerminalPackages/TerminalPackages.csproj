@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageIcon>WindowsTerminalLayoutManager.PNG</PackageIcon>
-    <Platforms>AnyCPU;x64;ARM64;x86</Platforms>
+    <Platforms>x64;ARM64;x86</Platforms>
 	<Year>$([System.DateTime]::Now.ToString("yy"))</Year>
 	<Month>$([System.DateTime]::Now.ToString("MM"))</Month>
 	<Day>$([System.DateTime]::Now.ToString("dd"))</Day>

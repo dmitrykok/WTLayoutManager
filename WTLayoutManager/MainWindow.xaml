@@ -75,26 +75,30 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- ComboBox for installed terminals -->
-        <ComboBox
-              Grid.Row="0"
-              ItemsSource="{Binding Terminals}"
-              SelectedItem="{Binding SelectedTerminal}"
-              Margin="0,0,0,5"
-              Width="500">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Image
-                            Width="20"
-                            Height="20"
-                            Margin="0,0,5,0"
-                            Source="{Binding ImageSource}" />
-                        <TextBlock Text="{Binding DisplayName}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <!-- Top row: Terminal selection and reload button -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,5">
+            <!-- ComboBox for installed terminals -->
+            <ComboBox
+                  Grid.Row="0"
+                  ItemsSource="{Binding Terminals}"
+                  SelectedItem="{Binding SelectedTerminal}"
+                  IsEnabled="{Binding TerminalsComboBoxEnabled}"
+                  Margin="0,0,0,5"
+                  Width="500">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image
+                                Width="20"
+                                Height="20"
+                                Margin="0,0,5,0"
+                                Source="{Binding ImageSource}" />
+                            <TextBlock Text="{Binding DisplayName}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
 
         <!-- Search Box with Clear Button -->
         <Grid Grid.Row="1" Margin="0,0,0,5">
@@ -113,12 +117,25 @@
                     Height="24"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Margin="0,0,5,0"
+                    Margin="0,0,30,0"
                     Padding="0"
                     ToolTip="Clear search"
                     Command="{Binding ClearSearchCommand}"
                     Visibility="{Binding Text.Length, ElementName=SearchTextBox, Converter={StaticResource IntToVisibilityConverter}}">
                 <materialDesign:PackIcon Kind="CloseBold"/>
+            </Button>
+            <!-- Reload button -->
+            <Button Command="{Binding ReloadFoldersCommand}"
+                    ToolTip="Reload Folders"
+                    Width="24"
+                    Height="24"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="5,0,0,2"
+                    Padding="0"
+                    Style="{StaticResource MaterialDesignIconButton}"
+                    IsEnabled="{Binding TerminalsComboBoxEnabled}">
+                <materialDesign:PackIcon Kind="FolderRefresh" Width="24" Height="24"/>
             </Button>
         </Grid>
 
@@ -218,13 +235,15 @@
                                 <!-- Run button -->
                                 <Button Content="{materialDesign:PackIcon Kind=PlayCircleOutline}" 
                                         Command="{Binding RunCommand}"
-                                        ToolTip="Run" 
+                                        ToolTip="Run"
+                                        IsEnabled="{Binding CanRunTerminal}"
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Run as Admin -->
                                 <Button Content="{materialDesign:PackIcon Kind=ShieldCrownOutline}" 
                                         Command="{Binding RunAsCommand}"
                                         ToolTip="Run as Admin" 
+                                        IsEnabled="{Binding CanRunTerminalAs}"
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Duplicate -->

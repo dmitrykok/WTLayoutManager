@@ -23,6 +23,7 @@ namespace WTLayoutManager.Views
             InitializeComponent();
 
             MessageText.Text = message;
+            MessageText.TextWrapping = TextWrapping.Wrap;
             TitleText.Text = title;
             Title = title;
 

@@ -4,12 +4,13 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   IgnorableNamespaces="uap rescap">
 
   <Identity
     Name="6b79d320-09e1-4140-b2a7-7b0218794aa3"
     Publisher="CN=Dm17tryK"
-    Version="1.0.33.0" />
+    Version="1.0.77.0" />
 
   <Properties>
     <DisplayName>Installer</DisplayName>
@@ -27,9 +28,9 @@
   </Resources>
 
   <Applications>
-    <Application Id="App"
-      Executable="$targetnametoken$.exe"
-      EntryPoint="$targetentrypoint$">
+	  <Application Id="App"
+                    Executable="$targetnametoken$.exe"
+                    EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="WTLayoutManager"
         Description="Windows Terminal Layout Manager"
@@ -47,10 +48,24 @@
         <uap:LockScreen BadgeLogo="Images\BadgeLogo.png" Notification="badgeAndTileText"/>
       </uap:VisualElements>
     </Application>
+	  <Application Id="ElevatedLauncher"
+		  Executable="WTLayoutManager\ElevatedLauncher.exe"
+		  EntryPoint="Windows.FullTrustApplication">
+		  <uap:VisualElements
+			  DisplayName="ElevatedLauncher"
+			  Description="Launch elevated tasks"
+			  Square150x150Logo="Images\Square150x150Logo.png"
+			  Square44x44Logo="Images\Square44x44Logo.png"
+			  BackgroundColor="transparent" />
+	  </Application>
   </Applications>
 
   <Capabilities>
     <Capability Name="internetClient" />
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
+
+	<!--Extensions>
+	<desktop:Extension Category="windows.fullTrustProcess" Executable="ElevatedLauncher.exe"/>
+  </Extensions-->
 </Package>
