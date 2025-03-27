@@ -104,27 +104,27 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,7 +138,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)WinApiHelpers;$(VC_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
     </Link>
   </ItemDefinitionGroup>
@@ -153,7 +153,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)WinApiHelpers;$(VC_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
     </Link>
   </ItemDefinitionGroup>
@@ -168,7 +168,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)WinApiHelpers;$(VC_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
     </Link>
   </ItemDefinitionGroup>
@@ -183,7 +183,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)WinApiHelpers;$(VC_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
     </Link>
   </ItemDefinitionGroup>
@@ -198,7 +198,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)WinApiHelpers;$(VC_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
     </Link>
   </ItemDefinitionGroup>
@@ -213,7 +213,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)WinApiHelpers;$(VC_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
     </Link>
   </ItemDefinitionGroup>

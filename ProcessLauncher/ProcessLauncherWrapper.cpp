@@ -2,8 +2,11 @@
 #include "ProcessLauncherWrapper.h"
 #include <windows.h>
 #include <stdexcept>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
 #include <msclr/marshal_cppstd.h>
 #include "WinApiHelpers.h"
 
@@ -18,11 +21,11 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 
     // Duplicate the environment block into a modifiable buffer.
 	DWORD dwCreationFlags = 0;
-    LPWSTR envCopy = NULL;
+    std::unique_ptr<wchar_t[]> envCopy(nullptr);
     if (env.size())
     {
         std::vector<std::wstring> additional = { env.c_str() };
-        envCopy = WinApiHelpers::CreateMergedEnvironmentBlock(additional);
+        envCopy.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
 		dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
     }
 
@@ -37,16 +40,11 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
         NULL,
         FALSE,
         dwCreationFlags,
-        envCopy,                              // Custom environment block
+        envCopy.get(),                              // Custom environment block
         NULL,
         &si,
         &pi
     );
-
-	if (envCopy)
-	{
-        delete[] envCopy;
-    }
 
     if (!success)
     {
@@ -84,31 +82,26 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
     // Convert managed strings to std::wstring.
     std::wstring launcher = marshal_as<std::wstring>(launcherPath);
     std::wstring appPath = marshal_as<std::wstring>(applicationPath);
-    std::wstring cmdLine = marshal_as<std::wstring>(commandLine);
+    std::wstring cmdLine = L"\"" + marshal_as<std::wstring>(commandLine) + L"\"";
     std::wstring env = marshal_as<std::wstring>(envBlock);
 
     // Helper lambda to properly quote an argument by escaping internal quotes.
     auto QuoteArgument = [](const std::wstring& arg) -> std::wstring {
-        std::wstring result = L"\"";
+        std::wstringstream result;
+        result << L"\"";
         for (wchar_t ch : arg) {
             if (ch == L'\"') {
-                result += L"\\\"";
+                result << L"\\\"";
             }
             else {
-                result += ch;
+                result << ch;
             }
         }
-        result += L"\"";
-        return result;
-        };
+        result << L"\"";
+        return result.str();
+    };
 
-    // Encode parameters as a sequence of quoted strings.
-    // For the environment block, we assume the caller has replaced the embedded nulls
-    // with semicolons (e.g. "VAR1=Value1;VAR2=Value2").
-    std::wstring parameters = L"\"";
-    parameters += appPath + L"\" \"";
-    parameters += L"\\\"" + cmdLine + L"\\\"\" \"";
-    parameters += env + L"\"";
+    std::wstring parameters = QuoteArgument(appPath) + L" " + QuoteArgument(cmdLine) + L" " + QuoteArgument(env);
 
     SHELLEXECUTEINFOW sei = { 0 };
     sei.cbSize = sizeof(sei);
