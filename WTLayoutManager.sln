@@ -23,6 +23,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElevatedLauncher", "Elevate
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApiHelpers", "WinApiHelpers\WinApiHelpers.vcxproj", "{56B92634-D191-4586-8437-C99FB5E415F6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24} = {1827C012-48E5-4861-9A10-CFFDF66B7C24}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "New", "New\New.vcxproj", "{1827C012-48E5-4861-9A10-CFFDF66B7C24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -124,6 +129,18 @@ Global
 		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x64.Build.0 = Release|x64
 		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x86.ActiveCfg = Release|Win32
 		{56B92634-D191-4586-8437-C99FB5E415F6}.Release|x86.Build.0 = Release|Win32
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Debug|ARM64.Build.0 = Debug|ARM64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Debug|x64.ActiveCfg = Debug|x64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Debug|x64.Build.0 = Debug|x64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Debug|x86.ActiveCfg = Debug|Win32
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Debug|x86.Build.0 = Debug|Win32
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|ARM64.ActiveCfg = Release|ARM64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|ARM64.Build.0 = Release|ARM64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x64.ActiveCfg = Release|x64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x64.Build.0 = Release|x64
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x86.ActiveCfg = Release|Win32
+		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

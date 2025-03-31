@@ -168,6 +168,13 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsync()
         {
+            string envBlock = string.Empty;
+            if (!IsDefault)
+            {
+                envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
+                envBlock += "\0"; // explicit double-null termination for the block
+            }
+
             try
             {
                 await ExecuteTerminalAsync(
@@ -175,9 +182,9 @@ namespace WTLayoutManager.ViewModels
                     "Terminal is already running for this local state.",
                     nameof(CanRunTerminal),
                     fileName => Task.Run(() => ProcessLauncher.LaunchProcess(
-                        fileName, 
-                        fileName, 
-                        IsDefault ? string.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
+                        fileName,
+                        $"\"{fileName}\"",
+                        envBlock)
                     )
                 );
             }
@@ -191,6 +198,13 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsAsync()
         {
+            string envBlock = string.Empty;
+            if (!IsDefault)
+            {
+                envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
+                envBlock += "\0"; // explicit double-null termination for the block
+            }
+
             try
             {
                 await ExecuteTerminalAsync(
@@ -200,8 +214,8 @@ namespace WTLayoutManager.ViewModels
                     fileName => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
                         System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
                         fileName,
-                        fileName,
-                        IsDefault ? string.Empty : $"WT_BASE_SETTINGS_PATH={Path}\0\0")
+                        $"\"{fileName}\"",
+                        envBlock)
                     )
                 );
             }

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WinApiHelpers.h"
+#include <strsafe.h>
 
 using namespace WTLayoutManager::Services;
 
@@ -28,30 +29,29 @@ LPWSTR WinApiHelpers::CreateMergedEnvironmentBlock(const std::vector<std::wstrin
         return nullptr;
     }
 
-    // Calculate the size of the parent's environment block.
-    size_t parentSize = 0;
-    for (LPWCH p = parentEnv; *p != L'\0'; p += wcslen(p) + 1) {
-        parentSize += wcslen(p) + 1;
-    }
-    // parentSize now holds the total number of wchar_t's (excluding the final extra null)
-
     // Convert parent's environment block into a vector for easy manipulation.
     std::vector<std::wstring> envVars;
-    for (LPWCH p = parentEnv; *p != L'\0'; p += wcslen(p) + 1) {
-        envVars.push_back(p);
-    }
+    LPTSTR lpszVariable = (LPTSTR)parentEnv;
+    while (*lpszVariable)
+	{
+		envVars.push_back(std::wstring(lpszVariable));
+		int len = lstrlen(lpszVariable) + 1;
+		lpszVariable += len;
+	}
+    // Calculate the size of the parent's environment block.
+    // parentSize now holds the total number of wchar_t's (excluding the final extra null)
+    size_t parentSize = lpszVariable - parentEnv;
+
     FreeEnvironmentStringsW(parentEnv);
 
     // Append or override with additional variables.
     // (For simplicity, we'll just append here.)
-    for (const auto& var : additionalVars) {
-        envVars.push_back(var);
-    }
-
     // Calculate the total size needed for the merged environment block.
-    size_t totalSize = 0;
-    for (const auto& var : envVars) {
-        totalSize += var.size() + 1; // plus null terminator for each
+    size_t totalSize = parentSize;
+    for (const auto& var : additionalVars) {
+        size_t len = var.length() + 1;
+        envVars.push_back(var);
+		totalSize += len;
     }
     totalSize++; // final extra null terminator
 
@@ -59,10 +59,14 @@ LPWSTR WinApiHelpers::CreateMergedEnvironmentBlock(const std::vector<std::wstrin
     LPWSTR mergedEnv = new WCHAR[totalSize];
     WCHAR* cur = mergedEnv;
     for (const auto& var : envVars) {
-        wcscpy_s(cur, var.size() + 1, var.c_str());
-        cur += var.size() + 1;
+        size_t len = var.length() + 1;
+		if (FAILED(StringCchCopy(cur, len, var.c_str()))) {
+			delete[] mergedEnv;
+			return nullptr;
+		}
+        cur += len;
     }
-    *cur = L'\0'; // double null termination
+    *cur = (TCHAR)0; // double null termination
 
     return mergedEnv;
 }
