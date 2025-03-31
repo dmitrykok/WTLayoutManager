@@ -20,7 +20,7 @@ BOOL __CRTDECL NewValidHeapPointer(void const* const block) noexcept
 {
     _MemBlockHeader* header = NULL;
     if (block)
-        _MemBlockHeader* header = header_from_block(block);
+        header = header_from_block(block);
 
     return HeapValidate(GetProcessHeap(), 0, header);
 }

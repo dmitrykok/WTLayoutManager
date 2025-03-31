@@ -67,7 +67,6 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 
     // Wait for the process to exit.
     WaitForSingleObject(pi.hProcess, INFINITE);
-    SleepEx(3000, FALSE); // Wait a bit more to ensure the target process has started.
 
 	envCopy.reset();
 	cmdLineCopy.reset();
@@ -145,7 +144,6 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
 
     // Wait for the launcher executable to complete.
     WaitForSingleObject(sei.hProcess, INFINITE);
-    SleepEx(3000, FALSE); // Wait a bit more to ensure the target process has started.
 
     DWORD exitCode = 0;
     if (!GetExitCodeProcess(sei.hProcess, &exitCode))
