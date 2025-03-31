@@ -30,11 +30,11 @@ int wmain(int argc, wchar_t* argv[])
     // For example: "MY_VAR1=Value1;MY_VAR2=Value2"
     std::wstring envStr(envParam);
     DWORD dwCreationFlags = 0;
-    LPWSTR envCopy = NULL;
+    std::unique_ptr<wchar_t[]> envCopy(nullptr);
     if (envStr.size())
     {
         std::vector<std::wstring> additional = { envStr.c_str() };
-        envCopy = WinApiHelpers::CreateMergedEnvironmentBlock(additional);
+        envCopy.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
         dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
     }
 
@@ -49,16 +49,11 @@ int wmain(int argc, wchar_t* argv[])
         NULL,
         FALSE,
         dwCreationFlags,
-        envCopy,      // Custom environment block
+        envCopy.get(),      // Custom environment block
         NULL,
         &si,
         &pi
     );
-
-    if (envCopy)
-    {
-        delete[] envCopy;
-    }
 
     if (!success)
     {

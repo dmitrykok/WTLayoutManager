@@ -1,11 +1,6 @@
 #pragma once
 
 namespace WTLayoutManager::Services{
-    inline namespace v2 {
-        public ref class MyClass {
-        };
-    }
-
     public ref class ProcessLauncher
     {
     public:
@@ -24,4 +19,9 @@ namespace WTLayoutManager::Services{
         /// </summary>
         static int LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock);
     };
+
+    inline namespace DummyNamespace {
+        public ref class DummyClass {
+        };
+    }
 }
