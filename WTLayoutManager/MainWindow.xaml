@@ -83,6 +83,7 @@
                   ItemsSource="{Binding Terminals}"
                   SelectedItem="{Binding SelectedTerminal}"
                   IsEnabled="{Binding TerminalsComboBoxEnabled}"
+                  materialDesign:HintAssist.Hint="Choose Terminal..."
                   Margin="0,0,0,5"
                   Width="500">
                 <ComboBox.ItemTemplate>
