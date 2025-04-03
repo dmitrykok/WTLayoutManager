@@ -20,7 +20,6 @@ namespace WTLayoutManager.ViewModels
         Dictionary<string, TerminalInfo>? _terminalDict;
         private string? _searchText;
         private TerminalListItem? _selectedTerminal;
-        private readonly IMessageBoxService _messageBoxService;
 
         public MainViewModel(IMessageBoxService messageBoxService)
         {

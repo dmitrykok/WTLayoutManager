@@ -197,7 +197,15 @@ namespace WTLayoutManager.Services
             if (!File.Exists(filePath))
                 return null;
 
-            string json = File.ReadAllText(filePath);
+            string json;
+            try
+            {
+                json = File.ReadAllText(filePath);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
             StateJson? state;
             try

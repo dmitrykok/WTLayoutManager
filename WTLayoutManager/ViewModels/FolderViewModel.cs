@@ -10,19 +10,18 @@ namespace WTLayoutManager.ViewModels
     {
         private readonly FolderModel _folder;
         private readonly MainViewModel _parentViewModel;
-        private readonly IMessageBoxService _messageBoxService;
         private readonly string _localAppRoot;
-        private readonly string _localAppBin;
+        //private readonly string _localAppBin;
         private readonly Dictionary<string, Task<int>> _runningTerminals = new Dictionary<string, Task<int>>();
         private readonly Dictionary<string, Task<int>> _runningTerminalsAs = new Dictionary<string, Task<int>>();
 
         public FolderViewModel(FolderModel folder, MainViewModel parentViewModel, IMessageBoxService messageBoxService)
+            : base(messageBoxService)
         {
             _folder = folder;
             _parentViewModel = parentViewModel;
-            _messageBoxService = messageBoxService;
             _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
-            _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
+            //_localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
             // Initialize commands
             RunCommand = new RelayCommand(async _ => await ExecuteRunAsync());
             RunAsCommand = new RelayCommand(async _ => await ExecuteRunAsAsync());
