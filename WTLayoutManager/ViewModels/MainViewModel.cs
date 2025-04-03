@@ -130,9 +130,12 @@ namespace WTLayoutManager.ViewModels
             if (string.IsNullOrWhiteSpace(SearchText)) return true;
             if (item is FolderViewModel fvm)
             {
-                return fvm.Name
-                          .ToLowerInvariant()
-                          .Contains(SearchText.ToLowerInvariant());
+                if (fvm.Name != null)
+                {
+                    return fvm.Name
+                              .ToLowerInvariant()
+                              .Contains(SearchText.ToLowerInvariant());
+                }
             }
             return false;
         }
@@ -153,7 +156,7 @@ namespace WTLayoutManager.ViewModels
                 return;
 
             // 4) Get the TerminalInfo from the dictionary
-            if (!_terminalDict.TryGetValue(key, out TerminalInfo terminalInfo))
+            if (!_terminalDict.TryGetValue(key, out var terminalInfo))
                 return; // no match
 
             // 5) Suppose you have "folders" or some property inside TerminalInfo that

@@ -72,7 +72,10 @@ namespace WTLayoutManager.Controls
 
                 try
                 {
-                    img.Source = new BitmapImage(new Uri(pane.Icon, UriKind.RelativeOrAbsolute));
+                    if (pane.Icon != null)
+                    {
+                        img.Source = new BitmapImage(new Uri(pane.Icon, UriKind.RelativeOrAbsolute));
+                    }
                 }
                 catch
                 {
