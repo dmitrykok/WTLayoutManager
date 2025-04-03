@@ -44,8 +44,8 @@ void __CRTDECL operator delete(void* const ptr) noexcept {
     if (!ptr) {
         return;
     }
+    NewValidHeapPointer(ptr);
     _MemBlockHeader* header = header_from_block(ptr);
-    NewValidHeapPointer(header);
     if (header->_block_guard != 0xdeadbeef) {
         _CrtDbgBreak();
     }
@@ -92,8 +92,8 @@ void __CRTDECL operator delete[](void* const ptr) noexcept {
     if (!ptr) {
         return;
     }
+    NewValidHeapPointer(ptr);
     _MemBlockHeader* header = header_from_block(ptr);
-    NewValidHeapPointer(header);
     if (header->_block_guard != 0xdeadbeef) {
         _CrtDbgBreak();
     }

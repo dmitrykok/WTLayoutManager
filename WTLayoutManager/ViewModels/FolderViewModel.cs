@@ -133,7 +133,7 @@ namespace WTLayoutManager.ViewModels
             Dictionary<string, Task<int>> runningTerminals,
             string alreadyRunningMessage,
             string propertyName,
-            Func<string, Task<int>> launchProcess
+            Func<string, string, string, Task<int>> launchProcess
         )
         {
             if (runningTerminals.ContainsKey(Path))
@@ -151,7 +151,20 @@ namespace WTLayoutManager.ViewModels
                     fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
                 }
 
-                Task<int> launchTask = launchProcess(fileName);
+                var commandLine = $"\"{fileName}\"";
+                if (terminalInfo.Version >= "1.25.53104.5")
+                {
+                    commandLine += $" --localstate \"{Path}\"";
+                }
+
+                string envBlock = string.Empty;
+                if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
+                {
+                    envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
+                    envBlock += "\0"; // explicit double-null termination for the block
+                }
+
+                Task<int> launchTask = launchProcess(fileName, commandLine, envBlock);
                 runningTerminals.Add(Path, launchTask);
                 OnPropertyChanged(propertyName);
 
@@ -168,22 +181,15 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsync()
         {
-            string envBlock = string.Empty;
-            if (!IsDefault)
-            {
-                envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
-                envBlock += "\0"; // explicit double-null termination for the block
-            }
-
             try
             {
                 await ExecuteTerminalAsync(
                     _runningTerminals,
                     "Terminal is already running for this local state.",
                     nameof(CanRunTerminal),
-                    fileName => Task.Run(() => ProcessLauncher.LaunchProcess(
+                    (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcess(
                         fileName,
-                        $"\"{fileName}\"",
+                        commandLine,
                         envBlock)
                     )
                 );
@@ -198,23 +204,16 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsAsync()
         {
-            string envBlock = string.Empty;
-            if (!IsDefault)
-            {
-                envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
-                envBlock += "\0"; // explicit double-null termination for the block
-            }
-
             try
             {
                 await ExecuteTerminalAsync(
                     _runningTerminalsAs,
                     "Terminal Admin is already running for this local state.",
                     nameof(CanRunTerminalAs),
-                    fileName => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
+                    (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
                         System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
                         fileName,
-                        $"\"{fileName}\"",
+                        commandLine,
                         envBlock)
                     )
                 );

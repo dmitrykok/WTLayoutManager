@@ -29,6 +29,10 @@ namespace WTLayoutManager.Services
 
                     using (var accessor = mmf.CreateViewAccessor(0, mapSize, MemoryMappedFileAccess.Read))
                     {
+                        var options = new JsonSerializerOptions
+                        {
+                            Converters = { new PackageVersionConverter() }
+                        };
                         // We'll read from offset 0 until we hit a zero byte or the end.
                         byte[] buffer = new byte[mapSize];
                         accessor.ReadArray(0, buffer, 0, buffer.Length);
@@ -45,7 +49,7 @@ namespace WTLayoutManager.Services
                         // De-serialize the JSON
                         if (!string.IsNullOrEmpty(jsonString))
                         {
-                            var _packages = JsonSerializer.Deserialize<Dictionary<string, TerminalInfo>>(jsonString);
+                            var _packages = JsonSerializer.Deserialize<Dictionary<string, TerminalInfo>>(jsonString, options);
                             // Console.WriteLine("Received {0} TerminalInfo items.", _packages?.Count ?? 0);
                             return _packages;
                             // Do something with the data

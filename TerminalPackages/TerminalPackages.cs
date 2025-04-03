@@ -8,14 +8,26 @@ namespace WTLayoutManager.Services
 {
     [Serializable]
     public class TerminalInfo(
-    string terminalName,
+    string fullName,
     string familyName,
+    string name,
+    string publisher,
+    string publisherId,
+    PackageVersionEx version,
+    DateTimeOffset installedDate,
+    string publisherDisplayName,
     string displayName,
     string logoAbsoluteUri,
     string installedLocationPath)
     {
-        public string TerminalName { get; set; } = terminalName;
+        public string FullName { get; set; } = fullName;
         public string FamilyName { get; set; } = familyName;
+        public string Name { get; set; } = name;
+        public string Publisher { get; set; } = publisher;
+        public string PublisherId { get; set; } = publisherId;
+        public PackageVersionEx Version { get; set; } = version;
+        public DateTimeOffset InstalledDate { get; set; } = installedDate;
+        public string PublisherDisplayName { get; set; } = publisherDisplayName;
         public string DisplayName { get; set; } = displayName;
         public string LogoAbsoluteUri { get; set; } = logoAbsoluteUri;
         public string InstalledLocationPath { get; set; } = installedLocationPath;
@@ -24,8 +36,14 @@ namespace WTLayoutManager.Services
         public TerminalInfo Clone()
         {
             return new TerminalInfo(
-                TerminalName,
+                FullName,
                 FamilyName,
+                Name,
+                Publisher,
+                PublisherId,
+                Version,
+                InstalledDate,
+                PublisherDisplayName,
                 DisplayName,
                 LogoAbsoluteUri,
                 InstalledLocationPath)
@@ -76,8 +94,14 @@ namespace WTLayoutManager.Services
                 {
                     string cn = GetCommonName(package.Id.Publisher);
                     terminals[String.Format("{0, -36}  \t-> \"{1}\"", package.DisplayName, cn)] = new TerminalInfo(
+                        package.Id.FullName,
                         package.Id.FamilyName,
-                        package.Id.FamilyName,
+                        package.Id.Name,
+                        package.Id.Publisher,
+                        package.Id.PublisherId,
+                        package.Id.Version,
+                        package.InstalledDate,
+                        package.PublisherDisplayName,
                         package.DisplayName,
                         package.Logo.AbsoluteUri,
                         package.InstalledLocation.Path);
