@@ -129,6 +129,26 @@ namespace WTLayoutManager.ViewModels
         public ICommand ConfirmEditCommand { get; }
         public ICommand CancelEditCommand { get; }
 
+        private string BuildCommandLine(TerminalInfo terminalInfo, string fileName)
+        {
+            var commandLine = $"\"{fileName}\"";
+            if (terminalInfo.Version >= "1.25.53104.5")
+            {
+                commandLine += $" --localstate \"{Path}\"";
+            }
+            return commandLine;
+        }
+
+        private string BuildEnvironmentBlock(TerminalInfo terminalInfo)
+        {
+            if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
+            {
+                // Single-null terminators per variable, ending with a double-null terminator.
+                return $"WT_BASE_SETTINGS_PATH={Path}\0\0";
+            }
+            return string.Empty;
+        }
+
         private async Task ExecuteTerminalAsync(
             Dictionary<string, Task<int>> runningTerminals,
             string alreadyRunningMessage,
@@ -151,20 +171,11 @@ namespace WTLayoutManager.ViewModels
                     fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
                 }
 
-                var commandLine = $"\"{fileName}\"";
-                if (terminalInfo.Version >= "1.25.53104.5")
-                {
-                    commandLine += $" --localstate \"{Path}\"";
-                }
-
-                string envBlock = string.Empty;
-                if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
-                {
-                    envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
-                    envBlock += "\0"; // explicit double-null termination for the block
-                }
-
-                Task<int> launchTask = launchProcess(fileName, commandLine, envBlock);
+                Task<int> launchTask = launchProcess(
+                    fileName,
+                    BuildCommandLine(terminalInfo, fileName),
+                    BuildEnvironmentBlock(terminalInfo)
+                );
                 runningTerminals.Add(Path, launchTask);
                 OnPropertyChanged(propertyName);
 
