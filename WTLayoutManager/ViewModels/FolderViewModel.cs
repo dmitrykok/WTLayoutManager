@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Input;
 using WTLayoutManager.Models;
@@ -129,6 +130,16 @@ namespace WTLayoutManager.ViewModels
         public ICommand ConfirmEditCommand { get; }
         public ICommand CancelEditCommand { get; }
 
+        private bool ValidateFolderPath([NotNullWhen(true)] string? path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+                return false;
+            }
+            return true;
+        }
+
         private string BuildCommandLine(TerminalInfo terminalInfo, string fileName)
         {
             var commandLine = $"\"{fileName}\"";
@@ -166,20 +177,17 @@ namespace WTLayoutManager.ViewModels
             Func<string, string, string, Task<int>> launchProcess
         )
         {
-            if (Path == null)
-            {
-                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+            if (!ValidateFolderPath(Path))
                 return;
-            }
 
-            if (Path != null && runningTerminals.ContainsKey(Path))
+            if (runningTerminals.ContainsKey(Path))
             {
                 _messageBoxService.ShowMessage(alreadyRunningMessage, "Warning", DialogType.Warning);
                 return;
             }
 
             var key = _parentViewModel.SelectedTerminal?.DisplayName;
-            if (key != null && Path != null &&  _parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
+            if (key != null && _parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
             {
                 var fileName = BuildTerminalPath(terminalInfo);
 
@@ -204,11 +212,9 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsync()
         {
-            if (Path == null)
-            {
-                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+            if (!ValidateFolderPath(Path))
                 return;
-            }
+
             try
             {
                 await ExecuteTerminalAsync(
@@ -232,11 +238,9 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsAsync()
         {
-            if (Path == null)
-            {
-                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+            if (!ValidateFolderPath(Path))
                 return;
-            }
+
             try
             {
                 await ExecuteTerminalAsync(
@@ -263,11 +267,9 @@ namespace WTLayoutManager.ViewModels
 
         private void ExecuteDuplicateEx(object? parameter, string? exFolderName)
         {
-            if (Path == null)
-            {
-                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+            if (!ValidateFolderPath(Path))
                 return;
-            }
+
             try
             {
                 if (_parentViewModel.TerminalDict != null &&
@@ -378,11 +380,9 @@ namespace WTLayoutManager.ViewModels
 
         private void ExecuteDelete(object? parameter)
         {
-            if (Path == null)
-            {
-                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+            if (!ValidateFolderPath(Path))
                 return;
-            }
+
             try
             {
                 if (IsDefault)
