@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Globalization;
 using Windows.ApplicationModel;
 
 public static class PackageVersionExtensions
@@ -13,10 +13,10 @@ public static class PackageVersionExtensions
         }
         return new PackageVersion
         {
-            Major = ushort.Parse(parts[0]),
-            Minor = ushort.Parse(parts[1]),
-            Build = ushort.Parse(parts[2]),
-            Revision = ushort.Parse(parts[3])
+            Major = ushort.Parse(parts[0], CultureInfo.InvariantCulture),
+            Minor = ushort.Parse(parts[1], CultureInfo.InvariantCulture),
+            Build = ushort.Parse(parts[2], CultureInfo.InvariantCulture),
+            Revision = ushort.Parse(parts[3], CultureInfo.InvariantCulture)
         };
     }
 

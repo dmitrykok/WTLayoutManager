@@ -22,8 +22,8 @@ namespace WTLayoutManager.ViewModels
         private TerminalListItem? _selectedTerminal;
 
         public MainViewModel(IMessageBoxService messageBoxService)
+            : base(messageBoxService)
         {
-            _messageBoxService = messageBoxService;
             // Load installed terminals
             _terminalService = new TerminalService(_messageBoxService);
             Terminals = new ObservableCollection<TerminalListItem>(LoadInstalledTerminals());
