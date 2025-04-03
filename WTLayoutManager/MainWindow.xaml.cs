@@ -60,12 +60,12 @@ namespace WTLayoutManager
                 {
                     if (args.Key == Key.Enter)
                     {
-                        DataGrid dataGrid = FindAncestor<DataGrid>(textBox);
+                        DataGrid? dataGrid = FindAncestor<DataGrid>(textBox);
                         dataGrid?.CommitEdit(DataGridEditingUnit.Cell, true);
                     }
                     else if (args.Key == Key.Escape)
                     {
-                        DataGrid dataGrid = FindAncestor<DataGrid>(textBox);
+                        DataGrid? dataGrid = FindAncestor<DataGrid>(textBox);
                         dataGrid?.CancelEdit(DataGridEditingUnit.Cell);
                     }
                 };
@@ -73,7 +73,7 @@ namespace WTLayoutManager
         }
 
         // Helper method to find ancestor in visual tree
-        private T FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        private T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
         {
             while (current != null)
             {
@@ -85,7 +85,7 @@ namespace WTLayoutManager
             return default;
         }
 
-        private static T FindChild<T>(DependencyObject parent) where T : DependencyObject
+        private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
         {
             if (parent == null) return null;
 

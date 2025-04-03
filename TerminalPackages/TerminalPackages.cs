@@ -8,14 +8,26 @@ namespace WTLayoutManager.Services
 {
     [Serializable]
     public class TerminalInfo(
-    string terminalName,
+    string fullName,
     string familyName,
+    string name,
+    string publisher,
+    string publisherId,
+    PackageVersionEx version,
+    DateTimeOffset installedDate,
+    string publisherDisplayName,
     string displayName,
     string logoAbsoluteUri,
     string installedLocationPath)
     {
-        public string TerminalName { get; set; } = terminalName;
+        public string FullName { get; set; } = fullName;
         public string FamilyName { get; set; } = familyName;
+        public string Name { get; set; } = name;
+        public string Publisher { get; set; } = publisher;
+        public string PublisherId { get; set; } = publisherId;
+        public PackageVersionEx Version { get; set; } = version;
+        public DateTimeOffset InstalledDate { get; set; } = installedDate;
+        public string PublisherDisplayName { get; set; } = publisherDisplayName;
         public string DisplayName { get; set; } = displayName;
         public string LogoAbsoluteUri { get; set; } = logoAbsoluteUri;
         public string InstalledLocationPath { get; set; } = installedLocationPath;
@@ -24,8 +36,14 @@ namespace WTLayoutManager.Services
         public TerminalInfo Clone()
         {
             return new TerminalInfo(
-                TerminalName,
+                FullName,
                 FamilyName,
+                Name,
+                Publisher,
+                PublisherId,
+                Version,
+                InstalledDate,
+                PublisherDisplayName,
                 DisplayName,
                 LogoAbsoluteUri,
                 InstalledLocationPath)
@@ -38,6 +56,19 @@ namespace WTLayoutManager.Services
 
     public class TerminalPackages
     {
+        private static readonly Regex _regex = new Regex(@"CN\s*=\s*(?<cn>(""[^""]+"")|[^,]+)", RegexOptions.IgnoreCase);
+
+        public static JsonSerializerOptions SerializerOptions { get; } = new JsonSerializerOptions
+        {
+            Converters =
+            {
+                new PackageVersionConverter()
+            },
+            WriteIndented = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+
         static string GetCommonName(string distinguishedName)
         {
             if (string.IsNullOrWhiteSpace(distinguishedName))
@@ -45,7 +76,8 @@ namespace WTLayoutManager.Services
                 throw new ArgumentException("Distinguished name is null or empty.", nameof(distinguishedName));
             }
 
-            var match = Regex.Match(distinguishedName, @"CN\s*=\s*(?<cn>(""[^""]+"")|[^,]+)", RegexOptions.IgnoreCase);
+            // Use regex to extract the CN value
+            var match = _regex.Match(distinguishedName);
 
             if (match.Success)
             {
@@ -76,8 +108,14 @@ namespace WTLayoutManager.Services
                 {
                     string cn = GetCommonName(package.Id.Publisher);
                     terminals[String.Format("{0, -36}  \t-> \"{1}\"", package.DisplayName, cn)] = new TerminalInfo(
+                        package.Id.FullName,
                         package.Id.FamilyName,
-                        package.Id.FamilyName,
+                        package.Id.Name,
+                        package.Id.Publisher,
+                        package.Id.PublisherId,
+                        package.Id.Version,
+                        package.InstalledDate,
+                        package.PublisherDisplayName,
                         package.DisplayName,
                         package.Logo.AbsoluteUri,
                         package.InstalledLocation.Path);

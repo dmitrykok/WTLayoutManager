@@ -15,7 +15,6 @@ namespace WTLayoutManager.Services
         }
 
         private readonly IMessageBoxService _messageBoxService;
-        private Dictionary<string, TerminalInfo>? _packages;
         private Dictionary<string, TerminalInfo>? Packages
         {
             get
@@ -45,7 +44,7 @@ namespace WTLayoutManager.Services
                         // De-serialize the JSON
                         if (!string.IsNullOrEmpty(jsonString))
                         {
-                            var _packages = JsonSerializer.Deserialize<Dictionary<string, TerminalInfo>>(jsonString);
+                            var _packages = JsonSerializer.Deserialize<Dictionary<string, TerminalInfo>>(jsonString, TerminalPackages.SerializerOptions);
                             // Console.WriteLine("Received {0} TerminalInfo items.", _packages?.Count ?? 0);
                             return _packages;
                             // Do something with the data

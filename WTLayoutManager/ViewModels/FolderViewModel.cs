@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Input;
 using WTLayoutManager.Models;
@@ -11,18 +12,17 @@ namespace WTLayoutManager.ViewModels
         private readonly FolderModel _folder;
         private readonly MainViewModel _parentViewModel;
         private readonly string _localAppRoot;
-        private readonly string _localAppBin;
-        private readonly IMessageBoxService _messageBoxService;
+        //private readonly string _localAppBin;
         private readonly Dictionary<string, Task<int>> _runningTerminals = new Dictionary<string, Task<int>>();
         private readonly Dictionary<string, Task<int>> _runningTerminalsAs = new Dictionary<string, Task<int>>();
 
         public FolderViewModel(FolderModel folder, MainViewModel parentViewModel, IMessageBoxService messageBoxService)
+            : base(messageBoxService)
         {
             _folder = folder;
             _parentViewModel = parentViewModel;
-            _messageBoxService = messageBoxService;
             _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
-            _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
+            //_localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
             // Initialize commands
             RunCommand = new RelayCommand(async _ => await ExecuteRunAsync());
             RunAsCommand = new RelayCommand(async _ => await ExecuteRunAsAsync());
@@ -55,7 +55,7 @@ namespace WTLayoutManager.ViewModels
         public string ExpandCollapseIndicator => IsExpanded ? "-" : "+";
 
         // We'll also add a command to toggle IsExpanded:
-        private ICommand _toggleExpandCollapseCommand;
+        private ICommand? _toggleExpandCollapseCommand;
         public ICommand ToggleExpandCollapseCommand
         {
             get
@@ -70,9 +70,10 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        public string Name
+        public string? Name
         {
             get => _folder.Name;
+
             set
             {
                 if (_folder.Name != value)
@@ -84,7 +85,7 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        public string Path
+        public string? Path
         {
             get => _folder.Path;
             set
@@ -115,7 +116,7 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        public List<FileModel> Files => _folder.Files; // or new ObservableCollection if needed
+        public List<FileModel>? Files => _folder.Files; // or new ObservableCollection if needed
 
         // Expand/Collapse handling in the main grid can be done at the MainViewModel level, or here with a boolean.
 
@@ -129,29 +130,72 @@ namespace WTLayoutManager.ViewModels
         public ICommand ConfirmEditCommand { get; }
         public ICommand CancelEditCommand { get; }
 
+        private bool ValidateFolderPath([NotNullWhen(true)] string? path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                _messageBoxService.ShowMessage("LocalState folder path is null.", "Error", DialogType.Error);
+                return false;
+            }
+            return true;
+        }
+
+        private string BuildCommandLine(TerminalInfo terminalInfo, string fileName)
+        {
+            var commandLine = $"\"{fileName}\"";
+            if (terminalInfo.Version >= "1.25.53104.5")
+            {
+                commandLine += $" --localstate \"{Path}\"";
+            }
+            return commandLine;
+        }
+
+        private string BuildEnvironmentBlock(TerminalInfo terminalInfo)
+        {
+            if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
+            {
+                // Single-null terminators per variable, ending with a double-null terminator.
+                return $"WT_BASE_SETTINGS_PATH={Path}\0\0";
+            }
+            return string.Empty;
+        }
+
+        private string BuildTerminalPath(TerminalInfo terminalInfo)
+        {
+            var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
+            if (!File.Exists(fileName))
+            {
+                fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
+            }
+            return fileName;
+        }
+
         private async Task ExecuteTerminalAsync(
             Dictionary<string, Task<int>> runningTerminals,
             string alreadyRunningMessage,
             string propertyName,
-            Func<string, Task<int>> launchProcess
+            Func<string, string, string, Task<int>> launchProcess
         )
         {
+            if (!ValidateFolderPath(Path))
+                return;
+
             if (runningTerminals.ContainsKey(Path))
             {
                 _messageBoxService.ShowMessage(alreadyRunningMessage, "Warning", DialogType.Warning);
                 return;
             }
 
-            var key = _parentViewModel.SelectedTerminal.DisplayName;
-            if (_parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
+            var key = _parentViewModel.SelectedTerminal?.DisplayName;
+            if (key != null && _parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
             {
-                var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
-                if (!File.Exists(fileName))
-                {
-                    fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
-                }
+                var fileName = BuildTerminalPath(terminalInfo);
 
-                Task<int> launchTask = launchProcess(fileName);
+                Task<int> launchTask = launchProcess(
+                    fileName,
+                    BuildCommandLine(terminalInfo, fileName),
+                    BuildEnvironmentBlock(terminalInfo)
+                );
                 runningTerminals.Add(Path, launchTask);
                 OnPropertyChanged(propertyName);
 
@@ -168,12 +212,8 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsync()
         {
-            string envBlock = string.Empty;
-            if (!IsDefault)
-            {
-                envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
-                envBlock += "\0"; // explicit double-null termination for the block
-            }
+            if (!ValidateFolderPath(Path))
+                return;
 
             try
             {
@@ -181,9 +221,9 @@ namespace WTLayoutManager.ViewModels
                     _runningTerminals,
                     "Terminal is already running for this local state.",
                     nameof(CanRunTerminal),
-                    fileName => Task.Run(() => ProcessLauncher.LaunchProcess(
+                    (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcess(
                         fileName,
-                        $"\"{fileName}\"",
+                        commandLine,
                         envBlock)
                     )
                 );
@@ -198,12 +238,8 @@ namespace WTLayoutManager.ViewModels
 
         private async Task ExecuteRunAsAsync()
         {
-            string envBlock = string.Empty;
-            if (!IsDefault)
-            {
-                envBlock = $"WT_BASE_SETTINGS_PATH={Path}\0"; // single-null terminator per variable
-                envBlock += "\0"; // explicit double-null termination for the block
-            }
+            if (!ValidateFolderPath(Path))
+                return;
 
             try
             {
@@ -211,10 +247,10 @@ namespace WTLayoutManager.ViewModels
                     _runningTerminalsAs,
                     "Terminal Admin is already running for this local state.",
                     nameof(CanRunTerminalAs),
-                    fileName => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
+                    (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
                         System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
                         fileName,
-                        $"\"{fileName}\"",
+                        commandLine,
                         envBlock)
                     )
                 );
@@ -231,13 +267,16 @@ namespace WTLayoutManager.ViewModels
 
         private void ExecuteDuplicateEx(object? parameter, string? exFolderName)
         {
+            if (!ValidateFolderPath(Path))
+                return;
+
             try
             {
                 if (_parentViewModel.TerminalDict != null &&
                     _parentViewModel.SelectedTerminal != null)
                 {
                     var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
+                    if (key != null && _parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
                     {
                         string? newFolderName = exFolderName;
                         if (newFolderName == null)
@@ -341,6 +380,9 @@ namespace WTLayoutManager.ViewModels
 
         private void ExecuteDelete(object? parameter)
         {
+            if (!ValidateFolderPath(Path))
+                return;
+
             try
             {
                 if (IsDefault)

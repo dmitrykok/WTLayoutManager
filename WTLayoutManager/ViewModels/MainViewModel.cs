@@ -10,21 +10,20 @@ namespace WTLayoutManager.ViewModels
 {
     public class TerminalListItem
     {
-        public string ImageSource { get; set; }
-        public string DisplayName { get; set; }
+        public string? ImageSource { get; set; }
+        public string? DisplayName { get; set; }
     }
 
     public class MainViewModel : BaseViewModel
     {
         private readonly ITerminalService _terminalService;
         Dictionary<string, TerminalInfo>? _terminalDict;
-        private string _searchText;
-        private TerminalListItem _selectedTerminal;
-        private readonly IMessageBoxService _messageBoxService;
+        private string? _searchText;
+        private TerminalListItem? _selectedTerminal;
 
         public MainViewModel(IMessageBoxService messageBoxService)
+            : base(messageBoxService)
         {
-            _messageBoxService = messageBoxService;
             // Load installed terminals
             _terminalService = new TerminalService(_messageBoxService);
             Terminals = new ObservableCollection<TerminalListItem>(LoadInstalledTerminals());
@@ -44,7 +43,7 @@ namespace WTLayoutManager.ViewModels
         }
 
         // Whenever folders are added, subscribe to their PropertyChanged so we can update TerminalsComboBoxEnabled.
-        private void Folders_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Folders_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
             {
@@ -70,7 +69,7 @@ namespace WTLayoutManager.ViewModels
             OnPropertyChanged(nameof(TerminalsComboBoxEnabled));
         }
 
-        private void FolderViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void FolderViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(FolderViewModel.CanRunTerminal) ||
                 e.PropertyName == nameof(FolderViewModel.CanRunTerminalAs))
@@ -85,7 +84,7 @@ namespace WTLayoutManager.ViewModels
 
         public ObservableCollection<TerminalListItem> Terminals { get; }
 
-        public TerminalListItem SelectedTerminal
+        public TerminalListItem? SelectedTerminal
         {
             get => _selectedTerminal;
             set
@@ -102,7 +101,7 @@ namespace WTLayoutManager.ViewModels
         public ObservableCollection<FolderViewModel> Folders { get; }
         public ICollectionView FoldersView { get; }
 
-        public string SearchText
+        public string? SearchText
         {
             get => _searchText;
             set
@@ -131,9 +130,12 @@ namespace WTLayoutManager.ViewModels
             if (string.IsNullOrWhiteSpace(SearchText)) return true;
             if (item is FolderViewModel fvm)
             {
-                return fvm.Name
-                          .ToLowerInvariant()
-                          .Contains(SearchText.ToLowerInvariant());
+                if (fvm.Name != null)
+                {
+                    return fvm.Name
+                              .ToLowerInvariant()
+                              .Contains(SearchText.ToLowerInvariant());
+                }
             }
             return false;
         }
@@ -154,7 +156,7 @@ namespace WTLayoutManager.ViewModels
                 return;
 
             // 4) Get the TerminalInfo from the dictionary
-            if (!_terminalDict.TryGetValue(key, out TerminalInfo terminalInfo))
+            if (!_terminalDict.TryGetValue(key, out var terminalInfo))
                 return; // no match
 
             // 5) Suppose you have "folders" or some property inside TerminalInfo that

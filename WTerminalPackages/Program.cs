@@ -27,7 +27,7 @@ namespace WTLayoutManager.Services
                     // Gather data with PackageManager
                     Dictionary<string, TerminalInfo> _packages = TerminalPackages.FindInstalledTerminals();
                     var packages = _packages.ToDictionary(entry => entry.Key, entry => entry.Value.Clone());
-                    string jsonString = JsonSerializer.Serialize(packages);
+                    string jsonString = JsonSerializer.Serialize(packages, TerminalPackages.SerializerOptions);
 
                     // Write to the memory-mapped file
                     // MUST be <= the map size (1 MB in example).
