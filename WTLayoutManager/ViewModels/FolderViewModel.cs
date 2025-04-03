@@ -10,9 +10,9 @@ namespace WTLayoutManager.ViewModels
     {
         private readonly FolderModel _folder;
         private readonly MainViewModel _parentViewModel;
+        private readonly IMessageBoxService _messageBoxService;
         private readonly string _localAppRoot;
         private readonly string _localAppBin;
-        private readonly IMessageBoxService _messageBoxService;
         private readonly Dictionary<string, Task<int>> _runningTerminals = new Dictionary<string, Task<int>>();
         private readonly Dictionary<string, Task<int>> _runningTerminalsAs = new Dictionary<string, Task<int>>();
 
@@ -55,7 +55,7 @@ namespace WTLayoutManager.ViewModels
         public string ExpandCollapseIndicator => IsExpanded ? "-" : "+";
 
         // We'll also add a command to toggle IsExpanded:
-        private ICommand _toggleExpandCollapseCommand;
+        private ICommand? _toggleExpandCollapseCommand;
         public ICommand ToggleExpandCollapseCommand
         {
             get
@@ -70,9 +70,10 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        public string Name
+        public string? Name
         {
             get => _folder.Name;
+
             set
             {
                 if (_folder.Name != value)
@@ -84,7 +85,7 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        public string Path
+        public string? Path
         {
             get => _folder.Path;
             set
@@ -115,7 +116,7 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        public List<FileModel> Files => _folder.Files; // or new ObservableCollection if needed
+        public List<FileModel>? Files => _folder.Files; // or new ObservableCollection if needed
 
         // Expand/Collapse handling in the main grid can be done at the MainViewModel level, or here with a boolean.
 
@@ -136,14 +137,14 @@ namespace WTLayoutManager.ViewModels
             Func<string, string, string, Task<int>> launchProcess
         )
         {
-            if (runningTerminals.ContainsKey(Path))
+            if (Path != null && runningTerminals.ContainsKey(Path))
             {
                 _messageBoxService.ShowMessage(alreadyRunningMessage, "Warning", DialogType.Warning);
                 return;
             }
 
-            var key = _parentViewModel.SelectedTerminal.DisplayName;
-            if (_parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
+            var key = _parentViewModel.SelectedTerminal?.DisplayName;
+            if (key != null &&  _parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
             {
                 var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
                 if (!File.Exists(fileName))
@@ -236,7 +237,7 @@ namespace WTLayoutManager.ViewModels
                     _parentViewModel.SelectedTerminal != null)
                 {
                     var key = _parentViewModel.SelectedTerminal.DisplayName;
-                    if (_parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
+                    if (key != null && _parentViewModel.TerminalDict.TryGetValue(key, out var terminalInfo))
                     {
                         string? newFolderName = exFolderName;
                         if (newFolderName == null)

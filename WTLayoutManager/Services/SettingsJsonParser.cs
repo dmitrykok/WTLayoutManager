@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows.Resources;
 using WTLayoutManager.Models;
-using WTLayoutManager.ViewModels;
-using System;
-using System.IO;
 using System.Windows;
-using System.Windows.Resources;
 
 namespace WTLayoutManager.Services
 {
@@ -26,12 +17,7 @@ namespace WTLayoutManager.Services
                 yield break;
 
             var json = File.ReadAllText(filePath);
-            var options = new JsonSerializerOptions
-            {
-                ReadCommentHandling = JsonCommentHandling.Skip,
-                AllowTrailingCommas = true
-            };
-            var settings = JsonSerializer.Deserialize<SettingsJson>(json, options);
+            var settings = JsonSerializer.Deserialize<SettingsJson>(json, TerminalJsonOptions.SerializerOptions);
 
             if (settings?.Profiles?.List == null)
                 yield break;

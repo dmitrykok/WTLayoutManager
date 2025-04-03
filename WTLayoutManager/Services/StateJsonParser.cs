@@ -11,8 +11,8 @@ namespace WTLayoutManager.Services
     {
         private class TabContext
         {
-            public TabStateViewModel CurrentTab { get; set; }
-            public PaneViewModel CurrentFocusedPane { get; set; }
+            public TabStateViewModel? CurrentTab { get; set; }
+            public PaneViewModel? CurrentFocusedPane { get; set; }
             public List<TabStateViewModel> Tabs { get; } = new List<TabStateViewModel>();
         }
 
@@ -71,7 +71,7 @@ namespace WTLayoutManager.Services
                 double h = context.CurrentFocusedPane.Height;
                 double newW, newH;
                 var splitDir = action.Split?.ToLowerInvariant();
-                PaneViewModel newPane = new PaneViewModel
+                PaneViewModel newPane = new()
                 {
                     ProfileName = action.Profile,
                     Icon = GetIconForProfile(action.Profile, profileIcons),
@@ -188,7 +188,7 @@ namespace WTLayoutManager.Services
             }
         }
 
-        public static StateJsonTooltipViewModel ParseState(string filePath, Dictionary<string, string> profileIcons)
+        public static StateJsonTooltipViewModel? ParseState(string filePath, Dictionary<string, string> profileIcons)
         {
             var fileName = Path.GetFileName(filePath);
             if (!fileName.EndsWith("state.json"))
@@ -198,22 +198,19 @@ namespace WTLayoutManager.Services
                 return null;
 
             string json = File.ReadAllText(filePath);
-            var options = new JsonSerializerOptions
-            {
-                ReadCommentHandling = JsonCommentHandling.Skip,
-                AllowTrailingCommas = true
-            };
 
-            StateJson state;
+            StateJson? state;
             try
             {
-                state = JsonSerializer.Deserialize<StateJson>(json, options);
+                state = JsonSerializer.Deserialize<StateJson>(json, TerminalJsonOptions.SerializerOptions);
+                if (state == null)
+                    return null;
             }
             catch (Exception)
             {
                 return null;
             }
-            if (state?.PersistedWindowLayouts == null || state.PersistedWindowLayouts.Count == 0)
+            if (state.PersistedWindowLayouts == null || state.PersistedWindowLayouts.Count == 0)
                 return null;
 
             var layout = state.PersistedWindowLayouts[0];
@@ -226,7 +223,7 @@ namespace WTLayoutManager.Services
 
             foreach (var action in layout.TabLayout)
             {
-                if (actionHandlers.TryGetValue(action.Action, out var handler))
+                if (action.Action != null && actionHandlers.TryGetValue(action.Action, out var handler))
                 {
                     handler(action, profileIcons, context);
                 }
@@ -299,10 +296,10 @@ namespace WTLayoutManager.Services
         /// <summary>
         /// A simple mapping from profile name to an icon path.
         /// </summary>
-        private static string GetIconForProfile(string profileName, Dictionary<string, string> profileIcons)
+        private static string GetIconForProfile(string? profileName, Dictionary<string, string> profileIcons)
         {
             // In a real app, you might look up profile details from settings.json.
-            if (profileIcons.ContainsKey(profileName))
+            if (profileName != null && profileIcons.ContainsKey(profileName))
             {
                 return profileIcons[profileName];
             }

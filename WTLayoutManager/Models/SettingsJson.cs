@@ -16,13 +16,13 @@ namespace WTLayoutManager.Models
     public class SettingsJson
     {
         [JsonPropertyName("profiles")]
-        public ProfilesSection Profiles { get; set; }
+        public ProfilesSection? Profiles { get; set; }
     }
 
     public class ProfilesSection
     {
         [JsonPropertyName("list")]
-        public List<Profile> List { get; set; }
+        public List<Profile>? List { get; set; }
     }
 
     public class Profile

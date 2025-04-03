@@ -10,16 +10,16 @@ namespace WTLayoutManager.ViewModels
 {
     public class TerminalListItem
     {
-        public string ImageSource { get; set; }
-        public string DisplayName { get; set; }
+        public string? ImageSource { get; set; }
+        public string? DisplayName { get; set; }
     }
 
     public class MainViewModel : BaseViewModel
     {
         private readonly ITerminalService _terminalService;
         Dictionary<string, TerminalInfo>? _terminalDict;
-        private string _searchText;
-        private TerminalListItem _selectedTerminal;
+        private string? _searchText;
+        private TerminalListItem? _selectedTerminal;
         private readonly IMessageBoxService _messageBoxService;
 
         public MainViewModel(IMessageBoxService messageBoxService)
@@ -44,7 +44,7 @@ namespace WTLayoutManager.ViewModels
         }
 
         // Whenever folders are added, subscribe to their PropertyChanged so we can update TerminalsComboBoxEnabled.
-        private void Folders_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Folders_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
             {
@@ -70,7 +70,7 @@ namespace WTLayoutManager.ViewModels
             OnPropertyChanged(nameof(TerminalsComboBoxEnabled));
         }
 
-        private void FolderViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void FolderViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(FolderViewModel.CanRunTerminal) ||
                 e.PropertyName == nameof(FolderViewModel.CanRunTerminalAs))
@@ -85,7 +85,7 @@ namespace WTLayoutManager.ViewModels
 
         public ObservableCollection<TerminalListItem> Terminals { get; }
 
-        public TerminalListItem SelectedTerminal
+        public TerminalListItem? SelectedTerminal
         {
             get => _selectedTerminal;
             set
@@ -102,7 +102,7 @@ namespace WTLayoutManager.ViewModels
         public ObservableCollection<FolderViewModel> Folders { get; }
         public ICollectionView FoldersView { get; }
 
-        public string SearchText
+        public string? SearchText
         {
             get => _searchText;
             set

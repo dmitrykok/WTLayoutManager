@@ -154,7 +154,7 @@ namespace WTLayoutManager.Services
             return Version == other;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is PackageVersionEx other)
             {

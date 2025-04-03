@@ -56,6 +56,19 @@ namespace WTLayoutManager.Services
 
     public class TerminalPackages
     {
+        private static readonly Regex _regex = new Regex(@"CN\s*=\s*(?<cn>(""[^""]+"")|[^,]+)", RegexOptions.IgnoreCase);
+
+        public static JsonSerializerOptions SerializerOptions { get; } = new JsonSerializerOptions
+        {
+            Converters =
+            {
+                new PackageVersionConverter()
+            },
+            WriteIndented = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+
         static string GetCommonName(string distinguishedName)
         {
             if (string.IsNullOrWhiteSpace(distinguishedName))
@@ -63,7 +76,8 @@ namespace WTLayoutManager.Services
                 throw new ArgumentException("Distinguished name is null or empty.", nameof(distinguishedName));
             }
 
-            var match = Regex.Match(distinguishedName, @"CN\s*=\s*(?<cn>(""[^""]+"")|[^,]+)", RegexOptions.IgnoreCase);
+            // Use regex to extract the CN value
+            var match = _regex.Match(distinguishedName);
 
             if (match.Success)
             {

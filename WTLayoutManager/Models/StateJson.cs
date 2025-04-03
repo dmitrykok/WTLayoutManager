@@ -6,43 +6,43 @@ namespace WTLayoutManager.Models
     public class StateJson
     {
         [JsonPropertyName("persistedWindowLayouts")]
-        public List<PersistedWindowLayout> PersistedWindowLayouts { get; set; }
+        public List<PersistedWindowLayout>? PersistedWindowLayouts { get; set; }
     }
 
     public class PersistedWindowLayout
     {
         [JsonPropertyName("tabLayout")]
-        public List<TabLayoutAction> TabLayout { get; set; }
+        public List<TabLayoutAction>? TabLayout { get; set; }
     }
 
     public class TabLayoutAction
     {
         [JsonPropertyName("action")]
-        public string Action { get; set; }
+        public string? Action { get; set; }
 
         [JsonPropertyName("commandline")]
-        public string Commandline { get; set; }
+        public string? Commandline { get; set; }
 
         [JsonPropertyName("profile")]
-        public string Profile { get; set; }
+        public string? Profile { get; set; }
 
         [JsonPropertyName("sessionId")]
-        public string SessionId { get; set; }
+        public string? SessionId { get; set; }
 
         [JsonPropertyName("startingDirectory")]
-        public string StartingDirectory { get; set; }
+        public string? StartingDirectory { get; set; }
 
         [JsonPropertyName("suppressApplicationTitle")]
         public bool SuppressApplicationTitle { get; set; }
 
         [JsonPropertyName("tabTitle")]
-        public string TabTitle { get; set; }
+        public string? TabTitle { get; set; }
 
         [JsonPropertyName("size")]
         public double? Size { get; set; }
 
         [JsonPropertyName("split")]
-        public string Split { get; set; }
+        public string? Split { get; set; }
 
         // For focusPane actions.
         [JsonPropertyName("id")]
@@ -54,6 +54,6 @@ namespace WTLayoutManager.Models
 
         // For moveFocus actions.
         [JsonPropertyName("direction")]
-        public string Direction { get; set; }
+        public string? Direction { get; set; }
     }
 }
