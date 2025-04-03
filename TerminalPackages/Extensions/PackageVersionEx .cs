@@ -19,7 +19,7 @@ namespace WTLayoutManager.Services
 
         public PackageVersionEx(string version)
         {
-            Version = Parse(version).Version;
+            Version = new PackageVersion().Parse(version);
         }
 
         public PackageVersionEx(ushort _Major, ushort _Minor, ushort _Build, ushort _Revision)
@@ -30,19 +30,7 @@ namespace WTLayoutManager.Services
         // Parse a version string in the format "Major.Minor.Build.Revision"
         public static PackageVersionEx Parse(string version)
         {
-            var parts = version.Split('.');
-            if (parts.Length != 4)
-            {
-                throw new ArgumentException("Version string must be in the format Major.Minor.Build.Revision");
-            }
-            PackageVersion pv = new PackageVersion
-            {
-                Major = ushort.Parse(parts[0]),
-                Minor = ushort.Parse(parts[1]),
-                Build = ushort.Parse(parts[2]),
-                Revision = ushort.Parse(parts[3])
-            };
-            return new PackageVersionEx(pv);
+            return new PackageVersionEx(version);
         }
 
         public int CompareTo(PackageVersionEx other)

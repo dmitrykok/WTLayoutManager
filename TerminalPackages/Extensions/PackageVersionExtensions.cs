@@ -4,7 +4,7 @@ using Windows.ApplicationModel;
 public static class PackageVersionExtensions
 {
     // Parse a version string in the form "Major.Minor.Build.Revision"
-    public static PackageVersion ParseVersion(this string version)
+    public static PackageVersion Parse(this PackageVersion current, string version)
     {
         var parts = version.Split('.');
         if (parts.Length != 4)
@@ -35,7 +35,7 @@ public static class PackageVersionExtensions
     // Check if current version is greater than or equal to a required version specified as a string
     public static bool IsAtLeast(this PackageVersion current, string requiredVersion)
     {
-        var req = requiredVersion.ParseVersion();
+        var req = current.Parse(requiredVersion);
         return current.CompareTo(req) >= 0;
     }
 
@@ -68,25 +68,25 @@ public static class PackageVersionExtensions
     // Optionally, overload with string parameter for convenience:
     public static bool IsGreaterThan(this PackageVersion current, string otherVersion)
     {
-        var other = otherVersion.ParseVersion();
+        var other = current.Parse(otherVersion);
         return current.IsGreaterThan(other);
     }
 
     public static bool IsLessThan(this PackageVersion current, string otherVersion)
     {
-        var other = otherVersion.ParseVersion();
+        var other = current.Parse(otherVersion);
         return current.IsLessThan(other);
     }
 
     public static bool IsLessThanOrEqualTo(this PackageVersion current, string otherVersion)
     {
-        var other = otherVersion.ParseVersion();
+        var other = current.Parse(otherVersion);
         return current.IsLessThanOrEqualTo(other);
     }
 
     public static bool IsGreaterThanOrEqualTo(this PackageVersion current, string otherVersion)
     {
-        var other = otherVersion.ParseVersion();
+        var other = current.Parse(otherVersion);
         return current.IsGreaterThanOrEqualTo(other);
     }
 }
