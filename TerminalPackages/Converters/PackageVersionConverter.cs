@@ -10,7 +10,7 @@ namespace WTLayoutManager.Services
         {
             if (reader.TokenType != JsonTokenType.StartObject)
             {
-                throw new JsonException();
+                throw new JsonException("Failed to parse PackageVersionEx");
             }
 
             ushort major = 0, minor = 0, build = 0, revision = 0;
@@ -24,7 +24,7 @@ namespace WTLayoutManager.Services
 
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
-                    string propertyName = reader.GetString();
+                    string? propertyName = reader.GetString();
                     reader.Read(); // Move to the value
 
                     switch (propertyName)
@@ -47,7 +47,7 @@ namespace WTLayoutManager.Services
                     }
                 }
             }
-            throw new JsonException();
+            throw new JsonException("Failed to parse PackageVersionEx");
         }
 
         public override void Write(Utf8JsonWriter writer, PackageVersionEx value, JsonSerializerOptions options)
@@ -57,16 +57,6 @@ namespace WTLayoutManager.Services
             writer.WriteNumber("Minor", value.Version.Minor);
             writer.WriteNumber("Build", value.Version.Build);
             writer.WriteNumber("Revision", value.Version.Revision);
-            writer.WriteEndObject();
-        }
-
-        public void Write(Utf8JsonWriter writer, PackageVersion value, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-            writer.WriteNumber("Major", value.Major);
-            writer.WriteNumber("Minor", value.Minor);
-            writer.WriteNumber("Build", value.Build);
-            writer.WriteNumber("Revision", value.Revision);
             writer.WriteEndObject();
         }
     }
