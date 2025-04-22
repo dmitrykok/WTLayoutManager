@@ -6,6 +6,12 @@
 /// </remarks>
 namespace WTLayoutManager.Models
 {
+    /// <summary>
+    /// Represents a folder with its metadata and associated files.
+    /// </summary>
+    /// <remarks>
+    /// Contains properties for folder name, path, default status, last run time, and a collection of files.
+    /// </remarks>
     public class FolderModel
     {
         public string? Name { get; set; }

@@ -5,20 +5,51 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WTLayoutManager.ViewModels;
 
+/// <summary>
+/// Represents a custom UserControl for managing tab layouts with dynamic grid-based pane rendering.
+/// </summary>
+/// <remarks>
+/// This control uses a TabStateViewModel to dynamically create a grid layout with configurable rows, columns, 
+/// and panes, each with customizable positioning and visual properties.
+/// </remarks>
 namespace WTLayoutManager.Controls
 {
+    /// <summary>
+    /// Represents a custom UserControl for managing dynamic tab layouts with grid-based pane rendering.
+    /// </summary>
+    /// <remarks>
+    /// This partial class provides a flexible control for creating configurable tab layouts with dynamic grid positioning and visual properties.
+    /// </remarks>
     public partial class TabLayoutControl : UserControl
     {
+        /// <summary>
+        /// Defines the dependency property for the <see cref="TabState"/> property, enabling data binding and change notification.
+        /// </summary>
+        /// <remarks>
+        /// Registers a dependency property with a property metadata that includes a change callback to rebuild the grid layout
+        /// when the <see cref="TabStateViewModel"/> is modified.
+        /// </remarks>
         public static readonly DependencyProperty TabStateProperty =
             DependencyProperty.Register(nameof(TabState), typeof(TabStateViewModel), typeof(TabLayoutControl),
                 new PropertyMetadata(null, OnTabStateChanged));
 
+        /// <summary>
+        /// Gets or sets the current tab state view model for the layout control.
+        /// </summary>
+        /// <value>
+        /// A <see cref="TabStateViewModel"/> representing the configuration and state of the tab layout.
+        /// </value>
         public TabStateViewModel TabState
         {
             get { return (TabStateViewModel)GetValue(TabStateProperty); }
             set { SetValue(TabStateProperty, value); }
         }
 
+        /// <summary>
+        /// Handles the change of the <see cref="TabStateProperty"/> and rebuilds the grid layout.
+        /// </summary>
+        /// <param name="d">The dependency object whose property changed.</param>
+        /// <param name="e">The event arguments of the property change.</param>
         private static void OnTabStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TabLayoutControl control)
@@ -27,11 +58,25 @@ namespace WTLayoutManager.Controls
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TabLayoutControl"/> class.
+        /// </summary>
+        /// <remarks>
+        /// This constructor initializes the control and its components, preparing the control for use.
+        /// </remarks>
         public TabLayoutControl()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Rebuilds the visual grid from the <see cref="TabStateViewModel"/> data.
+        /// </summary>
+        /// <remarks>
+        /// This method creates the necessary grid rows and columns, and then adds each <see cref="PaneViewModel"/> as a visual element
+        /// into the grid, using the view model's grid position and size information. The visual elements are added as children to the
+        /// <see cref="Grid"/> control, with the proper row, column, row span, and column span set.
+        /// </remarks>
         private void BuildGrid()
         {
             MainGrid.Children.Clear();

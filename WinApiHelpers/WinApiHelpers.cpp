@@ -4,7 +4,13 @@
 
 using namespace WTLayoutManager::Services;
 
-// Helper to retrieve the last error message.
+/**
+ * Retrieves the last error message from the system as a std::wstring.
+ *
+ * Uses the current thread's last error code and formats it into a human-readable string.
+ *
+ * @return The formatted error message corresponding to the last error code.
+ */
 std::wstring WinApiHelpers::GetLastErrorMessage() {
     DWORD errorCode = GetLastError();
     LPWSTR messageBuffer = nullptr;
@@ -20,7 +26,16 @@ std::wstring WinApiHelpers::GetLastErrorMessage() {
     return message;
 }
 
-// Helper: Merge parent's environment with additional variables.
+/**
+ * Creates a merged environment block by combining the current process's environment variables
+ * with additional variables provided in the input vector.
+ *
+ * Each variable is represented as a null-terminated string, and the resulting block is double-null terminated.
+ * Returns a pointer to the newly allocated environment block, or nullptr on failure.
+ *
+ * @param additionalVars Vector of additional environment variables to append.
+ * @return Pointer to the merged environment block, or nullptr if allocation fails.
+ */
 LPWSTR WinApiHelpers::CreateMergedEnvironmentBlock(const std::vector<std::wstring>& additionalVars)
 {
     // Get the parent's environment block.

@@ -16,6 +16,14 @@
 using namespace msclr::interop;
 using namespace WTLayoutManager::Services;
 
+/**
+ * Launches a process with a custom environment block.
+ * Returns the exit code of the process.
+ * Throws an exception if the process could not be started.
+ * @param applicationPath Path to the application executable
+ * @param commandLine Command line arguments
+ * @param envBlock Encoded environment block (e.g. "VAR1=Value1;VAR2=Value2")
+ */
 int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock)
 {
     marshal_context^ context = gcnew marshal_context();
@@ -96,6 +104,16 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     return static_cast<int>(exitCode);
 }
 
+/**
+ * Launches an elevated process via a launcher executable.
+ * The launcher (with a UAC manifest) starts the target process using the provided encoded environment block.
+ * Returns the exit code of the target process.
+ * Throws an exception if the launcher could not be started.
+ * @param launcherPath Path to the launcher executable
+ * @param applicationPath Path to the target application executable
+ * @param commandLine Command line arguments
+ * @param envBlock Encoded environment block (e.g. "VAR1=Value1;VAR2=Value2")
+ */
 int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock)
 {
     marshal_context^ context = gcnew marshal_context();
@@ -153,7 +171,7 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
         delete context;
         throw gcnew System::Exception(gcnew System::String(err.c_str()));
     }
-        
+
     if (exitCode == -1)
 	{
 		// ShellExecuteEx failed.

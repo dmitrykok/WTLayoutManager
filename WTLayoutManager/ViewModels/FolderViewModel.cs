@@ -5,8 +5,22 @@ using System.Windows.Input;
 using WTLayoutManager.Models;
 using WTLayoutManager.Services;
 
+/// <summary>
+/// Represents a view model for managing Windows Terminal local state folders, providing functionality for running, duplicating, deleting, and interacting with terminal folders.
+/// </summary>
+/// <remarks>
+/// This view model handles operations such as launching terminals with specific local state configurations, creating folder duplicates,
+/// managing folder properties, and providing commands for various folder-related interactions.
+/// </remarks>
 namespace WTLayoutManager.ViewModels
 {
+    /// <summary>
+    /// Represents a view model for managing Windows Terminal local state folders, providing functionality for running, duplicating, deleting, and interacting with terminal folders.
+    /// </summary>
+    /// <remarks>
+    /// This view model handles operations such as launching terminals with specific local state configurations, creating folder duplicates,
+    /// managing folder properties, and providing commands for various folder-related interactions.
+    /// </remarks>
     public class FolderViewModel : BaseViewModel
     {
         private readonly FolderModel _folder;
@@ -16,6 +30,13 @@ namespace WTLayoutManager.ViewModels
         private readonly Dictionary<string, Task<int>> _runningTerminals = new Dictionary<string, Task<int>>();
         private readonly Dictionary<string, Task<int>> _runningTerminalsAs = new Dictionary<string, Task<int>>();
 
+        /// <summary>
+        /// Represents a folder with its associated files and settings, including operations for running, duplicating, deleting, and editing the folder.
+        /// </summary>
+        /// <remarks>
+        /// This view model is used to manage a folder with its associated files and settings, including running the terminal, duplicating or deleting the folder,
+        /// and editing the folder's name and path. The view model also handles user interactions such as confirmation dialogs and editing folder properties.
+        /// </remarks>
         public FolderViewModel(FolderModel folder, MainViewModel parentViewModel, IMessageBoxService messageBoxService)
             : base(messageBoxService)
         {
@@ -130,6 +151,12 @@ namespace WTLayoutManager.ViewModels
         public ICommand ConfirmEditCommand { get; }
         public ICommand CancelEditCommand { get; }
 
+        /// <summary>
+        /// Validates that a given LocalState folder path is not null or empty.
+        /// If the path is invalid, an error message is shown and false is returned.
+        /// </summary>
+        /// <param name="path">The LocalState folder path to validate</param>
+        /// <returns>true if the path is valid, false otherwise</returns>
         private bool ValidateFolderPath([NotNullWhen(true)] string? path)
         {
             if (string.IsNullOrEmpty(path))
@@ -140,6 +167,13 @@ namespace WTLayoutManager.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Builds the command line for running a terminal executable with the given file name,
+        /// adding the "--localstate" option if the terminal version is at least 1.25.53104.5.
+        /// </summary>
+        /// <param name="terminalInfo">The terminal information, including the version</param>
+        /// <param name="fileName">The file name of the terminal executable</param>
+        /// <returns>The command line to run the terminal executable</returns>
         private string BuildCommandLine(TerminalInfo terminalInfo, string fileName)
         {
             var commandLine = $"\"{fileName}\"";
@@ -150,6 +184,13 @@ namespace WTLayoutManager.ViewModels
             return commandLine;
         }
 
+        /// <summary>
+        /// Builds an environment block for the terminal executable, setting the <c>WT_BASE_SETTINGS_PATH</c>
+        /// environment variable to the path of the folder when the folder is not the default one and the
+        /// terminal version is at least 1.24.53104.5.
+        /// </summary>
+        /// <param name="terminalInfo">The terminal information, including the version</param>
+        /// <returns>The environment block to pass to the terminal executable</returns>
         private string BuildEnvironmentBlock(TerminalInfo terminalInfo)
         {
             if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
@@ -160,6 +201,12 @@ namespace WTLayoutManager.ViewModels
             return string.Empty;
         }
 
+        /// <summary>
+        /// Builds the path to the terminal executable given the terminal information.
+        /// Uses "WindowsTerminal.exe" as the default file name, and falls back to "wtd.exe" if that is not found.
+        /// </summary>
+        /// <param name="terminalInfo">The terminal information, including the installation location path</param>
+        /// <returns>The path to the terminal executable</returns>
         private string BuildTerminalPath(TerminalInfo terminalInfo)
         {
             var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
@@ -170,6 +217,17 @@ namespace WTLayoutManager.ViewModels
             return fileName;
         }
 
+        /// <summary>
+        /// Executes the terminal executable associated with the selected terminal,
+        /// passing the folder path as the "--localstate" option if the terminal version is at least 1.25.53104.5.
+        /// Also sets the <c>WT_BASE_SETTINGS_PATH</c> environment variable to the path of the folder
+        /// when the folder is not the default one and the terminal version is at least 1.24.53104.5.
+        /// </summary>
+        /// <param name="runningTerminals">The dictionary of running terminals, keyed by the folder path</param>
+        /// <param name="alreadyRunningMessage">The message to show if the terminal is already running</param>
+        /// <param name="propertyName">The name of the property to raise the PropertyChanged event for</param>
+        /// <param name="launchProcess">The function to launch the terminal executable</param>
+        /// <returns>A task that completes when the terminal executable exits</returns>
         private async Task ExecuteTerminalAsync(
             Dictionary<string, Task<int>> runningTerminals,
             string alreadyRunningMessage,
@@ -210,6 +268,12 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Executes the terminal executable associated with the selected terminal,
+        /// passing the folder path as the "--localstate" option if the terminal version is at least 1.25.53104.5.
+        /// Also sets the <c>WT_BASE_SETTINGS_PATH</c> environment variable to the path of the folder
+        /// when the folder is not the default one and the terminal version is at least 1.24.53104.5.
+        /// </summary>
         private async Task ExecuteRunAsync()
         {
             if (!ValidateFolderPath(Path))
@@ -236,6 +300,13 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Executes the terminal executable associated with the selected terminal,
+        /// passing the folder path as the "--localstate" option if the terminal version is at least 1.25.53104.5.
+        /// Also sets the <c>WT_BASE_SETTINGS_PATH</c> environment variable to the path of the folder
+        /// when the folder is not the default one and the terminal version is at least 1.24.53104.5.
+        /// Requests elevation (UAC prompt) before launching the terminal.
+        /// </summary>
         private async Task ExecuteRunAsAsync()
         {
             if (!ValidateFolderPath(Path))
@@ -265,6 +336,14 @@ namespace WTLayoutManager.ViewModels
 
         private void ExecuteDuplicate(object? parameter) { ExecuteDuplicateEx(parameter, null); }
 
+        /// <summary>
+        /// Duplicates the folder at <see cref="Path"/> by copying all files to a new folder
+        /// with the same parent directory and a new name, then adds the new folder to the
+        /// parent's <see cref="MainViewModel.Folders"/> collection.
+        /// Optionally uses the <paramref name="exFolderName"/> if provided.
+        /// </summary>
+        /// <param name="parameter">Ignored.</param>
+        /// <param name="exFolderName">Optional folder name to use for the new folder.</param>
         private void ExecuteDuplicateEx(object? parameter, string? exFolderName)
         {
             if (!ValidateFolderPath(Path))
@@ -351,7 +430,11 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
-        // Helper method: copy directory recursively
+        /// <summary>
+        /// Recursively copies a directory and all its contents to another directory.
+        /// </summary>
+        /// <param name="sourceDir">The source directory to copy from.</param>
+        /// <param name="destDir">The destination directory to copy to.</param>
         private void DirectoryCopy(string sourceDir, string destDir)
         {
             var dirInfo = new DirectoryInfo(sourceDir);
@@ -378,6 +461,14 @@ namespace WTLayoutManager.ViewModels
         }
 
 
+        /// <summary>
+        /// Deletes a folder and all its contents from disk and from the parent view model's Folders collection.
+        /// </summary>
+        /// <remarks>
+        /// If the folder is the default LocalState folder, it will not be deleted.
+        /// If the folder is locked (e.g. Terminal is running), an IOException or UnauthorizedAccessException will be thrown.
+        /// </remarks>
+        /// <param name="parameter">Ignored.</param>
         private void ExecuteDelete(object? parameter)
         {
             if (!ValidateFolderPath(Path))
@@ -417,6 +508,13 @@ namespace WTLayoutManager.ViewModels
         }
 
 
+        /// <summary>
+        /// Opens the folder in the file explorer using the folder path associated with this view model.
+        /// </summary>
+        /// <param name="parameter">Ignored.</param>
+        /// <remarks>
+        /// If the operation fails, an error message is displayed using the message box service.
+        /// </remarks>
         private void ExecuteOpenFolder(object? parameter)
         {
             try
@@ -440,15 +538,37 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Initiates the edit operation for the folder associated with this view model.
+        /// </summary>
+        /// <param name="parameter">Ignored.</param>
+        /// <remarks>
+        /// This method prepares the folder for editing, typically by enabling or displaying
+        /// editing UI elements for the folder's properties.
+        /// </remarks>
         private void ExecuteEditFolderCommand(object? parameter)
         {
             // You need this property in your FolderViewModel
         }
 
+        /// <summary>
+        /// Confirms the edit operation for the folder associated with this view model.
+        /// </summary>
+        /// <param name="parameter">Ignored.</param>
+        /// <remarks>
+        /// This method commits the changes made to the folder's properties during the edit operation.
+        /// </remarks>
         private void ExecuteConfirmEditCommand(object? parameter)
         {
             // You need this property in your FolderViewModel
         }
+        /// <summary>
+        /// Cancels the edit operation for the folder associated with this view model.
+        /// </summary>
+        /// <param name="parameter">Ignored.</param>
+        /// <remarks>
+        /// This method discards any changes made to the folder's properties during the edit operation.
+        /// </remarks>
         private void ExecuteCancelEditCommand(object? parameter)
         {
             // You need this property in your FolderViewModel

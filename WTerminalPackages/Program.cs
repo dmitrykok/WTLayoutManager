@@ -10,6 +10,16 @@ namespace WTLayoutManager.Services
 {
     internal class Program
     {
+        /// <summary>
+        /// The entry point for the application.
+        /// </summary>
+        /// <param name="args">An array containing the memory-mapped file name as its first element.</param>
+        /// <remarks>
+        /// The method attempts to open an existing memory-mapped file specified by <paramref name="args"/>.
+        /// If successful, it gathers information about installed terminal packages, serializes this data to JSON,
+        /// and writes it to the memory-mapped file. Any exceptions encountered during this process are logged to the error output.
+        /// The memory-mapped file must have sufficient size to accommodate the serialized data.
+        /// </remarks>
         private static void Main(string[] args)
         {
             if (args.Length < 1)

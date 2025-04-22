@@ -1,6 +1,9 @@
 #pragma once
 
 namespace WTLayoutManager::Services{
+    /// <summary>
+    /// Provides methods for launching processes with custom environment configurations.
+    /// </summary>
     public ref class ProcessLauncher
     {
     public:
@@ -20,6 +23,9 @@ namespace WTLayoutManager::Services{
         static int LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock);
     };
 
+    /// <summary>
+    /// A dummy namespace and class for placeholder or testing purposes.
+    /// </summary>
     inline namespace DummyNamespace {
         public ref class DummyClass {
         };
