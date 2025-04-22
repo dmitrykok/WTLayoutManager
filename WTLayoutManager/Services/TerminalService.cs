@@ -5,16 +5,39 @@ using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Reflection;
 
+/// <summary>
+/// Provides services for discovering and managing terminal packages on the system.
+/// </summary>
+/// <remarks>
+/// This service uses memory-mapped files and an administrative process to retrieve
+/// terminal package information securely and efficiently.
+/// </remarks>
 namespace WTLayoutManager.Services
 {
     internal class TerminalService : ITerminalService
     {
-        public TerminalService(IMessageBoxService messageBoxService) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TerminalService"/> class.
+        /// </summary>
+        /// <param name="messageBoxService">The message box service used for displaying dialogs and messages.</param>
+        public TerminalService(IMessageBoxService messageBoxService)
         {
             _messageBoxService = messageBoxService;
         }
 
+        /// <summary>
+        /// Provides a service for displaying message box dialogs within the terminal service.
+        /// </summary>
         private readonly IMessageBoxService _messageBoxService;
+
+        /// <summary>
+        /// Gets a dictionary of terminal packages by using memory-mapped files to communicate with an admin process.
+        /// </summary>
+        /// <returns>A dictionary of terminal information, or null if no data is received.</returns>
+        /// <remarks>
+        /// Creates a unique memory-mapped file, starts an admin process to populate the file,
+        /// and then deserializes the received JSON data into terminal package information.
+        /// </remarks>
         private Dictionary<string, TerminalInfo>? Packages
         {
             get
@@ -64,11 +87,25 @@ namespace WTLayoutManager.Services
             }
         }
 
+        /// <summary>
+        /// Finds and returns all known terminal packages installed on the system.
+        /// </summary>
+        /// <returns>
+        /// A dictionary of terminal information, keyed by common name.
+        /// May return null if the data is not available.
+        /// </returns>
         public Dictionary<string, TerminalInfo>? FindAllTerminals()
         {
             return Packages;
         }
 
+        /// <summary>
+        /// Starts the WTerminalPackages.exe as an administrator process
+        /// with the given <paramref name="mapName"/> as an argument.
+        /// Waits for the process to exit.
+        /// </summary>
+        /// <param name="mapName">The name of the memory-mapped file to be used
+        /// for communication with the admin process.</param>
         private void StartAdminProcess(string mapName)
         {
             var startInfo = new ProcessStartInfo

@@ -9,7 +9,20 @@
 
 using namespace WTLayoutManager::Services;
 
-int wmain(int argc, wchar_t* argv[])
+/**
+ * Entry point for the elevated launcher application.
+ *
+ * Launches a target process with optional custom environment variables.
+ * Expects exactly 4 command-line arguments:
+ * - Target application path
+ * - Target command line
+ * - Encoded environment block
+ *
+ * @param argc Number of command-line arguments
+ * @param argv Array of command-line argument strings
+ * @return Process exit code of the launched application, or -1 if an error occurs
+ */
+int wmain(int argc, wchar_t *argv[])
 {
     // We expect exactly three parameters:
     // argv[1] = target application path
@@ -33,14 +46,14 @@ int wmain(int argc, wchar_t* argv[])
     std::unique_ptr<wchar_t[]> envCopy(nullptr);
     if (envStr.size())
     {
-        std::vector<std::wstring> additional = { envStr.c_str() };
+        std::vector<std::wstring> additional = {envStr.c_str()};
         envCopy.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
         dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
     }
 
-    STARTUPINFOW si = { 0 };
+    STARTUPINFOW si = {0};
     si.cb = sizeof(si);
-    PROCESS_INFORMATION pi = { 0 };
+    PROCESS_INFORMATION pi = {0};
 
     BOOL success = CreateProcessW(
         targetApp,
@@ -49,11 +62,10 @@ int wmain(int argc, wchar_t* argv[])
         NULL,
         FALSE,
         dwCreationFlags,
-        envCopy.get(),      // Custom environment block
+        envCopy.get(), // Custom environment block
         NULL,
         &si,
-        &pi
-    );
+        &pi);
 
     if (!success)
     {
@@ -70,7 +82,7 @@ int wmain(int argc, wchar_t* argv[])
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
         return -1;
-        //exitCode = GetLastError();
+        // exitCode = GetLastError();
     }
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);

@@ -1,4 +1,10 @@
-﻿namespace WTLayoutManager.Models
+﻿/// <summary>
+/// Represents a folder model with properties for name, path, default status, last run time, and associated files.
+/// </summary>
+/// <remarks>
+/// This model is used to store information about a folder, including its metadata and a collection of files.
+/// </remarks>
+namespace WTLayoutManager.Models
 {
     public class FolderModel
     {

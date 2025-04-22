@@ -5,10 +5,23 @@ using System.Text.Json;
 using WTLayoutManager.Models;
 using WTLayoutManager.ViewModels;
 
+/// <summary>
+/// Represents an internal context for managing tab and pane state during layout parsing.
+/// </summary>
+/// <remarks>
+/// Tracks the current tab, focused pane, and maintains a list of tabs for the layout.
+/// Used internally by the StateJsonParser to manage state during JSON parsing.
+/// </remarks>
 namespace WTLayoutManager.Services
 {
     public static class StateJsonParser
     {
+        /// <summary>
+        /// Represents the context for managing tab and pane state during layout parsing.
+        /// </summary>
+        /// <remarks>
+        /// Tracks the current tab, focused pane, and maintains a list of tabs for the layout.
+        /// </remarks>
         private class TabContext
         {
             public TabStateViewModel? CurrentTab { get; set; }
@@ -18,11 +31,22 @@ namespace WTLayoutManager.Services
 
         const double tolerance = 0.0001;
         // Define a delegate for the action handler:
+        /// <summary>
+        /// Defines a delegate for handling tab layout actions, specifying the method signature for action handler functions.
+        /// </summary>
+        /// <param name="action">The tab layout action to be processed.</param>
+        /// <param name="profileIcons">A dictionary of profile names mapped to their corresponding icons.</param>
+        /// <param name="context">The current tab context for tracking and modifying tab state.</param>
         private delegate void ActionHandlerDelegate(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
             TabContext context);
+
         // Build a dictionary mapping normalized action names to the handlers:
+        /// <summary>
+        /// Maps action names to their corresponding handler methods for processing tab layout actions.
+        /// Supports case-insensitive action name matching with predefined handlers for various tab and pane operations.
+        /// </summary>
         static Dictionary<string, ActionHandlerDelegate> actionHandlers = new Dictionary<string, ActionHandlerDelegate>(StringComparer.OrdinalIgnoreCase)
         {
             { "newtab", HandleNewTab },
@@ -32,6 +56,12 @@ namespace WTLayoutManager.Services
             { "switchtotab", HandleSwitchTab }
         };
 
+        /// <summary>
+        /// Handles the "newtab" action by creating a new tab and making it the current tab.
+        /// </summary>
+        /// <param name="action">The TabLayoutAction containing the action details.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to their corresponding icons.</param>
+        /// <param name="context">The current tab context.</param>
         private static void HandleNewTab(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
@@ -57,6 +87,19 @@ namespace WTLayoutManager.Services
             context.Tabs.Add(context.CurrentTab);
         }
 
+        /// <summary>
+        /// Handles the "splitpane" action by splitting the currently focused pane
+        /// in the specified direction and creating a new pane.
+        /// </summary>
+        /// <param name="action">The TabLayoutAction containing the action details, including the split direction.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to their corresponding icons.</param>
+        /// <param name="context">The current tab context containing the current tab and focused pane.</param>
+        /// <remarks>
+        /// The function supports splitting the focused pane in four directions: left, right, up, and down.
+        /// The newly created pane inherits the profile and icon information from the action. The geometry
+        /// of the focused pane is adjusted based on the split direction, and the new pane is added to the
+        /// current tab's collection of panes.
+        /// </remarks>
         private static void HandleSplitPane(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
@@ -129,6 +172,16 @@ namespace WTLayoutManager.Services
             }
         }
 
+        /// <summary>
+        /// Handles the "focuspane" action by focusing on a specific pane within the current tab.
+        /// </summary>
+        /// <param name="action">The TabLayoutAction containing the action details, including the target pane index.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to their corresponding icons (not used in this method).</param>
+        /// <param name="context">The current tab context containing the current tab and focused pane.</param>
+        /// <remarks>
+        /// This method uses the "id" property from the action to determine the index of the pane to focus on within the current tab.
+        /// If the index is valid, the specified pane becomes the current focused pane.
+        /// </remarks>
         private static void HandleFocusPane(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
@@ -145,6 +198,15 @@ namespace WTLayoutManager.Services
             }
         }
 
+        /// <summary>
+        /// Handles the "movefocus" action by updating the focused pane of the current tab based on the action's direction.
+        /// </summary>
+        /// <param name="action">The TabLayoutAction containing the action details, including the target direction.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to their corresponding icons (not used in this method).</param>
+        /// <param name="context">The current tab context containing the current tab and focused pane.</param>
+        /// <remarks>
+        /// If the action's direction is "previousinorder" or "nextinorder", this method will update the focused pane to the previous or next pane in the tab, respectively, wrapping around if at the beginning or end of the list of panes.
+        /// </remarks>
         private static void HandleMoveFocus(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
@@ -170,6 +232,16 @@ namespace WTLayoutManager.Services
             }
         }
 
+        /// <summary>
+        /// Handles the "switchToTab" action by switching the current tab to the one specified by the action's index property.
+        /// </summary>
+        /// <param name="action">The TabLayoutAction containing the action details, including the index of the tab to switch to.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to their corresponding icons (not used in this method).</param>
+        /// <param name="context">The current tab context containing the current tab and focused pane.</param>
+        /// <remarks>
+        /// If the action's index property is set to a valid index, this method will switch the current tab to the one at that index.
+        /// If the newly switched tab has panes, the first pane in the list will be set as the focused pane.
+        /// </remarks>
         private static void HandleSwitchTab(
             TabLayoutAction action,
             Dictionary<string, string> profileIcons,
@@ -188,6 +260,15 @@ namespace WTLayoutManager.Services
             }
         }
 
+        /// <summary>
+        /// Parses the state.json file at the specified file path and returns a tooltip view model containing the state of the persisted window layout.
+        /// </summary>
+        /// <param name="filePath">The file path to the state.json file.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to their corresponding icons.</param>
+        /// <returns>A tooltip view model containing the state of the persisted window layout, or <c>null</c> if the file does not exist or is not a valid state.json file.</returns>
+        /// <remarks>
+        /// This method will return <c>null</c> if the file does not exist or is not a valid state.json file. Otherwise, it will create a tooltip view model containing the state of the persisted window layout by parsing the state.json file and executing the specified actions.
+        /// </remarks>
         public static StateJsonTooltipViewModel? ParseState(string filePath, Dictionary<string, string> profileIcons)
         {
             var fileName = Path.GetFileName(filePath);
@@ -248,12 +329,15 @@ namespace WTLayoutManager.Services
 
         /// <summary>
         /// Compute grid placement for each pane using the geometry rectangles.
+        /// </summary>
+        /// <param name="tab">The tab state view model containing the panes.</param>
+        /// <remarks>
         /// This algorithm:
         /// 1. Collects all unique X coordinates (pane.X and pane.X+pane.Width)
         ///    and all unique Y coordinates (pane.Y and pane.Y+pane.Height).
         /// 2. Sorts them and uses them as boundaries for grid columns and rows.
         /// 3. For each pane, sets GridColumn and GridColumnSpan and similarly for rows.
-        /// </summary>
+        /// </remarks>
         private static void ComputeGridLayout(TabStateViewModel tab)
         {
             var xCoords = new SortedSet<double>();
@@ -302,8 +386,11 @@ namespace WTLayoutManager.Services
         }
 
         /// <summary>
-        /// A simple mapping from profile name to an icon path.
+        /// Maps a profile name to an icon path.
         /// </summary>
+        /// <param name="profileName">The profile name to look up.</param>
+        /// <param name="profileIcons">A dictionary mapping profile names to icon paths.</param>
+        /// <returns>The icon path associated with the profile name if found, otherwise returns the default icon path.</returns>
         private static string GetIconForProfile(string? profileName, Dictionary<string, string> profileIcons)
         {
             // In a real app, you might look up profile details from settings.json.

@@ -4,10 +4,25 @@ using System.Windows.Resources;
 using WTLayoutManager.Models;
 using System.Windows;
 
+/// <summary>
+/// Provides utility methods for parsing and processing Windows Terminal settings and profile configurations.
+/// </summary>
+/// <remarks>
+/// This static class contains methods for extracting profile information from settings.json,
+/// resolving icon paths for terminal profiles, and checking resource existence.
+/// </remarks>
 namespace WTLayoutManager.Services
 {
     public static class SettingsJsonParser
     {
+        /// <summary>
+        /// Returns an enumerable sequence of <see cref="ProfileInfo"/> instances by parsing the specified file path to a settings.json file.
+        /// </summary>
+        /// <remarks>
+        /// This method will only return a non-empty enumeration if the specified file path is a valid settings.json file.
+        /// </remarks>
+        /// <param name="filePath">The file path to the settings.json file.</param>
+        /// <returns>An enumerable sequence of <see cref="ProfileInfo"/> instances.</returns>
         public static IEnumerable<ProfileInfo> GetProfileInfos(string filePath)
         {
             if (Path.GetFileName(filePath) != "settings.json")
@@ -38,6 +53,11 @@ namespace WTLayoutManager.Services
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified pack URI string refers to a resource that exists within the application's package.
+        /// </summary>
+        /// <param name="packUriString">The pack URI string to check.</param>
+        /// <returns>true if the resource exists; otherwise, false.</returns>
         public static bool ResourceExists(string packUriString)
         {
             var uri = new Uri(packUriString, UriKind.Absolute);
@@ -56,7 +76,10 @@ namespace WTLayoutManager.Services
             }
         }
 
-        // Define your mapping rules (order matters)
+        /// <summary>
+        /// Defines a list of icon mapping rules for different terminal profiles based on their source and name.
+        /// Each rule consists of a predicate function to match a profile and a corresponding icon path.
+        /// </summary>
         private static readonly List<(Func<Profile, bool> Check, string Icon)> IconMappings = new List<(Func<Profile, bool>, string)>
         {
             (p => p?.Source?.EndsWith(".Wsl") == true, "pack://application:,,,/WTLayoutManager;component/Assets/wsl.png"),
@@ -69,6 +92,17 @@ namespace WTLayoutManager.Services
             (p => p?.Name?.Contains("PowerShell") == true, "pack://application:,,,/WTLayoutManager;component/Assets/pwsh.png")
         };
 
+        /// <summary>
+        /// Resolves the icon path for a given terminal profile.
+        /// If the profile's icon is empty, it will be resolved based on the profile's name and source.
+        /// If the profile's icon is not empty and starts with "ms-appx:///", it will be expanded to a valid resource path.
+        /// If the profile's icon is not empty and does not start with "ms-appx:///", it will be expanded to a valid file path using environment variables.
+        /// If the expanded icon path does not exist, it will be resolved based on the profile's name and source.
+        /// If the expanded icon path exists, it will be returned.
+        /// If the profile's icon is empty and the expanded icon path does not exist, the default fallback icon will be returned.
+        /// </summary>
+        /// <param name="profile">The profile to resolve the icon path for.</param>
+        /// <returns>The resolved icon path for the given profile.</returns>
         private static string ResolveIconPath(Profile profile)
         {
             if (string.IsNullOrWhiteSpace(profile.Icon))
