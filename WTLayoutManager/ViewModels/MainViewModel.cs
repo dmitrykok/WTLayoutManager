@@ -12,6 +12,7 @@ namespace WTLayoutManager.ViewModels
     {
         public string? ImageSource { get; set; }
         public string? DisplayName { get; set; }
+        public string? Version { get; set; }
     }
 
     public class MainViewModel : BaseViewModel
@@ -93,9 +94,15 @@ namespace WTLayoutManager.ViewModels
                 {
                     _selectedTerminal = value;
                     OnPropertyChanged();
+                    OnPropertyChanged("SelectedTerminalVersion");
                     LoadFolders();
                 }
             }
+        }
+
+        public string? SelectedTerminalVersion
+        {
+            get => _selectedTerminal?.Version ?? "Choose Terminal...";
         }
 
         public ObservableCollection<FolderViewModel> Folders { get; }
@@ -307,11 +314,12 @@ namespace WTLayoutManager.ViewModels
                 return _terminalDict.Select(kvp => new TerminalListItem
                 {
                     ImageSource = kvp.Value.LogoAbsoluteUri,
-                    DisplayName = kvp.Key
+                    DisplayName = kvp.Key,
+                    Version = kvp.Value.Version.ToString(),
                 }).ToList();
             }
-            else 
-            { 
+            else
+            {
                 return Enumerable.Empty<TerminalListItem>();
             }
         }

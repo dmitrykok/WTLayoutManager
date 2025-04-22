@@ -83,12 +83,13 @@
                   ItemsSource="{Binding Terminals}"
                   SelectedItem="{Binding SelectedTerminal}"
                   IsEnabled="{Binding TerminalsComboBoxEnabled}"
+                  ToolTip="{Binding SelectedTerminalVersion}"
                   materialDesign:HintAssist.Hint="Choose Terminal..."
                   Margin="0,0,0,5"
                   Width="500">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel ToolTip="{Binding Version}" Orientation="Horizontal">
                             <Image
                                 Width="20"
                                 Height="20"
