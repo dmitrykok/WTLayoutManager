@@ -121,4 +121,38 @@
   <data name="WindowsTerminalLayoutManager" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\WindowsTerminalLayoutManager.PNG;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+	<!-- ===== WTLayoutManager localisation (en-US) ===== -->
+	<data name="ApplicationTitle" xml:space="preserve"><value>WT Layout Manager</value></data>
+	<data name="HintChooseTerminal" xml:space="preserve"><value>Choose Terminal…</value></data>
+	<data name="HintSearchFolders" xml:space="preserve"><value>Search folders…</value></data>
+	<data name="LabelProfiles" xml:space="preserve"><value>Profiles</value></data>
+
+	<data name="TooltipClearSearch" xml:space="preserve"><value>Clear search</value></data>
+	<data name="TooltipReloadFolders" xml:space="preserve"><value>Reload Folders</value></data>
+	<data name="TooltipExpandCollapse" xml:space="preserve"><value>Expand/Collapse</value></data>
+
+	<data name="ColumnExpandCollapseHeader" xml:space="preserve"><value>#</value></data>
+	<data name="ColumnFolderNameHeader" xml:space="preserve"><value>Folder Name</value></data>
+	<data name="ColumnLastRunHeader" xml:space="preserve"><value>Last Run</value></data>
+	<data name="ColumnActionsHeader" xml:space="preserve"><value>Actions</value></data>
+	<data name="ColumnFilenameHeader" xml:space="preserve"><value>Filename</value></data>
+	<data name="ColumnModifiedHeader" xml:space="preserve"><value>Modified</value></data>
+	<data name="ColumnSizeHeader" xml:space="preserve"><value>Size</value></data>
+
+	<data name="ButtonRun" xml:space="preserve"><value>Run</value></data>
+	<data name="ButtonRunAsAdmin" xml:space="preserve"><value>Run as Admin</value></data>
+	<data name="ButtonDuplicate" xml:space="preserve"><value>Duplicate</value></data>
+	<data name="ButtonDelete" xml:space="preserve"><value>Delete</value></data>
+
+	<data name="ConfirmationDialogTitle" xml:space="preserve"><value>Confirm</value></data>
+	<data name="ConfirmationDialogMessage" xml:space="preserve"><value>Are you sure?</value></data>
+	<data name="ButtonYes" xml:space="preserve"><value>YES</value></data>
+	<data name="ButtonNo" xml:space="preserve"><value>NO</value></data>
+
+	<data name="MessageBoxTitle" xml:space="preserve"><value>Message</value></data>
+	<data name="MessageBoxDefaultTitle" xml:space="preserve"><value>Title</value></data>
+	<data name="MessageBoxDefaultMessage" xml:space="preserve"><value>Message here…</value></data>
+	<data name="ButtonOK" xml:space="preserve"><value>OK</value></data>
+
+	<data name="MessageBoxInformation" xml:space="preserve"><value>Information</value></data>
 </root>
