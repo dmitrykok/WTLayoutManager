@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WTLayoutManager.Properties;
 using WTLayoutManager.Views;
 
 /// <summary>
@@ -23,8 +24,9 @@ namespace WTLayoutManager.Services
         /// <param name="message">The message to be displayed in the confirmation dialog box.</param>
         /// <param name="title">The title of the confirmation dialog box. Defaults to "Confirm".</param>
         /// <returns>true if the user confirms, otherwise false.</returns>
-        public bool Confirm(string message, string title = "Confirm")
+        public bool Confirm(string message, string? title = null)
         {
+            title ??= Resources.ConfirmationDialogTitle;
             var dialog = new ConfirmationDialog(message, title)
             {
                 Owner = GetOwnerWindow()
@@ -38,8 +40,11 @@ namespace WTLayoutManager.Services
         /// <param name="message">The message to be displayed in the message box.</param>
         /// <param name="title">The title of the message box. Defaults to "Information".</param>
         /// <param name="dialogType">The type of message box to display. Defaults to <see cref="DialogType.Information"/>.</param>
-        public void ShowMessage(string message, string title = "Information", DialogType dialogType = DialogType.Information)
+        public void ShowMessage(string message,
+            string? title = null,
+            DialogType dialogType = DialogType.Information)
         {
+            title ??= Resources.MessageBoxInformation;
             var dialog = new CustomMessageBox(message, title, dialogType)
             {
                 Owner = GetOwnerWindow()

@@ -22,7 +22,7 @@ namespace WTLayoutManager.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace WTLayoutManager.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("WTLayoutManager.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace WTLayoutManager.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,252 @@ namespace WTLayoutManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WT Layout Manager.
+        /// </summary>
+        public static string ApplicationTitle {
+            get {
+                return ResourceManager.GetString("ApplicationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string ButtonDelete {
+            get {
+                return ResourceManager.GetString("ButtonDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate.
+        /// </summary>
+        public static string ButtonDuplicate {
+            get {
+                return ResourceManager.GetString("ButtonDuplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NO.
+        /// </summary>
+        public static string ButtonNo {
+            get {
+                return ResourceManager.GetString("ButtonNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string ButtonOK {
+            get {
+                return ResourceManager.GetString("ButtonOK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run.
+        /// </summary>
+        public static string ButtonRun {
+            get {
+                return ResourceManager.GetString("ButtonRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run as Admin.
+        /// </summary>
+        public static string ButtonRunAsAdmin {
+            get {
+                return ResourceManager.GetString("ButtonRunAsAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to YES.
+        /// </summary>
+        public static string ButtonYes {
+            get {
+                return ResourceManager.GetString("ButtonYes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Actions.
+        /// </summary>
+        public static string ColumnActionsHeader {
+            get {
+                return ResourceManager.GetString("ColumnActionsHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #.
+        /// </summary>
+        public static string ColumnExpandCollapseHeader {
+            get {
+                return ResourceManager.GetString("ColumnExpandCollapseHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filename.
+        /// </summary>
+        public static string ColumnFilenameHeader {
+            get {
+                return ResourceManager.GetString("ColumnFilenameHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Folder Name.
+        /// </summary>
+        public static string ColumnFolderNameHeader {
+            get {
+                return ResourceManager.GetString("ColumnFolderNameHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last Run.
+        /// </summary>
+        public static string ColumnLastRunHeader {
+            get {
+                return ResourceManager.GetString("ColumnLastRunHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modified.
+        /// </summary>
+        public static string ColumnModifiedHeader {
+            get {
+                return ResourceManager.GetString("ColumnModifiedHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        public static string ColumnSizeHeader {
+            get {
+                return ResourceManager.GetString("ColumnSizeHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure?.
+        /// </summary>
+        public static string ConfirmationDialogMessage {
+            get {
+                return ResourceManager.GetString("ConfirmationDialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        public static string ConfirmationDialogTitle {
+            get {
+                return ResourceManager.GetString("ConfirmationDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose Terminal….
+        /// </summary>
+        public static string HintChooseTerminal {
+            get {
+                return ResourceManager.GetString("HintChooseTerminal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search folders….
+        /// </summary>
+        public static string HintSearchFolders {
+            get {
+                return ResourceManager.GetString("HintSearchFolders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profiles.
+        /// </summary>
+        public static string LabelProfiles {
+            get {
+                return ResourceManager.GetString("LabelProfiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message here….
+        /// </summary>
+        public static string MessageBoxDefaultMessage {
+            get {
+                return ResourceManager.GetString("MessageBoxDefaultMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        public static string MessageBoxDefaultTitle {
+            get {
+                return ResourceManager.GetString("MessageBoxDefaultTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        public static string MessageBoxInformation {
+            get {
+                return ResourceManager.GetString("MessageBoxInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message.
+        /// </summary>
+        public static string MessageBoxTitle {
+            get {
+                return ResourceManager.GetString("MessageBoxTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clear search.
+        /// </summary>
+        public static string TooltipClearSearch {
+            get {
+                return ResourceManager.GetString("TooltipClearSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expand/Collapse.
+        /// </summary>
+        public static string TooltipExpandCollapse {
+            get {
+                return ResourceManager.GetString("TooltipExpandCollapse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reload Folders.
+        /// </summary>
+        public static string TooltipReloadFolders {
+            get {
+                return ResourceManager.GetString("TooltipReloadFolders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] WindowsTerminalLayoutManager {
+        public static byte[] WindowsTerminalLayoutManager {
             get {
                 object obj = ResourceManager.GetObject("WindowsTerminalLayoutManager", resourceCulture);
                 return ((byte[])(obj));

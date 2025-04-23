@@ -7,8 +7,9 @@
         xmlns:services="clr-namespace:WTLayoutManager.Services"
         xmlns:vm="clr-namespace:WTLayoutManager.ViewModels"
         xmlns:controls="clr-namespace:WTLayoutManager.Controls"
+        xmlns:resx="clr-namespace:WTLayoutManager.Properties"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="WT Layout Manager" 
+        Title="{x:Static resx:Resources.ApplicationTitle}"
         Height="600" Width="800">
 
     <Window.Resources>
@@ -29,7 +30,7 @@
         <DataTemplate x:Key="ProfilesTooltipTemplate" DataType="{x:Type vm:SettingsJsonTooltipViewModel}">
             <Border Background="#333" CornerRadius="5" Padding="8">
                 <StackPanel>
-                    <TextBlock Text="Profiles" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                    <TextBlock Text="{x:Static resx:Resources.LabelProfiles}" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
                     <ItemsControl ItemsSource="{Binding Profiles}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -84,7 +85,7 @@
                   SelectedItem="{Binding SelectedTerminal}"
                   IsEnabled="{Binding TerminalsComboBoxEnabled}"
                   ToolTip="{Binding SelectedTerminalVersion}"
-                  materialDesign:HintAssist.Hint="Choose Terminal..."
+                  materialDesign:HintAssist.Hint="{x:Static resx:Resources.HintChooseTerminal}"
                   Margin="0,0,0,5"
                   Width="500">
                 <ComboBox.ItemTemplate>
@@ -105,7 +106,7 @@
         <!-- Search Box with Clear Button -->
         <Grid Grid.Row="1" Margin="0,0,0,5">
             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     materialDesign:HintAssist.Hint="Search folders..."
+                     materialDesign:HintAssist.Hint="{x:Static resx:Resources.HintSearchFolders}"
                      x:Name="SearchTextBox"
                      FontWeight="Bold"
                      CaretBrush="Red"
@@ -121,14 +122,14 @@
                     VerticalAlignment="Center"
                     Margin="0,0,30,0"
                     Padding="0"
-                    ToolTip="Clear search"
+                    ToolTip="{x:Static resx:Resources.TooltipClearSearch}"
                     Command="{Binding ClearSearchCommand}"
                     Visibility="{Binding Text.Length, ElementName=SearchTextBox, Converter={StaticResource IntToVisibilityConverter}}">
                 <materialDesign:PackIcon Kind="CloseBold"/>
             </Button>
             <!-- Reload button -->
             <Button Command="{Binding ReloadFoldersCommand}"
-                    ToolTip="Reload Folders"
+                    ToolTip="{x:Static resx:Resources.TooltipReloadFolders}"
                     Width="24"
                     Height="24"
                     HorizontalAlignment="Right"
@@ -166,7 +167,7 @@
                                 <Button FontWeight="ExtraBold" Content="{Binding ExpandCollapseIndicator}"
                                         Command="{Binding ToggleExpandCollapseCommand}"
                                         Width="30"
-                                        ToolTip="Expand/Collapse"
+                                        ToolTip="{x:Static resx:Resources.TooltipExpandCollapse}"
                                         Margin="0,0,-5,0"
                                         Padding="0,0,0,0"/>
                             </StackPanel>
@@ -175,7 +176,7 @@
                 </DataGridTemplateColumn>
 
                 <!-- Folder Name -->
-                <DataGridTemplateColumn Header="Folder Name" Width="*">
+                <DataGridTemplateColumn Header="{x:Static resx:Resources.ColumnFolderNameHeader}" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center">
@@ -216,14 +217,14 @@
                 </DataGridTemplateColumn>
 
                 <!-- Last Run -->
-                <DataGridTextColumn Header="Last Run"
+                <DataGridTextColumn Header="{x:Static resx:Resources.ColumnLastRunHeader}"
                             Binding="{Binding LastRun, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
                             SortMemberPath="LastRun"
                             Width="170"
                             IsReadOnly="True"/>
 
                 <!-- Action Buttons -->
-                <DataGridTemplateColumn Header="Actions" 
+                <DataGridTemplateColumn Header="{x:Static resx:Resources.ColumnActionsHeader}"
                                         IsReadOnly="True" 
                                         Width="160" 
                                         MinWidth="160" 
@@ -237,28 +238,28 @@
                                 <!-- Run button -->
                                 <Button Content="{materialDesign:PackIcon Kind=PlayCircleOutline}" 
                                         Command="{Binding RunCommand}"
-                                        ToolTip="Run"
+                                        ToolTip="{x:Static resx:Resources.ButtonRun}"
                                         IsEnabled="{Binding CanRunTerminal}"
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Run as Admin -->
                                 <Button Content="{materialDesign:PackIcon Kind=ShieldCrownOutline}" 
                                         Command="{Binding RunAsCommand}"
-                                        ToolTip="Run as Admin" 
+                                        ToolTip="{x:Static resx:Resources.ButtonRunAsAdmin}" 
                                         IsEnabled="{Binding CanRunTerminalAs}"
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Duplicate -->
                                 <Button Content="{materialDesign:PackIcon Kind=ContentDuplicate}"
                                         Command="{Binding DuplicateCommand}" 
-                                        ToolTip="Duplicate" 
+                                        ToolTip="{x:Static resx:Resources.ButtonDuplicate}" 
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Delete -->
                                 <Button Content="{materialDesign:PackIcon Kind=TrashCanOutline}"
                                         Command="{Binding DeleteCommand}"
                                         IsEnabled="{Binding CanDelete}"
-                                        ToolTip="Delete" 
+                                        ToolTip="{x:Static resx:Resources.ButtonDelete}" 
                                         Margin="0,0,0,0" 
                                         Padding="5,0,5,0" />
                                 <!-- Open folder -->
@@ -288,7 +289,7 @@
                             <vm:SettingsJsonTooltipViewModel x:Key="TooltipVm"/>
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Filename" Width="Auto">
+                            <DataGridTemplateColumn Header="{x:Static resx:Resources.ColumnFilenameHeader}" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -312,8 +313,8 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Modified" Binding="{Binding LastModified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="Auto"/>
-                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="Auto"/>
+                            <DataGridTextColumn Header="{x:Static resx:Resources.ColumnModifiedHeader}" Binding="{Binding LastModified, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="Auto"/>
+                            <DataGridTextColumn Header="{x:Static resx:Resources.ColumnSizeHeader}" Binding="{Binding Size}" Width="Auto"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DataTemplate>
