@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApiHelpers", "WinApiHelp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "New", "New\New.vcxproj", "{1827C012-48E5-4861-9A10-CFFDF66B7C24}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WTLocalStateHook", "WTLocalStateHook\WTLocalStateHook.vcxproj", "{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -141,12 +143,24 @@ Global
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x64.Build.0 = Release|x64
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x86.ActiveCfg = Release|Win32
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x86.Build.0 = Release|Win32
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Debug|ARM64.ActiveCfg = Debug|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Debug|ARM64.Build.0 = Debug|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Debug|x64.ActiveCfg = Debug|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Debug|x64.Build.0 = Debug|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Debug|x86.ActiveCfg = Debug|Win32
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Debug|x86.Build.0 = Debug|Win32
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Release|ARM64.ActiveCfg = Release|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Release|ARM64.Build.0 = Release|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Release|x64.ActiveCfg = Release|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Release|x64.Build.0 = Release|x64
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Release|x86.ActiveCfg = Release|Win32
+		{58931DBD-0BA1-4304-84A9-8D7F1249ECBF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		RESX_PrefixTranslations = False
 		SolutionGuid = {EE404913-9CFD-405F-9972-DBE5A9207872}
+		RESX_PrefixTranslations = False
 	EndGlobalSection
 EndGlobal
