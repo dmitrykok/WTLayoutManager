@@ -75,7 +75,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='ARM64'">
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <Content Include="..\WTLayoutManager\bin\ARM64\Release\net9.0-windows10.0.26100.0\ElevatedLauncher.exe">
       <Link>WTLayoutManager\ElevatedLauncher.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -85,7 +85,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='x86'">
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <Content Include="..\WTLayoutManager\bin\Win32\Release\net9.0-windows10.0.26100.0\ElevatedLauncher.exe">
       <Link>WTLayoutManager\ElevatedLauncher.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -95,12 +95,42 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='x64'">
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Content Include="..\WTLayoutManager\bin\x64\Release\net9.0-windows10.0.26100.0\ElevatedLauncher.exe">
       <Link>WTLayoutManager\ElevatedLauncher.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\WTLayoutManager\bin\x64\Release\net9.0-windows10.0.26100.0\WinApiHelpers.dll">
+      <Link>WTLayoutManager\WinApiHelpers.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <Content Include="..\WTLayoutManager\bin\ARM64\Debug\net9.0-windows10.0.26100.0\ElevatedLauncher.exe">
+      <Link>WTLayoutManager\ElevatedLauncher.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\WTLayoutManager\bin\ARM64\Debug\net9.0-windows10.0.26100.0\WinApiHelpers.dll">
+      <Link>WTLayoutManager\WinApiHelpers.dl</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Content Include="..\WTLayoutManager\bin\Win32\Debug\net9.0-windows10.0.26100.0\ElevatedLauncher.exe">
+      <Link>WTLayoutManager\ElevatedLauncher.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\WTLayoutManager\bin\Win32\Debug\net9.0-windows10.0.26100.0\WinApiHelpers.dll">
+      <Link>WTLayoutManager\WinApiHelpers.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Content Include="..\WTLayoutManager\bin\x64\Debug\net9.0-windows10.0.26100.0\ElevatedLauncher.exe">
+      <Link>WTLayoutManager\ElevatedLauncher.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\WTLayoutManager\bin\x64\Debug\net9.0-windows10.0.26100.0\WinApiHelpers.dll">
       <Link>WTLayoutManager\WinApiHelpers.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

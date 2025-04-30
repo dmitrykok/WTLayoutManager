@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "WinApiHelpers.h"
 #include <strsafe.h>
+#include <detours.h>
 
 using namespace WTLayoutManager::Services;
 
@@ -84,4 +85,34 @@ LPWSTR WinApiHelpers::CreateMergedEnvironmentBlock(const std::vector<std::wstrin
     *cur = (TCHAR)0; // double null termination
 
     return mergedEnv;
+}
+
+BOOL WinApiHelpers::DetourCreateProcessWithDllExWrap(
+    _In_opt_ LPCWSTR lpApplicationName,
+    _Inout_opt_  LPWSTR lpCommandLine,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ BOOL bInheritHandles,
+    _In_ DWORD dwCreationFlags,
+    _In_opt_ LPVOID lpEnvironment,
+    _In_opt_ LPCWSTR lpCurrentDirectory,
+    _In_ LPSTARTUPINFOW lpStartupInfo,
+    _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+    _In_ LPCSTR lpDllName,
+    _In_opt_ void* pfCreateProcessW)
+{
+    return DetourCreateProcessWithDllExW(
+        lpApplicationName,
+        lpCommandLine,
+        lpProcessAttributes,
+        lpThreadAttributes,
+        bInheritHandles,
+        dwCreationFlags,
+        lpEnvironment,
+        lpCurrentDirectory,
+        lpStartupInfo,
+        lpProcessInformation,
+        lpDllName,
+        reinterpret_cast<PDETOUR_CREATE_PROCESS_ROUTINEW>(pfCreateProcessW)
+    );
 }

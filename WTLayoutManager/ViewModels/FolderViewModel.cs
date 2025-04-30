@@ -193,12 +193,23 @@ namespace WTLayoutManager.ViewModels
         /// <returns>The environment block to pass to the terminal executable</returns>
         private string BuildEnvironmentBlock(TerminalInfo terminalInfo)
         {
+            string defaultFolderPath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Packages",
+                terminalInfo.FamilyName,
+                "LocalState");
+
+            defaultFolderPath = "C:\\Users\\dmitr\\AppData\\Local\\Microsoft\\Windows Terminal";
+
+            string envBlock = string.Empty;
             if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
             {
                 // Single-null terminators per variable, ending with a double-null terminator.
-                return $"WT_BASE_SETTINGS_PATH={Path}\0\0";
+                envBlock += $";WT_BASE_SETTINGS_PATH={Path}";
             }
-            return string.Empty;
+            envBlock += $";WT_DEFAULT_LOCALSTATE={defaultFolderPath}";
+            envBlock += $";WT_REDIRECT_LOCALSTATE={Path}";
+            return envBlock.TrimStart(';');
         }
 
         /// <summary>
@@ -209,11 +220,13 @@ namespace WTLayoutManager.ViewModels
         /// <returns>The path to the terminal executable</returns>
         private string BuildTerminalPath(TerminalInfo terminalInfo)
         {
+            return "C:\\Users\\dmitr\\src\\terminal\\bin\\x64\\Debug\\WindowsTerminal\\WindowsTerminal.exe";
             var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
             if (!File.Exists(fileName))
             {
                 fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
             }
+
             return fileName;
         }
 
@@ -288,7 +301,10 @@ namespace WTLayoutManager.ViewModels
                     (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcess(
                         fileName,
                         commandLine,
-                        envBlock)
+                        envBlock,
+                        //System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "WTLocalStateHook.dll")
+                        "C:\\Users\\dmitr\\src\\Detours\\bin.X64\\WTLocalStateHook64.dll"
+                        )
                     )
                 );
             }
