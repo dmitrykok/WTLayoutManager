@@ -121,6 +121,11 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        public string ProcessBitness
+        {
+            get => Environment.Is64BitProcess ? "64" : "32";
+        }
+
         public bool IsDefault => _folder.IsDefault;
         public bool CanDelete => !_folder.IsDefault;
 
@@ -199,7 +204,7 @@ namespace WTLayoutManager.ViewModels
                 terminalInfo.FamilyName,
                 "LocalState");
 
-            defaultFolderPath = "C:\\Users\\dmitr\\AppData\\Local\\Microsoft\\Windows Terminal";
+            //defaultFolderPath = "C:\\Users\\dmitr\\AppData\\Local\\Microsoft\\Windows Terminal";
 
             string envBlock = string.Empty;
             if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
@@ -220,7 +225,7 @@ namespace WTLayoutManager.ViewModels
         /// <returns>The path to the terminal executable</returns>
         private string BuildTerminalPath(TerminalInfo terminalInfo)
         {
-            return "C:\\Users\\dmitr\\src\\terminal\\bin\\x64\\Debug\\WindowsTerminal\\WindowsTerminal.exe";
+            //return "C:\\Users\\dmitr\\src\\terminal\\bin\\x64\\Debug\\WindowsTerminal\\WindowsTerminal.exe";
             var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
             if (!File.Exists(fileName))
             {
@@ -302,8 +307,8 @@ namespace WTLayoutManager.ViewModels
                         fileName,
                         commandLine,
                         envBlock,
-                        //System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "WTLocalStateHook.dll")
-                        "C:\\Users\\dmitr\\src\\Detours\\bin.X64\\WTLocalStateHook64.dll"
+                        System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"WTLocalStateHook{ProcessBitness}.dll")
+                        //"C:\\Users\\dmitr\\src\\Detours\\bin.X64\\WTLocalStateHook64.dll"
                         )
                     )
                 );
