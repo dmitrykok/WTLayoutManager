@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
 using Windows.ApplicationModel;
 
 public static class PackageVersionExtensions
@@ -6,18 +6,38 @@ public static class PackageVersionExtensions
     // Parse a version string in the form "Major.Minor.Build.Revision"
     public static PackageVersion Parse(this PackageVersion current, string version)
     {
-        var parts = version.Split('.');
-        if (parts.Length != 4)
-        {
-            throw new ArgumentException("Version string must be in the format Major.Minor.Build.Revision");
-        }
+        Version _version = Version.Parse(version);
         return new PackageVersion
         {
-            Major = ushort.Parse(parts[0], CultureInfo.InvariantCulture),
-            Minor = ushort.Parse(parts[1], CultureInfo.InvariantCulture),
-            Build = ushort.Parse(parts[2], CultureInfo.InvariantCulture),
-            Revision = ushort.Parse(parts[3], CultureInfo.InvariantCulture)
+            Major = (ushort)_version.Major,
+            Minor = (ushort)_version.Minor,
+            Build = (ushort)_version.Build,
+            Revision = (ushort)_version.Revision
         };
+    }
+
+    public static bool TryParse(this PackageVersion current, string version, [NotNullWhen(true)] out PackageVersion? packageVersion)
+    {
+        Version? _version = new Version();
+        packageVersion = new PackageVersion
+        {
+            Major = (ushort)_version.Major,
+            Minor = (ushort)_version.Minor,
+            Build = (ushort)_version.Build,
+            Revision = (ushort)_version.Revision
+        };
+        var result = Version.TryParse(version, out _version);
+        if (result && _version != null)
+        {
+            packageVersion = new PackageVersion
+            {
+                Major = (ushort)_version.Major,
+                Minor = (ushort)_version.Minor,
+                Build = (ushort)_version.Build,
+                Revision = (ushort)_version.Revision
+            };
+        }
+        return result;
     }
 
     // Compare two PackageVersion values
