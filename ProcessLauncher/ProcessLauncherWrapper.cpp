@@ -18,19 +18,6 @@
 using namespace msclr::interop;
 using namespace WTLayoutManager::Services;
 
-// Wide → UTF-8  (or CP_ACP if you prefer)
-std::string WideToUtf8(const std::wstring& ws)
-{
-    int len = WideCharToMultiByte(CP_UTF8, 0,
-        ws.data(), (int)ws.size(),
-        nullptr, 0, nullptr, nullptr);
-    std::string s(len, 0);
-    WideCharToMultiByte(CP_UTF8, 0,
-        ws.data(), (int)ws.size(),
-        s.data(), len, nullptr, nullptr);
-    return s;
-}
-
 /**
  * Launches a process with a custom environment block.
  * Returns the exit code of the process.
@@ -86,7 +73,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     PROCESS_INFORMATION pi = { 0 };
 
     std::wstring hookW(hookRaw);
-    std::string hook = WideToUtf8(hookW);
+    std::string hook = WinApiHelpers::WideToUtf8(hookW);
     BOOL success = WinApiHelpers::DetourCreateProcessWithDllExWrap(
         appPath,            // or retrieved from argv
         cmdLine.get(),      // command line (inherit)

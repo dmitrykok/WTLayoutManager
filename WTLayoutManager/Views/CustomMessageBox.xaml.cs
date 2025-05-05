@@ -1,17 +1,6 @@
 ﻿using MaterialDesignThemes.Wpf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WTLayoutManager.Services;
 
 namespace WTLayoutManager.Views
@@ -30,16 +19,16 @@ namespace WTLayoutManager.Views
             switch (dialogType)
             {
                 case DialogType.Information:
-                    Icon.Kind = PackIconKind.InformationOutline;
-                    Icon.Foreground = Brushes.DodgerBlue;
+                    MessageIcon.Kind = PackIconKind.InformationOutline;
+                    MessageIcon.Foreground = Brushes.DodgerBlue;
                     break;
                 case DialogType.Warning:
-                    Icon.Kind = PackIconKind.AlertOutline;
-                    Icon.Foreground = Brushes.Orange;
+                    MessageIcon.Kind = PackIconKind.AlertOutline;
+                    MessageIcon.Foreground = Brushes.Orange;
                     break;
                 case DialogType.Error:
-                    Icon.Kind = PackIconKind.AlertCircleOutline;
-                    Icon.Foreground = Brushes.Red;
+                    MessageIcon.Kind = PackIconKind.AlertCircleOutline;
+                    MessageIcon.Foreground = Brushes.Red;
                     break;
             }
         }

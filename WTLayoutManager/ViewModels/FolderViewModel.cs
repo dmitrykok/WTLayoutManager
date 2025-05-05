@@ -172,6 +172,11 @@ namespace WTLayoutManager.ViewModels
             return true;
         }
 
+        private bool TerminalHasLocalStateParam(TerminalInfo terminalInfo)
+        {
+            return (!IsDefault && terminalInfo.Version >= "1.24.53104.5" && terminalInfo.Publisher == "CN=Dm17tryK");
+        }
+
         /// <summary>
         /// Builds the command line for running a terminal executable with the given file name,
         /// adding the "--localstate" option if the terminal version is at least 1.25.53104.5.
@@ -182,7 +187,7 @@ namespace WTLayoutManager.ViewModels
         private string BuildCommandLine(TerminalInfo terminalInfo, string fileName)
         {
             var commandLine = $"\"{fileName}\"";
-            if (terminalInfo.Version >= "1.25.53104.5")
+            if (TerminalHasLocalStateParam(terminalInfo))
             {
                 commandLine += $" --localstate \"{Path}\"";
             }
@@ -207,7 +212,7 @@ namespace WTLayoutManager.ViewModels
             //defaultFolderPath = "C:\\Users\\dmitr\\AppData\\Local\\Microsoft\\Windows Terminal";
 
             string envBlock = string.Empty;
-            if (!IsDefault && terminalInfo.Version >= "1.24.53104.5")
+            if (TerminalHasLocalStateParam(terminalInfo))
             {
                 // Single-null terminators per variable, ending with a double-null terminator.
                 envBlock += $";WT_BASE_SETTINGS_PATH={Path}";
@@ -452,6 +457,8 @@ namespace WTLayoutManager.ViewModels
             }
         }
 
+        private static readonly HashSet<string> _filesToCopy = new(StringComparer.OrdinalIgnoreCase) { "settings.json", "state.json" };
+
         /// <summary>
         /// Recursively copies a directory and all its contents to another directory.
         /// </summary>
@@ -468,8 +475,12 @@ namespace WTLayoutManager.ViewModels
             Directory.CreateDirectory(destDir);
 
             // Copy files
-            foreach (FileInfo file in dirInfo.GetFiles())
+            //foreach (FileInfo file in dirInfo.GetFiles())
+            foreach (FileInfo file in dirInfo.EnumerateFiles())
             {
+                if (!_filesToCopy.Contains(file.Name))
+                    continue;                       // skip everything else
+
                 string targetFilePath = System.IO.Path.Combine(destDir, file.Name);
                 file.CopyTo(targetFilePath, true);
             }

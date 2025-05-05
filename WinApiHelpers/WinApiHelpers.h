@@ -55,6 +55,8 @@ namespace WTLayoutManager {
                 _Out_ LPPROCESS_INFORMATION lpProcessInformation,
                 _In_ LPCSTR lpDllName,
                 _In_opt_ void* pfCreateProcessW);
+
+            WINAPIHELPERS_API static std::string WideToUtf8(const std::wstring& ws);
 		};
 
 	}

@@ -1,9 +1,22 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "WinApiHelpers.h"
 #include <strsafe.h>
 #include <detours.h>
 
 using namespace WTLayoutManager::Services;
+
+// Wide → UTF-8  (or CP_ACP if you prefer)
+std::string WinApiHelpers::WideToUtf8(const std::wstring& ws)
+{
+    int len = WideCharToMultiByte(CP_UTF8, 0,
+        ws.data(), (int)ws.size(),
+        nullptr, 0, nullptr, nullptr);
+    std::string s(len, 0);
+    WideCharToMultiByte(CP_UTF8, 0,
+        ws.data(), (int)ws.size(),
+        s.data(), len, nullptr, nullptr);
+    return s;
+}
 
 /**
  * Retrieves the last error message from the system as a std::wstring.

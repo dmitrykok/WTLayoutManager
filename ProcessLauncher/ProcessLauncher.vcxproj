@@ -107,6 +107,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
@@ -115,6 +116,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
@@ -123,6 +125,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
@@ -144,6 +147,7 @@
       <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -161,6 +165,7 @@
       <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -178,6 +183,7 @@
       <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -196,6 +202,8 @@
       <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -214,6 +222,8 @@
       <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -232,6 +242,8 @@
       <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
       <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
