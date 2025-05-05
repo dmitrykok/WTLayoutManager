@@ -231,8 +231,8 @@ namespace WTLayoutManager.ViewModels
         {
             // Assumes each profile's ProfileName is unique.
             return profiles
-                .GroupBy(p => p.ProfileName)
-                .ToDictionary(g => g.Key, g => g.First().IconPath);
+                .GroupBy(p => p.ProfileName!)
+                .ToDictionary(g => g.Key, g => g.First().IconPath!);
         }
 
         private FolderModel CreateFolderModel(string folderPath, string folderName, bool isDefault)

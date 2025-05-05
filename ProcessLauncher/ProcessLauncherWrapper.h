@@ -20,7 +20,7 @@ namespace WTLayoutManager::Services{
         /// Returns the exit code of the target process.
         /// Throws an exception if the launcher could not be started.
         /// </summary>
-        static int LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock);
+        static int LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock, System::String^ hookPath);
     };
 
     /// <summary>

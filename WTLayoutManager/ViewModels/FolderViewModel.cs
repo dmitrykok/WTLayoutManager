@@ -55,8 +55,8 @@ namespace WTLayoutManager.ViewModels
             CancelEditCommand = new RelayCommand(ExecuteCancelEditCommand);
         }
 
-        public bool CanRunTerminal => !_runningTerminals.ContainsKey(Path);
-        public bool CanRunTerminalAs => !_runningTerminalsAs.ContainsKey(Path);
+        public bool CanRunTerminal => Path is { Length: > 0 } && !_runningTerminals.ContainsKey(Path);
+        public bool CanRunTerminalAs => Path is { Length: > 0 } && !_runningTerminalsAs.ContainsKey(Path);
 
         private bool _isExpanded = false;
         public bool IsExpanded
@@ -343,7 +343,8 @@ namespace WTLayoutManager.ViewModels
                         System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
                         fileName,
                         commandLine,
-                        envBlock)
+                        envBlock,
+                        System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"WTLocalStateHook{ProcessBitness}.dll"))
                     )
                 );
             }

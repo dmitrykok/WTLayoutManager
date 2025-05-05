@@ -157,18 +157,20 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
  * @param commandLine Command line arguments
  * @param envBlock Encoded environment block (e.g. "VAR1=Value1;VAR2=Value2")
  */
-int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock)
+int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock, System::String^ hookPath)
 {
     marshal_context^ context = gcnew marshal_context();
     const wchar_t* _launcher = context->marshal_as<const wchar_t*>(launcherPath);
     const wchar_t* _appPath = context->marshal_as<const wchar_t*>(applicationPath);
     const wchar_t* _cmdLine = context->marshal_as<const wchar_t*>(commandLine);
     const wchar_t* _env = context->marshal_as<const wchar_t*>(envBlock);
+    const wchar_t* _hook = context->marshal_as<const wchar_t*>(hookPath);
 
 	std::wstring launcher(_launcher);
 	std::wstring appPath(_appPath);
 	std::wstring cmdLine(_cmdLine);
 	std::wstring env(_env);
+    std::wstring hook(_hook);
 
     // Helper lambda to properly quote an argument by escaping internal quotes.
     auto QuoteArgument = [](const std::wstring& arg) -> std::wstring {
@@ -186,7 +188,7 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
         return result.str();
     };
 
-    std::wstring parameters = QuoteArgument(appPath) + L" " + QuoteArgument(cmdLine) + L" " + QuoteArgument(env);
+    std::wstring parameters = QuoteArgument(appPath) + L" " + QuoteArgument(cmdLine) + L" " + QuoteArgument(env) + L" " + QuoteArgument(hook);
 
     SHELLEXECUTEINFOW sei = { 0 };
     sei.cbSize = sizeof(sei);
@@ -225,7 +227,12 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
 	}
     else if (exitCode != 0)
     {
-        std::wstring err = L"Process exited with code " + std::to_wstring(exitCode);
+        std::wstringstream ss;
+        ss << L"Process exited with code: 0x"
+            << std::setw(8) << std::setfill(L'0')
+            << std::uppercase << std::hex << exitCode;
+
+        std::wstring err = ss.str();
         CloseHandle(sei.hProcess);
         delete context;
         throw gcnew System::Exception(gcnew System::String(err.c_str()));
