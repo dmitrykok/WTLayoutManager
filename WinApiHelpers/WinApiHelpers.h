@@ -2,6 +2,7 @@
 
 #include "new.h"
 #include <windows.h>
+#include <shellapi.h>
 #include <string>
 #include <vector>
 
@@ -13,6 +14,44 @@
 
 namespace WTLayoutManager {
 	namespace Services {
+
+        struct shellexecuteinfow_raii
+        {
+            SHELLEXECUTEINFOW sei{ 0 };
+
+            WINAPIHELPERS_API shellexecuteinfow_raii();
+            WINAPIHELPERS_API ~shellexecuteinfow_raii();
+
+            shellexecuteinfow_raii(const shellexecuteinfow_raii&) = delete;
+            shellexecuteinfow_raii& operator=(const shellexecuteinfow_raii&) = delete;
+
+            WINAPIHELPERS_API shellexecuteinfow_raii(shellexecuteinfow_raii&& other) noexcept;
+            WINAPIHELPERS_API shellexecuteinfow_raii& operator=(shellexecuteinfow_raii&& other) noexcept;
+
+            WINAPIHELPERS_API void reset() noexcept;
+
+            // implicit conversion when a SHELLEXECUTEINFOW* is required
+            WINAPIHELPERS_API operator SHELLEXECUTEINFOW* () noexcept;
+        };
+
+        struct process_info_raii
+        {
+            PROCESS_INFORMATION pi{ 0 };
+
+            WINAPIHELPERS_API process_info_raii();
+            WINAPIHELPERS_API ~process_info_raii();
+
+            process_info_raii(const process_info_raii&) = delete;
+            process_info_raii& operator=(const process_info_raii&) = delete;
+
+            WINAPIHELPERS_API process_info_raii(process_info_raii&& other) noexcept;
+            WINAPIHELPERS_API process_info_raii& operator=(process_info_raii&& other) noexcept;
+
+            WINAPIHELPERS_API void reset() noexcept;
+
+            // implicit conversion when a PROCESS_INFORMATION* is required
+            WINAPIHELPERS_API operator PROCESS_INFORMATION* () noexcept;
+        };
 
 		/// <summary>
   		/// Provides utility methods for Windows API operations.

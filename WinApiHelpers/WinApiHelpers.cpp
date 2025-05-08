@@ -5,6 +5,84 @@
 
 using namespace WTLayoutManager::Services;
 
+shellexecuteinfow_raii::shellexecuteinfow_raii()
+{
+    ZeroMemory(&sei, sizeof(sei));
+    sei.cbSize = sizeof(sei);
+}
+shellexecuteinfow_raii::~shellexecuteinfow_raii()
+{
+    reset();
+}
+
+shellexecuteinfow_raii::shellexecuteinfow_raii(shellexecuteinfow_raii&& other) noexcept
+    : sei(other.sei)
+{
+    other.sei.hProcess = nullptr;
+}
+shellexecuteinfow_raii& shellexecuteinfow_raii::operator=(shellexecuteinfow_raii&& other) noexcept
+{
+    if (this != &other)
+    {
+        reset();
+        sei = other.sei;
+        other.sei.hProcess = nullptr;
+    }
+    return *this;
+}
+
+void shellexecuteinfow_raii::reset() noexcept
+{
+    if (sei.hProcess) { CloseHandle(sei.hProcess);  sei.hProcess = nullptr; }
+}
+
+// implicit conversion when a SHELLEXECUTEINFOW* is required
+shellexecuteinfow_raii::operator SHELLEXECUTEINFOW* () noexcept
+{
+    return &sei;
+}
+
+// --------------------------------------------------------------------------
+
+process_info_raii::process_info_raii() 
+{ 
+    ZeroMemory(&pi, sizeof(pi)); 
+}
+process_info_raii::~process_info_raii() 
+{ 
+    reset(); 
+}
+
+process_info_raii::process_info_raii(process_info_raii&& other) noexcept
+    : pi(other.pi)
+{
+    other.pi.hProcess = other.pi.hThread = nullptr;
+}
+process_info_raii& process_info_raii::operator=(process_info_raii&& other) noexcept
+{
+    if (this != &other)
+    {
+        reset();
+        pi = other.pi;
+        other.pi.hProcess = other.pi.hThread = nullptr;
+    }
+    return *this;
+}
+
+void process_info_raii::reset() noexcept
+{
+    if (pi.hThread) { CloseHandle(pi.hThread);   pi.hThread = nullptr; }
+    if (pi.hProcess) { CloseHandle(pi.hProcess);  pi.hProcess = nullptr; }
+}
+
+// implicit conversion when a PROCESS_INFORMATION* is required
+process_info_raii::operator PROCESS_INFORMATION* () noexcept 
+{ 
+    return &pi;
+}
+
+// --------------------------------------------------------------------------
+
 // Wide → UTF-8  (or CP_ACP if you prefer)
 std::string WinApiHelpers::WideToUtf8(const std::wstring& ws)
 {

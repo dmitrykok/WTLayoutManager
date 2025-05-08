@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Windows.ApplicationModel;
 
+namespace Windows.ApplicationModel;
 public static class PackageVersionExtensions
 {
     // Parse a version string in the form "Major.Minor.Build.Revision"
@@ -18,26 +18,19 @@ public static class PackageVersionExtensions
 
     public static bool TryParse(this PackageVersion current, string version, [NotNullWhen(true)] out PackageVersion? packageVersion)
     {
-        Version? _version = new Version();
-        packageVersion = new PackageVersion
-        {
-            Major = (ushort)_version.Major,
-            Minor = (ushort)_version.Minor,
-            Build = (ushort)_version.Build,
-            Revision = (ushort)_version.Revision
-        };
-        var result = Version.TryParse(version, out _version);
-        if (result && _version != null)
+        packageVersion = null;
+        if (Version.TryParse(version, out Version? parsedVersion))
         {
             packageVersion = new PackageVersion
             {
-                Major = (ushort)_version.Major,
-                Minor = (ushort)_version.Minor,
-                Build = (ushort)_version.Build,
-                Revision = (ushort)_version.Revision
+                Major = (ushort)parsedVersion.Major,
+                Minor = (ushort)parsedVersion.Minor,
+                Build = (ushort)parsedVersion.Build,
+                Revision = (ushort)parsedVersion.Revision
             };
+            return true;
         }
-        return result;
+        return false;
     }
 
     // Compare two PackageVersion values

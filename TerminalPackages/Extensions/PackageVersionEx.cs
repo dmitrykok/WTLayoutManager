@@ -37,13 +37,12 @@ namespace WTLayoutManager.Services
         public static bool TryParse(string version, [NotNullWhen(true)] out PackageVersionEx? packageVersion)
         {
             packageVersion = null;
-            PackageVersion? _version;
-            var result = new PackageVersion().TryParse(version, out _version);
-            if (result && _version != null)
+            if (new PackageVersion().TryParse(version, out PackageVersion? parsedVersion))
             {
-                packageVersion = new PackageVersionEx((PackageVersion)_version);
+                packageVersion = new PackageVersionEx((PackageVersion)parsedVersion);
+                return true;
             }
-            return result;
+            return false;
         }
 
         public int CompareTo(PackageVersionEx other)
