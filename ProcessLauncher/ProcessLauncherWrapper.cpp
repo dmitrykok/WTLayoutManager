@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "new.h"
 #include "WinApiHelpers.h"
 #include "ProcessLauncherWrapper.h"
@@ -11,10 +11,23 @@
 #include <vector>
 #include <memory>
 #include <crtdbg.h>
+#include <sstream>
+#include <iomanip>
 #include <msclr/marshal_cppstd.h>
+#include <msclr/auto_handle.h>
 
 using namespace msclr::interop;
 using namespace WTLayoutManager::Services;
+
+// Helper function to format the process exit code.
+static std::wstring FormatProcessExitCode(int exitCode)
+{
+    std::wstringstream ss;
+    ss << L"Process exited with code: 0x"
+        << std::setw(8) << std::setfill(L'0')
+        << std::uppercase << std::hex << exitCode;
+    return ss.str();
+}
 
 /**
  * Launches a process with a custom environment block.
@@ -24,83 +37,88 @@ using namespace WTLayoutManager::Services;
  * @param commandLine Command line arguments
  * @param envBlock Encoded environment block (e.g. "VAR1=Value1;VAR2=Value2")
  */
-int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock)
+int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock, System::String^ hookPath)
 {
-    marshal_context^ context = gcnew marshal_context();
-    const wchar_t* appPath = context->marshal_as<const wchar_t*>(applicationPath);
-    const wchar_t* cmdLine = context->marshal_as<const wchar_t*>(commandLine);
-    const wchar_t* env = context->marshal_as<const wchar_t*>(envBlock);
+    msclr::auto_handle<msclr::interop::marshal_context> ctx(gcnew msclr::interop::marshal_context());
+    const wchar_t* appPath = ctx->marshal_as<const wchar_t*>(applicationPath);
+    const wchar_t* cmdRaw = ctx->marshal_as<const wchar_t*>(commandLine);
+    const wchar_t* hookRaw = ctx->marshal_as<const wchar_t*>(hookPath);
 
-    int len = lstrlen(cmdLine) + 1;
-	std::unique_ptr<wchar_t[]> cmdLineCopy(new wchar_t[len]);
-    if (FAILED(StringCchCopy(cmdLineCopy.get(), len, cmdLine))) {
-        std::wstring err = WinApiHelpers::GetLastErrorMessage();
-        delete context;
-        throw gcnew System::Exception(gcnew System::String(err.c_str()));
-    }
-
-    // Duplicate the environment block into a modifiable buffer.
-	DWORD dwCreationFlags = 0;
-    std::unique_ptr<wchar_t[]> envCopy(nullptr);
-    if (lstrlen(env))
+    // 1. ----- DUPLICATE COMMAND LINE --------------------------------------
+    size_t cmdLen = wcslen(cmdRaw) + 1;
+    std::unique_ptr<wchar_t[]> cmdLine(new wchar_t[cmdLen]);
+    if (FAILED(StringCchCopyW(cmdLine.get(), cmdLen, cmdRaw))) 
     {
-        std::vector<std::wstring> additional = { env };
-        envCopy.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
-		dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
+        throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }
 
-    STARTUPINFOW si = { 0 };
-    si.cb = sizeof(si);
-    PROCESS_INFORMATION pi = { 0 };
+    // 2. ----- SPLIT envBlock → vector<wstring> ---------------------------
+    std::vector<std::wstring> additional;
+    if (!System::String::IsNullOrEmpty(envBlock))
+    {
+        array<System::String^>^ parts = envBlock->Split(L';');
+        for each (System::String^ part in parts)
+        {
+            if (System::String::IsNullOrWhiteSpace(part)) 
+                continue;      // skip empty
 
-    BOOL success = CreateProcessW(
-        appPath,                      // Application path
-        cmdLineCopy.get(),  // Command line
-        NULL,
-        NULL,
-        FALSE,
-        dwCreationFlags,
-        envCopy.get(),                              // Custom environment block
-        NULL,
-        &si,
-        &pi
-    );
+            additional.emplace_back(ctx->marshal_as<const wchar_t*>(part));
+        }
+    }
 
+    // 3. ----- MERGE with parent environment ------------------------------
+    std::unique_ptr<wchar_t[]> merged;
+    DWORD dwCreationFlags = 0;
+    if (!additional.empty())
+    {
+        merged.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
+        dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
+    }
+
+    STARTUPINFOEXW si{ sizeof(si) };
+    process_info_raii pi;
+
+    std::wstring hookW(hookRaw);
+    std::string hook = WinApiHelpers::WideToUtf8(hookW);
+    BOOL success = WinApiHelpers::DetourCreateProcessWithDllExWrap(
+        appPath,            // or retrieved from argv
+        cmdLine.get(),      // command line (inherit)
+        nullptr, nullptr,   // security attrs
+        FALSE,              // inherit handles
+        dwCreationFlags | CREATE_SUSPENDED,
+        merged.get(),       // Custom environment block
+        nullptr,            // cwd
+        &si.StartupInfo,
+        (PROCESS_INFORMATION*) pi,
+        hook.c_str(),       // *** injected DLL
+        nullptr);           // default create-process routine
+
+    std::wstring err = WinApiHelpers::GetLastErrorMessage();
     if (!success)
     {
-        std::wstring err = WinApiHelpers::GetLastErrorMessage();
-        delete context;
-        throw gcnew System::Exception(gcnew System::String(err.c_str()));
+        throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }
 
-    // Wait for the process to exit.
-    WaitForSingleObject(pi.hProcess, INFINITE);
+    //success = DebugActiveProcess(pi.dwProcessId);
+    success = ResumeThread(pi.pi.hThread);
 
-	envCopy.reset();
-	cmdLineCopy.reset();
+    // Wait for the process to exit.
+    WaitForSingleObject(pi.pi.hProcess, INFINITE);
+
+    merged.reset();
+    cmdLine.reset();
 
     DWORD exitCode = 0;
-    if (!GetExitCodeProcess(pi.hProcess, &exitCode))
+    if (!GetExitCodeProcess(pi.pi.hProcess, &exitCode))
     {
-        std::wstring err = WinApiHelpers::GetLastErrorMessage();
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        delete context;
-        throw gcnew System::Exception(gcnew System::String(err.c_str()));
+        throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }
 
 	if (exitCode != 0)
 	{
-		std::wstring err = L"Process exited with code " + std::to_wstring(exitCode);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        delete context;
-		throw gcnew System::Exception(gcnew System::String(err.c_str()));
+		throw gcnew System::Exception(gcnew System::String(FormatProcessExitCode(exitCode).c_str()));
 	}
 
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    delete context;
     return static_cast<int>(exitCode);
 }
 
@@ -114,18 +132,20 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
  * @param commandLine Command line arguments
  * @param envBlock Encoded environment block (e.g. "VAR1=Value1;VAR2=Value2")
  */
-int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock)
+int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System::String^ applicationPath, System::String^ commandLine, System::String^ envBlock, System::String^ hookPath)
 {
-    marshal_context^ context = gcnew marshal_context();
-    const wchar_t* _launcher = context->marshal_as<const wchar_t*>(launcherPath);
-    const wchar_t* _appPath = context->marshal_as<const wchar_t*>(applicationPath);
-    const wchar_t* _cmdLine = context->marshal_as<const wchar_t*>(commandLine);
-    const wchar_t* _env = context->marshal_as<const wchar_t*>(envBlock);
+    msclr::auto_handle<msclr::interop::marshal_context> ctx(gcnew msclr::interop::marshal_context());
+    const wchar_t* _launcher = ctx->marshal_as<const wchar_t*>(launcherPath);
+    const wchar_t* _appPath = ctx->marshal_as<const wchar_t*>(applicationPath);
+    const wchar_t* _cmdLine = ctx->marshal_as<const wchar_t*>(commandLine);
+    const wchar_t* _env = ctx->marshal_as<const wchar_t*>(envBlock);
+    const wchar_t* _hook = ctx->marshal_as<const wchar_t*>(hookPath);
 
-	std::wstring launcher(_launcher);
-	std::wstring appPath(_appPath);
-	std::wstring cmdLine(_cmdLine);
-	std::wstring env(_env);
+    std::wstring launcher(_launcher);
+    std::wstring appPath(_appPath);
+    std::wstring cmdLine(_cmdLine);
+    std::wstring env(_env);
+    std::wstring hook(_hook);
 
     // Helper lambda to properly quote an argument by escaping internal quotes.
     auto QuoteArgument = [](const std::wstring& arg) -> std::wstring {
@@ -141,54 +161,40 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
         }
         result << L"\"";
         return result.str();
-    };
+        };
 
-    std::wstring parameters = QuoteArgument(appPath) + L" " + QuoteArgument(cmdLine) + L" " + QuoteArgument(env);
+    std::wstring parameters = QuoteArgument(appPath) + L" " + QuoteArgument(cmdLine) + L" " + QuoteArgument(env) + L" " + QuoteArgument(hook);
 
-    SHELLEXECUTEINFOW sei = { 0 };
-    sei.cbSize = sizeof(sei);
-    sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-    sei.lpVerb = L"runas"; // Request elevation (UAC prompt)
-    sei.lpFile = launcher.c_str();
-    sei.lpParameters = parameters.c_str();
-    sei.nShow = SW_HIDE;
+    shellexecuteinfow_raii sei;
+    sei.sei.cbSize = sizeof(sei);
+    sei.sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+    sei.sei.lpVerb = L"runas"; // Request elevation (UAC prompt)
+    sei.sei.lpFile = launcher.c_str();
+    sei.sei.lpParameters = parameters.c_str();
+    sei.sei.nShow = SW_HIDE;
 
-    if (!ShellExecuteEx(&sei))
+    if (!ShellExecuteEx((SHELLEXECUTEINFOW*)sei))
     {
-        std::wstring err = WinApiHelpers::GetLastErrorMessage();
-        delete context;
-        throw gcnew System::Exception(gcnew System::String(err.c_str()));
+        throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }
 
     // Wait for the launcher executable to complete.
-    WaitForSingleObject(sei.hProcess, INFINITE);
+    WaitForSingleObject(sei.sei.hProcess, INFINITE);
 
     DWORD exitCode = 0;
-    if (!GetExitCodeProcess(sei.hProcess, &exitCode))
+    if (!GetExitCodeProcess(sei.sei.hProcess, &exitCode))
     {
-        std::wstring err = WinApiHelpers::GetLastErrorMessage();
-        CloseHandle(sei.hProcess);
-        delete context;
-        throw gcnew System::Exception(gcnew System::String(err.c_str()));
+        throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }
 
     if (exitCode == -1)
-	{
-		// ShellExecuteEx failed.
-		std::wstring err = WinApiHelpers::GetLastErrorMessage();
-        CloseHandle(sei.hProcess);
-        delete context;
-		throw gcnew System::Exception(gcnew System::String(err.c_str()));
-	}
+    {
+        throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+    }
     else if (exitCode != 0)
     {
-        std::wstring err = L"Process exited with code " + std::to_wstring(exitCode);
-        CloseHandle(sei.hProcess);
-        delete context;
-        throw gcnew System::Exception(gcnew System::String(err.c_str()));
+        throw gcnew System::Exception(gcnew System::String(FormatProcessExitCode(exitCode).c_str()));
     }
 
-    CloseHandle(sei.hProcess);
-    delete context;
     return static_cast<int>(exitCode);
 }

@@ -2,6 +2,7 @@
 
 #include "new.h"
 #include <windows.h>
+#include <shellapi.h>
 #include <string>
 #include <vector>
 
@@ -13,6 +14,44 @@
 
 namespace WTLayoutManager {
 	namespace Services {
+
+        struct shellexecuteinfow_raii
+        {
+            SHELLEXECUTEINFOW sei{ 0 };
+
+            WINAPIHELPERS_API shellexecuteinfow_raii();
+            WINAPIHELPERS_API ~shellexecuteinfow_raii();
+
+            shellexecuteinfow_raii(const shellexecuteinfow_raii&) = delete;
+            shellexecuteinfow_raii& operator=(const shellexecuteinfow_raii&) = delete;
+
+            WINAPIHELPERS_API shellexecuteinfow_raii(shellexecuteinfow_raii&& other) noexcept;
+            WINAPIHELPERS_API shellexecuteinfow_raii& operator=(shellexecuteinfow_raii&& other) noexcept;
+
+            WINAPIHELPERS_API void reset() noexcept;
+
+            // implicit conversion when a SHELLEXECUTEINFOW* is required
+            WINAPIHELPERS_API operator SHELLEXECUTEINFOW* () noexcept;
+        };
+
+        struct process_info_raii
+        {
+            PROCESS_INFORMATION pi{ 0 };
+
+            WINAPIHELPERS_API process_info_raii();
+            WINAPIHELPERS_API ~process_info_raii();
+
+            process_info_raii(const process_info_raii&) = delete;
+            process_info_raii& operator=(const process_info_raii&) = delete;
+
+            WINAPIHELPERS_API process_info_raii(process_info_raii&& other) noexcept;
+            WINAPIHELPERS_API process_info_raii& operator=(process_info_raii&& other) noexcept;
+
+            WINAPIHELPERS_API void reset() noexcept;
+
+            // implicit conversion when a PROCESS_INFORMATION* is required
+            WINAPIHELPERS_API operator PROCESS_INFORMATION* () noexcept;
+        };
 
 		/// <summary>
   		/// Provides utility methods for Windows API operations.
@@ -41,6 +80,22 @@ namespace WTLayoutManager {
    			/// The caller is responsible for freeing the returned environment block using the appropriate Windows API function.
    			/// </remarks>
 			WINAPIHELPERS_API static LPWSTR CreateMergedEnvironmentBlock(const std::vector<std::wstring>& additionalVars);
+
+            WINAPIHELPERS_API static BOOL DetourCreateProcessWithDllExWrap(
+                _In_opt_ LPCWSTR lpApplicationName,
+                _Inout_opt_  LPWSTR lpCommandLine,
+                _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+                _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+                _In_ BOOL bInheritHandles,
+                _In_ DWORD dwCreationFlags,
+                _In_opt_ LPVOID lpEnvironment,
+                _In_opt_ LPCWSTR lpCurrentDirectory,
+                _In_ LPSTARTUPINFOW lpStartupInfo,
+                _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+                _In_ LPCSTR lpDllName,
+                _In_opt_ void* pfCreateProcessW);
+
+            WINAPIHELPERS_API static std::string WideToUtf8(const std::wstring& ws);
 		};
 
 	}

@@ -1,8 +1,100 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "WinApiHelpers.h"
 #include <strsafe.h>
+#include <detours.h>
 
 using namespace WTLayoutManager::Services;
+
+shellexecuteinfow_raii::shellexecuteinfow_raii()
+{
+    ZeroMemory(&sei, sizeof(sei));
+    sei.cbSize = sizeof(sei);
+}
+shellexecuteinfow_raii::~shellexecuteinfow_raii()
+{
+    reset();
+}
+
+shellexecuteinfow_raii::shellexecuteinfow_raii(shellexecuteinfow_raii&& other) noexcept
+    : sei(other.sei)
+{
+    other.sei.hProcess = nullptr;
+}
+shellexecuteinfow_raii& shellexecuteinfow_raii::operator=(shellexecuteinfow_raii&& other) noexcept
+{
+    if (this != &other)
+    {
+        reset();
+        sei = other.sei;
+        other.sei.hProcess = nullptr;
+    }
+    return *this;
+}
+
+void shellexecuteinfow_raii::reset() noexcept
+{
+    if (sei.hProcess) { CloseHandle(sei.hProcess);  sei.hProcess = nullptr; }
+}
+
+// implicit conversion when a SHELLEXECUTEINFOW* is required
+shellexecuteinfow_raii::operator SHELLEXECUTEINFOW* () noexcept
+{
+    return &sei;
+}
+
+// --------------------------------------------------------------------------
+
+process_info_raii::process_info_raii() 
+{ 
+    ZeroMemory(&pi, sizeof(pi)); 
+}
+process_info_raii::~process_info_raii() 
+{ 
+    reset(); 
+}
+
+process_info_raii::process_info_raii(process_info_raii&& other) noexcept
+    : pi(other.pi)
+{
+    other.pi.hProcess = other.pi.hThread = nullptr;
+}
+process_info_raii& process_info_raii::operator=(process_info_raii&& other) noexcept
+{
+    if (this != &other)
+    {
+        reset();
+        pi = other.pi;
+        other.pi.hProcess = other.pi.hThread = nullptr;
+    }
+    return *this;
+}
+
+void process_info_raii::reset() noexcept
+{
+    if (pi.hThread) { CloseHandle(pi.hThread);   pi.hThread = nullptr; }
+    if (pi.hProcess) { CloseHandle(pi.hProcess);  pi.hProcess = nullptr; }
+}
+
+// implicit conversion when a PROCESS_INFORMATION* is required
+process_info_raii::operator PROCESS_INFORMATION* () noexcept 
+{ 
+    return &pi;
+}
+
+// --------------------------------------------------------------------------
+
+// Wide → UTF-8  (or CP_ACP if you prefer)
+std::string WinApiHelpers::WideToUtf8(const std::wstring& ws)
+{
+    int len = WideCharToMultiByte(CP_UTF8, 0,
+        ws.data(), (int)ws.size(),
+        nullptr, 0, nullptr, nullptr);
+    std::string s(len, 0);
+    WideCharToMultiByte(CP_UTF8, 0,
+        ws.data(), (int)ws.size(),
+        s.data(), len, nullptr, nullptr);
+    return s;
+}
 
 /**
  * Retrieves the last error message from the system as a std::wstring.
@@ -84,4 +176,34 @@ LPWSTR WinApiHelpers::CreateMergedEnvironmentBlock(const std::vector<std::wstrin
     *cur = (TCHAR)0; // double null termination
 
     return mergedEnv;
+}
+
+BOOL WinApiHelpers::DetourCreateProcessWithDllExWrap(
+    _In_opt_ LPCWSTR lpApplicationName,
+    _Inout_opt_  LPWSTR lpCommandLine,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ BOOL bInheritHandles,
+    _In_ DWORD dwCreationFlags,
+    _In_opt_ LPVOID lpEnvironment,
+    _In_opt_ LPCWSTR lpCurrentDirectory,
+    _In_ LPSTARTUPINFOW lpStartupInfo,
+    _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+    _In_ LPCSTR lpDllName,
+    _In_opt_ void* pfCreateProcessW)
+{
+    return DetourCreateProcessWithDllExW(
+        lpApplicationName,
+        lpCommandLine,
+        lpProcessAttributes,
+        lpThreadAttributes,
+        bInheritHandles,
+        dwCreationFlags,
+        lpEnvironment,
+        lpCurrentDirectory,
+        lpStartupInfo,
+        lpProcessInformation,
+        lpDllName,
+        reinterpret_cast<PDETOUR_CREATE_PROCESS_ROUTINEW>(pfCreateProcessW)
+    );
 }

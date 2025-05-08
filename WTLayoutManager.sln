@@ -19,15 +19,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessLauncher", "ProcessL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElevatedLauncher", "ElevatedLauncher\ElevatedLauncher.vcxproj", "{EEE784B7-8F37-4503-B315-B73A038DF673}"
 	ProjectSection(ProjectDependencies) = postProject
+		{37489709-8054-4903-9C49-A79846049FC9} = {37489709-8054-4903-9C49-A79846049FC9}
 		{56B92634-D191-4586-8437-C99FB5E415F6} = {56B92634-D191-4586-8437-C99FB5E415F6}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApiHelpers", "WinApiHelpers\WinApiHelpers.vcxproj", "{56B92634-D191-4586-8437-C99FB5E415F6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24} = {1827C012-48E5-4861-9A10-CFFDF66B7C24}
+		{37489709-8054-4903-9C49-A79846049FC9} = {37489709-8054-4903-9C49-A79846049FC9}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "New", "New\New.vcxproj", "{1827C012-48E5-4861-9A10-CFFDF66B7C24}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "third_party\detours\vc\Detours.vcxproj", "{37489709-8054-4903-9C49-A79846049FC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +145,18 @@ Global
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x64.Build.0 = Release|x64
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x86.ActiveCfg = Release|Win32
 		{1827C012-48E5-4861-9A10-CFFDF66B7C24}.Release|x86.Build.0 = Release|Win32
+		{37489709-8054-4903-9C49-A79846049FC9}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{37489709-8054-4903-9C49-A79846049FC9}.Debug|ARM64.Build.0 = Debug|ARM64
+		{37489709-8054-4903-9C49-A79846049FC9}.Debug|x64.ActiveCfg = Debug|x64
+		{37489709-8054-4903-9C49-A79846049FC9}.Debug|x64.Build.0 = Debug|x64
+		{37489709-8054-4903-9C49-A79846049FC9}.Debug|x86.ActiveCfg = Debug|Win32
+		{37489709-8054-4903-9C49-A79846049FC9}.Debug|x86.Build.0 = Debug|Win32
+		{37489709-8054-4903-9C49-A79846049FC9}.Release|ARM64.ActiveCfg = Release|ARM64
+		{37489709-8054-4903-9C49-A79846049FC9}.Release|ARM64.Build.0 = Release|ARM64
+		{37489709-8054-4903-9C49-A79846049FC9}.Release|x64.ActiveCfg = Release|x64
+		{37489709-8054-4903-9C49-A79846049FC9}.Release|x64.Build.0 = Release|x64
+		{37489709-8054-4903-9C49-A79846049FC9}.Release|x86.ActiveCfg = Release|Win32
+		{37489709-8054-4903-9C49-A79846049FC9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

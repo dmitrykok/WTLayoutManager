@@ -107,6 +107,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
@@ -115,6 +116,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
@@ -123,6 +125,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)WTLayoutManager\bin\$(Platform)\$(Configuration)\net9.0-windows10.0.26100.0\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
@@ -138,11 +141,13 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ExceptionHandling>Async</ExceptionHandling>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -153,12 +158,14 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -169,12 +176,14 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -185,13 +194,16 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -202,13 +214,16 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -219,13 +234,16 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib;msvcmrt.lib;Kernel32.lib;Shell32.lib</AdditionalDependencies>
       <CLRImageType>ForceIJWImage</CLRImageType>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

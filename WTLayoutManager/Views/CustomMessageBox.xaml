@@ -17,8 +17,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
-            <materialDesign:PackIcon x:Name="Icon" Width="32" Height="32" Margin="0,0,10,0"/>
-            <TextBlock x:Name="TitleText" Text="x:Static resx:Resources.MessageBoxDefaultTitle}" FontSize="18" VerticalAlignment="Center"/>
+            <materialDesign:PackIcon x:Name="MessageIcon" Width="32" Height="32" Margin="0,0,10,0"/>
+            <TextBlock x:Name="TitleText" Text="{x:Static resx:Resources.MessageBoxDefaultTitle}" FontSize="18" VerticalAlignment="Center"/>
         </StackPanel>
 
         <TextBlock Grid.Row="1" x:Name="MessageText"

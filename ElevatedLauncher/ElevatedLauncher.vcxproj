@@ -129,7 +129,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -137,8 +137,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -151,7 +152,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -161,8 +162,9 @@
       <EnableCOMDATFolding Condition="'$(UseDynamicDebugging)' != 'true'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(UseDynamicDebugging)' != 'true'">true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -175,14 +177,15 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
     </Link>
     <Manifest />
   </ItemDefinitionGroup>
@@ -196,14 +199,15 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
     </Link>
     <Manifest />
   </ItemDefinitionGroup>
@@ -219,7 +223,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
@@ -228,7 +232,8 @@
       <OptimizeReferences Condition="'$(UseDynamicDebugging)' != 'true'">true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -243,7 +248,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)New;$(SolutionDir)WinApiHelpers;$(SolutionDir)third_party\detours\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
@@ -252,7 +257,8 @@
       <OptimizeReferences Condition="'$(UseDynamicDebugging)' != 'true'">true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)New.lib;$(OutDir)WinApiHelpers.lib;detours.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)third_party\detours\$(Configuration)\lib.$(Platform)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -270,6 +276,5 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>
