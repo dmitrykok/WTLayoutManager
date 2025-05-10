@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Security.Cryptography;
 using System.Windows.Input;
 using WTLayoutManager.Models;
 using WTLayoutManager.Services;
@@ -26,7 +27,10 @@ namespace WTLayoutManager.ViewModels
         private readonly FolderModel _folder;
         private readonly MainViewModel _parentViewModel;
         private readonly string _localAppRoot;
-        //private readonly string _localAppBin;
+        private readonly string _localAppBin;
+        private readonly string _hookFileName;
+        private readonly string _srcHookPath;
+        private readonly string _dstHookPath;
         private readonly Dictionary<string, Task<int>> _runningTerminals = new Dictionary<string, Task<int>>();
         private readonly Dictionary<string, Task<int>> _runningTerminalsAs = new Dictionary<string, Task<int>>();
 
@@ -43,7 +47,33 @@ namespace WTLayoutManager.ViewModels
             _folder = folder;
             _parentViewModel = parentViewModel;
             _localAppRoot = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WTLayoutManager");
-            //_localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
+            _localAppBin = System.IO.Path.Combine(_localAppRoot, "bin");
+            if (!Directory.Exists(_localAppBin))
+            {
+                Directory.CreateDirectory(_localAppBin);
+            }
+
+            _hookFileName = $"WTLocalStateHook{ProcessBitness}.dll";
+            _srcHookPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _hookFileName);
+            _dstHookPath = System.IO.Path.Combine(_localAppBin, _hookFileName);
+
+            if (!File.Exists(_dstHookPath) || !FilesEqual(_srcHookPath, _dstHookPath))
+            {
+                string tmp = System.IO.Path.Combine(_localAppBin, $"{Guid.NewGuid()}.tmp");
+                try
+                {
+                    File.Copy(_srcHookPath, tmp, overwrite: true);
+                    File.Replace(tmp, _dstHookPath, destinationBackupFileName: null, ignoreMetadataErrors: true);
+                }
+                finally
+                {
+                    if (File.Exists(tmp))
+                    {
+                        try { File.Delete(tmp); } catch { /* ignore cleanup errors */ }
+                    }
+                }
+            }
+
             // Initialize commands
             RunCommand = new RelayCommand(async _ => await ExecuteRunAsync());
             RunAsCommand = new RelayCommand(async _ => await ExecuteRunAsAsync());
@@ -240,6 +270,22 @@ namespace WTLayoutManager.ViewModels
             return fileName;
         }
 
+        private static bool FilesEqual(string a, string b)
+        {
+            var infoA = FileVersionInfo.GetVersionInfo(a);
+            var infoB = FileVersionInfo.GetVersionInfo(b);
+
+            if (infoA.FileVersion != infoB.FileVersion ||
+                infoA.FileSize() != infoB.FileSize()) // extension method below
+                return false;        // version changed → must refresh
+
+            // Same version: fall back to a fast hash if the files are small.
+            // (Avoid for very large DLLs.)
+            using var sha = SHA256.Create();
+            return sha.ComputeHash(File.ReadAllBytes(a))
+                      .SequenceEqual(sha.ComputeHash(File.ReadAllBytes(b)));
+        }
+
         /// <summary>
         /// Executes the terminal executable associated with the selected terminal,
         /// passing the folder path as the "--localstate" option if the terminal version is at least 1.25.53104.5.
@@ -255,7 +301,7 @@ namespace WTLayoutManager.ViewModels
             Dictionary<string, Task<int>> runningTerminals,
             string alreadyRunningMessage,
             string propertyName,
-            Func<string, string, string, Task<int>> launchProcess
+            Func<string, string, string, string, Task<int>> launchProcess
         )
         {
             if (!ValidateFolderPath(Path))
@@ -271,11 +317,27 @@ namespace WTLayoutManager.ViewModels
             if (key != null && _parentViewModel.TerminalDict?.TryGetValue(key, out var terminalInfo) == true)
             {
                 var fileName = BuildTerminalPath(terminalInfo);
+                var commandLine = BuildCommandLine(terminalInfo, fileName);
+                var envBlock = BuildEnvironmentBlock(terminalInfo);
+                var hookPath = _dstHookPath;
+
+                if (!File.Exists(fileName))
+                {
+                    _messageBoxService.ShowMessage($"File not found.\n{fileName}", "Error", DialogType.Error);
+                    return;
+                }
+
+                if (!File.Exists(hookPath))
+                {
+                    _messageBoxService.ShowMessage($"File not found.\n{hookPath}", "Error", DialogType.Error);
+                    return;
+                }
 
                 Task<int> launchTask = launchProcess(
                     fileName,
-                    BuildCommandLine(terminalInfo, fileName),
-                    BuildEnvironmentBlock(terminalInfo)
+                    commandLine,
+                    envBlock,
+                    hookPath
                 );
                 runningTerminals.Add(Path, launchTask);
                 OnPropertyChanged(propertyName);
@@ -308,12 +370,11 @@ namespace WTLayoutManager.ViewModels
                     _runningTerminals,
                     "Terminal is already running for this local state.",
                     nameof(CanRunTerminal),
-                    (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcess(
+                    (fileName, commandLine, envBlock, hookPath) => Task.Run(() => ProcessLauncher.LaunchProcess(
                         fileName,
                         commandLine,
                         envBlock,
-                        System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"WTLocalStateHook{ProcessBitness}.dll")
-                        //"C:\\Users\\dmitr\\src\\Detours\\bin.X64\\WTLocalStateHook64.dll"
+                        hookPath
                         )
                     )
                 );
@@ -344,12 +405,13 @@ namespace WTLayoutManager.ViewModels
                     _runningTerminalsAs,
                     "Terminal Admin is already running for this local state.",
                     nameof(CanRunTerminalAs),
-                    (fileName, commandLine, envBlock) => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
+                    (fileName, commandLine, envBlock, hookPath) => Task.Run(() => ProcessLauncher.LaunchProcessElevated(
                         System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ElevatedLauncher.exe"),
                         fileName,
                         commandLine,
                         envBlock,
-                        System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"WTLocalStateHook{ProcessBitness}.dll"))
+                        hookPath
+                        )
                     )
                 );
             }

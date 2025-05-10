@@ -13,6 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+    <Page Remove="Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Assets\cmd.png" />
     <None Remove="Assets\git-bash.png" />
     <None Remove="Assets\powershell.png" />
@@ -145,10 +152,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

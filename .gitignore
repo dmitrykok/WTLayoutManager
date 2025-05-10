@@ -21,6 +21,7 @@ $RECYCLE.BIN/
 *.cab
 *.msi
 *.msix
+*.msixbundle
 *.msm
 *.msp
 
