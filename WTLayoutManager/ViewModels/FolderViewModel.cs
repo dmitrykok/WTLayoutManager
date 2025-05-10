@@ -60,8 +60,18 @@ namespace WTLayoutManager.ViewModels
             if (!File.Exists(_dstHookPath) || !FilesEqual(_srcHookPath, _dstHookPath))
             {
                 string tmp = System.IO.Path.Combine(_localAppBin, $"{Guid.NewGuid()}.tmp");
-                File.Copy(_srcHookPath, tmp, overwrite: true);
-                File.Replace(tmp, _dstHookPath, destinationBackupFileName: null);
+                try
+                {
+                    File.Copy(_srcHookPath, tmp, overwrite: true);
+                    File.Replace(tmp, _dstHookPath, destinationBackupFileName: null);
+                }
+                finally
+                {
+                    if (File.Exists(tmp))
+                    {
+                        try { File.Delete(tmp); } catch { /* ignore cleanup errors */ }
+                    }
+                }
             }
 
             // Initialize commands
