@@ -7,7 +7,8 @@ param(
     [switch]$ARM64,
     [switch]$NoPackage,
     [switch]$Restore,
-    [switch]$Bundle
+    [switch]$Bundle,
+    [string]$CertPath
 )
 
 # Set default configurations if none are specified
@@ -121,8 +122,8 @@ if (-not $NoPackage -and $Bundle) {
         Invoke-Expression $makeappxCmd
 
         # Sign the bundle using signtool
-        $certPath = ".\Dm17tryK.pfx"
-        if (Test-Path $certPath) {
+        # $certPath = ".\Dm17tryK.pfx"
+        if (Test-Path $CertPath) {
             # Prompt for the certificate password securely
             $certPassword = Read-Host -AsSecureString "Enter the password for the certificate"
 
@@ -131,7 +132,7 @@ if (-not $NoPackage -and $Bundle) {
             $password = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
 
             # Sign the bundle
-            $signtoolCmd = "signtool sign /fd SHA256 /td SHA256 /a /f `"$certPath`" /p `"$password`" /tr http://timestamp.digicert.com `"$bundlePath`""
+            $signtoolCmd = "signtool sign /fd SHA256 /td SHA256 /a /f `"$CertPath`" /p `"$password`" /tr http://timestamp.digicert.com `"$bundlePath`""
             Write-Host "Signing the bundle with signtool..."
             Invoke-Expression $signtoolCmd
 
@@ -145,7 +146,7 @@ if (-not $NoPackage -and $Bundle) {
             $certPassword.Dispose()
         }
         else {
-            Write-Warning "Certificate file $certPath not found. Skipping signing."
+            Write-Warning "Certificate file $CertPath not found. Skipping signing."
         }
     }
     else {

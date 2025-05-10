@@ -63,7 +63,7 @@ namespace WTLayoutManager.ViewModels
                 try
                 {
                     File.Copy(_srcHookPath, tmp, overwrite: true);
-                    File.Replace(tmp, _dstHookPath, destinationBackupFileName: null);
+                    File.Replace(tmp, _dstHookPath, destinationBackupFileName: null, ignoreMetadataErrors: true);
                 }
                 finally
                 {
@@ -324,11 +324,13 @@ namespace WTLayoutManager.ViewModels
                 if (!File.Exists(fileName))
                 {
                     _messageBoxService.ShowMessage($"File not found.\n{fileName}", "Error", DialogType.Error);
+                    return;
                 }
 
                 if (!File.Exists(hookPath))
                 {
                     _messageBoxService.ShowMessage($"File not found.\n{hookPath}", "Error", DialogType.Error);
+                    return;
                 }
 
                 Task<int> launchTask = launchProcess(
