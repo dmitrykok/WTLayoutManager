@@ -141,9 +141,12 @@ if (-not $NoPackage -and $Bundle) {
             Write-Host "Verifying the bundle signature..."
             Invoke-Expression $verifyCmd
 
-            # Zero out and dispose of the password for security
+            # Zero out the SecureString BSTR pointer for security
             [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
-            $certPassword.Dispose()
+            # Dispose of the SecureString if supported to avoid runtime errors
+            if ($certPassword -is [System.IDisposable]) {
+                $certPassword.Dispose()
+            }
         }
         else {
             Write-Warning "Certificate file $CertPath not found. Skipping signing."
