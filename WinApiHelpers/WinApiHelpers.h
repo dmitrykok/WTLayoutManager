@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include "new.h"
 #include <windows.h>
 #include <shellapi.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 #ifdef WINAPIHELPERS_EXPORTS   // Define this in your pure C++ DLL project settings
 #define WINAPIHELPERS_API __declspec(dllexport)
@@ -14,6 +15,17 @@
 
 namespace WTLayoutManager {
 	namespace Services {
+
+        struct HandleCloser {
+            void operator()(HANDLE h) const noexcept {
+                if (h && h != INVALID_HANDLE_VALUE) ::CloseHandle(h);
+            }
+        };
+
+        using HandlePtr = std::unique_ptr<
+            std::remove_pointer_t<HANDLE>,   // = void
+            HandleCloser        // function‐pointer deleter type
+        >;
 
         struct shellexecuteinfow_raii
         {
@@ -96,6 +108,10 @@ namespace WTLayoutManager {
                 _In_opt_ void* pfCreateProcessW);
 
             WINAPIHELPERS_API static std::string WideToUtf8(const std::wstring& ws);
+
+            WINAPIHELPERS_API static void Sleep(_In_ DWORD dwMilliseconds);
+
+            WINAPIHELPERS_API static HandlePtr GetWindowsTerminalHandle(DWORD wtPid);
 		};
 
 	}

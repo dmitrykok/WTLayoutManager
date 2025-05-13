@@ -13,6 +13,7 @@
 #include <crtdbg.h>
 #include <sstream>
 #include <iomanip>
+#include <tlhelp32.h>
 #include <msclr/marshal_cppstd.h>
 #include <msclr/auto_handle.h>
 
@@ -47,7 +48,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     // 1. ----- DUPLICATE COMMAND LINE --------------------------------------
     size_t cmdLen = wcslen(cmdRaw) + 1;
     std::unique_ptr<wchar_t[]> cmdLine(new wchar_t[cmdLen]);
-    if (FAILED(StringCchCopyW(cmdLine.get(), cmdLen, cmdRaw))) 
+    if (FAILED(StringCchCopyW(cmdLine.get(), cmdLen, cmdRaw)))
     {
         throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }
@@ -59,7 +60,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
         array<System::String^>^ parts = envBlock->Split(L';');
         for each (System::String^ part in parts)
         {
-            if (System::String::IsNullOrWhiteSpace(part)) 
+            if (System::String::IsNullOrWhiteSpace(part))
                 continue;      // skip empty
 
             additional.emplace_back(ctx->marshal_as<const wchar_t*>(part));
@@ -68,14 +69,15 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 
     // 3. ----- MERGE with parent environment ------------------------------
     std::unique_ptr<wchar_t[]> merged;
-    DWORD dwCreationFlags = 0;
+    DWORD dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP | CREATE_SUSPENDED;
     if (!additional.empty())
     {
         merged.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
-        dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
+        dwCreationFlags |= CREATE_UNICODE_ENVIRONMENT;
     }
 
     STARTUPINFOEXW si{ sizeof(si) };
+    si.StartupInfo.wShowWindow = SW_SHOWDEFAULT;
     process_info_raii pi;
 
     std::wstring hookW(hookRaw);
@@ -85,7 +87,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
         cmdLine.get(),      // command line (inherit)
         nullptr, nullptr,   // security attrs
         FALSE,              // inherit handles
-        dwCreationFlags | CREATE_SUSPENDED,
+        dwCreationFlags,
         merged.get(),       // Custom environment block
         nullptr,            // cwd
         &si.StartupInfo,
@@ -102,14 +104,20 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     //success = DebugActiveProcess(pi.dwProcessId);
     success = ResumeThread(pi.pi.hThread);
 
+    HandlePtr piHandle = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
+    if (piHandle.get() == nullptr)
+	{
+		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+	}
+
     // Wait for the process to exit.
-    WaitForSingleObject(pi.pi.hProcess, INFINITE);
+    WaitForSingleObject(piHandle.get(), INFINITE);
 
     merged.reset();
     cmdLine.reset();
 
     DWORD exitCode = 0;
-    if (!GetExitCodeProcess(pi.pi.hProcess, &exitCode))
+    if (!GetExitCodeProcess(piHandle.get(), &exitCode))
     {
         throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
     }

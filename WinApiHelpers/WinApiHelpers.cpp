@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "WinApiHelpers.h"
 #include <strsafe.h>
+#include <tlhelp32.h>
 #include <detours.h>
 
 using namespace WTLayoutManager::Services;
@@ -44,13 +45,13 @@ shellexecuteinfow_raii::operator SHELLEXECUTEINFOW* () noexcept
 
 // --------------------------------------------------------------------------
 
-process_info_raii::process_info_raii() 
-{ 
-    ZeroMemory(&pi, sizeof(pi)); 
+process_info_raii::process_info_raii()
+{
+    ZeroMemory(&pi, sizeof(pi));
 }
-process_info_raii::~process_info_raii() 
-{ 
-    reset(); 
+process_info_raii::~process_info_raii()
+{
+    reset();
 }
 
 process_info_raii::process_info_raii(process_info_raii&& other) noexcept
@@ -76,8 +77,8 @@ void process_info_raii::reset() noexcept
 }
 
 // implicit conversion when a PROCESS_INFORMATION* is required
-process_info_raii::operator PROCESS_INFORMATION* () noexcept 
-{ 
+process_info_raii::operator PROCESS_INFORMATION* () noexcept
+{
     return &pi;
 }
 
@@ -206,4 +207,41 @@ BOOL WinApiHelpers::DetourCreateProcessWithDllExWrap(
         lpDllName,
         reinterpret_cast<PDETOUR_CREATE_PROCESS_ROUTINEW>(pfCreateProcessW)
     );
+}
+
+void WinApiHelpers::Sleep(_In_ DWORD dwMilliseconds)
+{
+	::Sleep(dwMilliseconds);
+}
+
+HandlePtr WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
+{
+    DWORD parentPid = wtPid;
+    HANDLE hReal = nullptr;
+    for (int i = 0; i < 60 && !hReal; ++i) {
+        HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hSnap == INVALID_HANDLE_VALUE)
+        {
+            WinApiHelpers::Sleep(50);
+			continue;
+        }
+        PROCESSENTRY32 pe{ sizeof(pe) };
+        for (BOOL ok = Process32First(hSnap, &pe); ok; ok = Process32Next(hSnap, &pe)) {
+            if (pe.th32ParentProcessID == parentPid
+                && _wcsicmp(pe.szExeFile, L"WindowsTerminal.exe") == 0)
+            {
+                // open with SYNCHRONIZE so we can wait on it:
+                DWORD rights = SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION;
+                hReal = OpenProcess(rights, FALSE, pe.th32ProcessID);
+                break;
+            }
+        }
+        CloseHandle(hSnap);
+        if (!hReal)
+        {
+            WinApiHelpers::Sleep(50);
+        }
+    }
+
+    return HandlePtr(hReal);
 }
