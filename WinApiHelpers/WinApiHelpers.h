@@ -18,7 +18,7 @@ namespace WTLayoutManager {
 
         struct HandleCloser {
             void operator()(HANDLE h) const noexcept {
-                if (h) ::CloseHandle(h);
+                if (h && h != INVALID_HANDLE_VALUE) ::CloseHandle(h);
             }
         };
 
