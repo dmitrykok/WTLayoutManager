@@ -117,14 +117,12 @@ int wmain(int argc, wchar_t *argv[])
 
     success = ResumeThread(pi.pi.hThread);
 
-    HANDLE hReal = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
-    if (hReal == nullptr)
+    HandlePtr piHandle = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
+    if (piHandle.get() == nullptr)
     {
         std::wcerr << L"GetWindowsTerminalHandle failed." << std::endl;
         return -1;
     }
-
-    HandlePtr piHandle(hReal, &::CloseHandle);
 
     // Wait for the target process to exit.
     WaitForSingleObject(piHandle.get(), INFINITE);

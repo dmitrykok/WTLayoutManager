@@ -214,7 +214,7 @@ void WinApiHelpers::Sleep(_In_ DWORD dwMilliseconds)
 	::Sleep(dwMilliseconds);
 }
 
-HANDLE WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
+HandlePtr WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
 {
     DWORD parentPid = wtPid;
     HANDLE hReal = nullptr;
@@ -242,5 +242,6 @@ HANDLE WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
             WinApiHelpers::Sleep(50);
         }
     }
-    return hReal;
+
+    return HandlePtr(hReal);
 }

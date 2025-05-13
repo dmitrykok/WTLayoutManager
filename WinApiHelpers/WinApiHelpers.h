@@ -16,9 +16,15 @@
 namespace WTLayoutManager {
 	namespace Services {
 
+        struct HandleCloser {
+            void operator()(HANDLE h) const noexcept {
+                if (h) ::CloseHandle(h);
+            }
+        };
+
         using HandlePtr = std::unique_ptr<
             std::remove_pointer_t<HANDLE>,   // = void
-            decltype(&::CloseHandle)         // function‐pointer deleter type
+            HandleCloser        // function‐pointer deleter type
         >;
 
         struct shellexecuteinfow_raii
@@ -105,7 +111,7 @@ namespace WTLayoutManager {
 
             WINAPIHELPERS_API static void Sleep(_In_ DWORD dwMilliseconds);
 
-            WINAPIHELPERS_API static HANDLE GetWindowsTerminalHandle(DWORD wtPid);
+            WINAPIHELPERS_API static HandlePtr GetWindowsTerminalHandle(DWORD wtPid);
 		};
 
 	}

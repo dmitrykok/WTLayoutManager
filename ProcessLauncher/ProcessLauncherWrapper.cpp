@@ -104,13 +104,11 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     //success = DebugActiveProcess(pi.dwProcessId);
     success = ResumeThread(pi.pi.hThread);
 
-    HANDLE hReal = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
-    if (hReal == nullptr)
+    HandlePtr piHandle = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
+    if (piHandle.get() == nullptr)
 	{
 		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
 	}
-
-    HandlePtr piHandle(hReal, &::CloseHandle);
 
     // Wait for the process to exit.
     WaitForSingleObject(piHandle.get(), INFINITE);
