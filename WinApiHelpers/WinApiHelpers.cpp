@@ -218,8 +218,13 @@ HANDLE WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
 {
     DWORD parentPid = wtPid;
     HANDLE hReal = nullptr;
-    while (!hReal) {
+    for (int i = 0; i < 60 && !hReal; ++i) {
         HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hSnap == INVALID_HANDLE_VALUE)
+        {
+            WinApiHelpers::Sleep(50);
+			continue;
+        }
         PROCESSENTRY32 pe{ sizeof(pe) };
         for (BOOL ok = Process32First(hSnap, &pe); ok; ok = Process32Next(hSnap, &pe)) {
             if (pe.th32ParentProcessID == parentPid
@@ -233,7 +238,9 @@ HANDLE WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
         }
         CloseHandle(hSnap);
         if (!hReal)
+        {
             WinApiHelpers::Sleep(50);
+        }
     }
     return hReal;
 }

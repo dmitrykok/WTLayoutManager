@@ -105,6 +105,10 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
     success = ResumeThread(pi.pi.hThread);
 
     HANDLE hReal = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
+    if (hReal == nullptr)
+	{
+		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+	}
 
     HandlePtr piHandle(hReal, &::CloseHandle);
 
