@@ -81,17 +81,18 @@ int wmain(int argc, wchar_t *argv[])
     // Here we assume the environment variables are separated by semicolons.
     // For example: "MY_VAR1=Value1;MY_VAR2=Value2"
     std::wstring envStr(envParam);
-    DWORD dwCreationFlags = 0;
+    DWORD dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP | CREATE_SUSPENDED;
     std::unique_ptr<wchar_t[]> envCopy(nullptr);
     if (envStr.size())
     {
         std::vector<std::wstring> additional = splitEnvBlock(envStr);
         envCopy.reset(WinApiHelpers::CreateMergedEnvironmentBlock(additional));
-        dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
+        dwCreationFlags |= CREATE_UNICODE_ENVIRONMENT;
     }
 
     STARTUPINFOEXW si{ sizeof(si) };
-    PROCESS_INFORMATION pi = { 0 };
+    si.StartupInfo.wShowWindow = SW_SHOWDEFAULT;
+    process_info_raii pi;
 
     std::wstring hookW(hookParam);
     std::string hook = WinApiHelpers::WideToUtf8(hookW);
@@ -100,11 +101,11 @@ int wmain(int argc, wchar_t *argv[])
         targetCmdLine,      // command line (inherit)
         nullptr, nullptr,   // security attrs
         FALSE,              // inherit handles
-        dwCreationFlags | CREATE_SUSPENDED,
+        dwCreationFlags,
         envCopy.get(),      // Custom environment block
         nullptr,            // cwd
         &si.StartupInfo,
-        &pi,
+        (PROCESS_INFORMATION*)pi,
         hook.c_str(),       // *** injected DLL
         nullptr);           // default create-process routine
 
@@ -114,20 +115,20 @@ int wmain(int argc, wchar_t *argv[])
         return -1;
     }
 
-    success = ResumeThread(pi.hThread);
+    success = ResumeThread(pi.pi.hThread);
+
+    HANDLE hReal = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
+
+    HandlePtr piHandle(hReal, &::CloseHandle);
 
     // Wait for the target process to exit.
-    WaitForSingleObject(pi.hProcess, INFINITE);
+    WaitForSingleObject(piHandle.get(), INFINITE);
     DWORD exitCode = 0;
-    if (!GetExitCodeProcess(pi.hProcess, &exitCode))
+    if (!GetExitCodeProcess(piHandle.get(), &exitCode))
     {
         std::wcerr << L"GetExitCodeProcess failed." << std::endl;
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
         return -1;
-        // exitCode = GetLastError();
     }
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
+
     return static_cast<int>(exitCode);
 }

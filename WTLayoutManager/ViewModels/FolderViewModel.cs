@@ -63,7 +63,14 @@ namespace WTLayoutManager.ViewModels
                 try
                 {
                     File.Copy(_srcHookPath, tmp, overwrite: true);
-                    File.Replace(tmp, _dstHookPath, destinationBackupFileName: null, ignoreMetadataErrors: true);
+                    if (!File.Exists(_dstHookPath))
+                    {
+                        File.Move(tmp, _dstHookPath, overwrite: true);
+                    }
+                    else
+                    {
+                        File.Replace(tmp, _dstHookPath, destinationBackupFileName: null, ignoreMetadataErrors: true);
+                    }
                 }
                 finally
                 {
@@ -261,7 +268,7 @@ namespace WTLayoutManager.ViewModels
         private string BuildTerminalPath(TerminalInfo terminalInfo)
         {
             //return "C:\\Users\\dmitr\\src\\terminal\\bin\\x64\\Debug\\WindowsTerminal\\WindowsTerminal.exe";
-            var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "WindowsTerminal.exe");
+            var fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wt.exe");
             if (!File.Exists(fileName))
             {
                 fileName = System.IO.Path.Combine(terminalInfo.InstalledLocationPath, "wtd.exe");
