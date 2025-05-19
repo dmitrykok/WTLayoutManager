@@ -109,6 +109,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 	{
 		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
 	}
+    //HandlePtr piHandle(pi.pi.hProcess);
 
     // Wait for the process to exit.
     WaitForSingleObject(piHandle.get(), INFINITE);
