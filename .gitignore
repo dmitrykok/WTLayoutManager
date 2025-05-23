@@ -27,6 +27,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.link
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -427,3 +428,4 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudio
 .qodo
+/maestrohistory.txt
