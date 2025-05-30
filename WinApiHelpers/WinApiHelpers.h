@@ -17,6 +17,14 @@ namespace WTLayoutManager {
 	namespace Services {
 
 		struct HandleCloser {
+			/// <summary>
+			/// Closes the given HANDLE and sets it to INVALID_HANDLE_VALUE.
+			/// </summary>
+			/// <param name="h">The HANDLE to close.</param>
+			/// <remarks>
+			/// If the HANDLE is already invalid or is INVALID_HANDLE_VALUE, no action is taken.
+			/// This function ignores any exceptions thrown by CloseHandle().
+			/// </remarks>
 			void operator()(HANDLE& h) const noexcept {
 				if (h && h != INVALID_HANDLE_VALUE)
 				{

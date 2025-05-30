@@ -6,17 +6,34 @@
 
 using namespace WTLayoutManager::Services;
 
+/**
+ * \brief A RAII wrapper for SHELLEXECUTEINFOW.
+ *
+ * Automatically releases any resources allocated by ShellExecuteExW() when the
+ * object is destroyed.
+ */
 shellexecuteinfow_raii::shellexecuteinfow_raii()
 {
 	ZeroMemory(&sei, sizeof(sei));
 	sei.cbSize = sizeof(sei);
 	sei.hProcess = INVALID_HANDLE_VALUE;
 }
+/**
+ * \brief Destructor, releases any allocated resources.
+ *
+ * Automatically calls reset() to ensure any allocated resources are released.
+ */
 shellexecuteinfow_raii::~shellexecuteinfow_raii()
 {
 	reset();
 }
 
+/**
+ * \brief Move constructor, takes ownership of the SHELLEXECUTEINFOW structure of \a other.
+ *
+ * After calling this constructor, the SHELLEXECUTEINFOW structure of \a other is left in an
+ * "uninitialized" state, i.e. the \a hProcess member is set to \c INVALID_HANDLE_VALUE.
+ */
 shellexecuteinfow_raii::shellexecuteinfow_raii(shellexecuteinfow_raii&& other) noexcept
 	: sei(other.sei)
 {
@@ -33,6 +50,13 @@ shellexecuteinfow_raii& shellexecuteinfow_raii::operator=(shellexecuteinfow_raii
 	return *this;
 }
 
+/**
+ * \brief Resets the SHELLEXECUTEINFOW structure to an uninitialized state.
+ *
+ * Automatically calls CloseHandle() on the \a hProcess member if it is valid,
+ * and sets it to \c INVALID_HANDLE_VALUE afterwards. This ensures that the
+ * SHELLEXECUTEINFOW structure can be reused or safely destroyed.
+ */
 void shellexecuteinfow_raii::reset() noexcept
 {
 	if (sei.hProcess && sei.hProcess != INVALID_HANDLE_VALUE)
@@ -54,16 +78,34 @@ shellexecuteinfow_raii::operator SHELLEXECUTEINFOW* () noexcept
 
 // --------------------------------------------------------------------------
 
+/**
+ * \brief Constructor, initializes the PROCESS_INFORMATION structure to an uninitialized state.
+ *
+ * Automatically zeros out the entire structure and sets the \a hProcess and \a hThread members
+ * to \c INVALID_HANDLE_VALUE. This ensures that the PROCESS_INFORMATION structure can be safely
+ * reused or destroyed.
+ */
 process_info_raii::process_info_raii()
 {
 	ZeroMemory(&pi, sizeof(pi));
 	pi.hProcess = pi.hThread = INVALID_HANDLE_VALUE;
 }
+/**
+ * \brief Destructor, releases any allocated resources.
+ *
+ * Automatically calls reset() to ensure any allocated resources are released.
+ */
 process_info_raii::~process_info_raii()
 {
 	reset();
 }
 
+/**
+ * \brief Move constructor, takes ownership of the PROCESS_INFORMATION structure.
+ *
+ * Releases any allocated resources of the source object and takes ownership of the PROCESS_INFORMATION structure.
+ * The source object is left in a reset state.
+ */
 process_info_raii::process_info_raii(process_info_raii&& other) noexcept
 	: pi(other.pi)
 {
@@ -80,6 +122,13 @@ process_info_raii& process_info_raii::operator=(process_info_raii&& other) noexc
 	return *this;
 }
 
+/**
+ * \brief Resets the PROCESS_INFORMATION structure to an uninitialized state.
+ *
+ * Automatically calls CloseHandle() on the \a hProcess and \a hThread members if they are valid,
+ * and sets them to \c INVALID_HANDLE_VALUE afterwards. This ensures that the PROCESS_INFORMATION
+ * structure can be reused or safely destroyed.
+ */
 void process_info_raii::reset() noexcept
 {
 	if (pi.hThread && pi.hThread != INVALID_HANDLE_VALUE)
@@ -110,7 +159,13 @@ process_info_raii::operator PROCESS_INFORMATION* () noexcept
 
 // --------------------------------------------------------------------------
 
-// Wide → UTF-8  (or CP_ACP if you prefer)
+/**
+ * Converts a wide string (std::wstring) to a UTF-8 encoded string (std::string).
+ *
+ * @param ws The wide string to be converted to UTF-8.
+ * @return A std::string containing the UTF-8 encoded representation of the input wide string.
+ */
+
 std::string WinApiHelpers::WideToUtf8(const std::wstring& ws)
 {
 	int len = WideCharToMultiByte(CP_UTF8, 0,
@@ -205,6 +260,23 @@ LPWSTR WinApiHelpers::CreateMergedEnvironmentBlock(const std::vector<std::wstrin
 	return mergedEnv;
 }
 
+/**
+ * A wrapper around DetourCreateProcessWithDllExW that takes a void* instead of a PDETOUR_CREATE_PROCESS_ROUTINEW.
+ *
+ * @param[in] lpApplicationName The name of the module to be executed.
+ * @param[inout] lpCommandLine The command line to be executed.
+ * @param[in] lpProcessAttributes The process security attributes.
+ * @param[in] lpThreadAttributes The thread security attributes.
+ * @param[in] bInheritHandles Whether the new process inherits the handles of the current process.
+ * @param[in] dwCreationFlags The creation flags.
+ * @param[in] lpEnvironment The environment block.
+ * @param[in] lpCurrentDirectory The current directory.
+ * @param[in] lpStartupInfo The STARTUPINFO structure.
+ * @param[out] lpProcessInformation The PROCESS_INFORMATION structure.
+ * @param[in] lpDllName The name of the DLL to load.
+ * @param[in] pfCreateProcessW The function to call to create the new process.
+ * @return Whether the call was successful.
+ */
 BOOL WinApiHelpers::DetourCreateProcessWithDllExWrap(
 	_In_opt_ LPCWSTR lpApplicationName,
 	_Inout_opt_  LPWSTR lpCommandLine,
@@ -235,11 +307,22 @@ BOOL WinApiHelpers::DetourCreateProcessWithDllExWrap(
 	);
 }
 
+/**
+ * A wrapper around the Win32 Sleep function.
+ *
+ * @param[in] dwMilliseconds The time to sleep in milliseconds.
+ */
 void WinApiHelpers::Sleep(_In_ DWORD dwMilliseconds)
 {
 	::Sleep(dwMilliseconds);
 }
 
+/**
+ * Finds the Windows Terminal process launched by the given process ID.
+ *
+ * @param[in] wtPid The process ID of the process that launched Windows Terminal.
+ * @return A handle to the Windows Terminal process, or an empty HandlePtr if it's not found.
+ */
 HandlePtr WinApiHelpers::GetWindowsTerminalHandle(DWORD wtPid)
 {
 	DWORD parentPid = wtPid;

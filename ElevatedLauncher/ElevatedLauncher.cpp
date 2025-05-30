@@ -11,6 +11,13 @@
 using namespace WTLayoutManager::Services;
 
 // Trim leading / trailing spaces or tabs – optional, but handy.
+/**
+ * Removes leading and trailing whitespace from a wide string.
+ *
+ * @param s Reference to the wide string to be trimmed in-place
+ * @remarks Uses a lambda function to identify non-whitespace characters
+ * @remarks Modifies the input string by removing spaces and tabs from both ends
+ */
 static inline void trim(std::wstring& s)
 {
     auto not_space = [](wchar_t ch) { return ch != L' ' && ch != L'\t'; };
@@ -20,6 +27,17 @@ static inline void trim(std::wstring& s)
 }
 
 // Decode "Name=Value;Name2=Value2" → vector<wstring>
+/**
+ * Splits an environment block string into individual environment variable entries.
+ *
+ * Parses a semicolon-delimited string of environment variables, trimming whitespace 
+ * from each entry and filtering out empty entries.
+ *
+ * @param envStr A wide string containing environment variables in "NAME=VALUE" format
+ * @return A vector of individual environment variable entries
+ * @remarks Handles multiple environment variables separated by semicolons
+ * @remarks Whitespace around each entry is automatically trimmed
+ */
 static std::vector<std::wstring> splitEnvBlock(const std::wstring& envStr)
 {
     std::vector<std::wstring> result;
