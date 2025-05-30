@@ -161,19 +161,34 @@ namespace WTLayoutManager.Services
             {
                 if (package.Id.FamilyName.Contains("Terminal"))
                 {
-                    string cn = GetCommonName(package.Id.Publisher);
-                    terminals[String.Format("{0, -36}  \t-> \"{1}\"", package.DisplayName, cn)] = new TerminalInfo(
-                        package.Id.FullName,
-                        package.Id.FamilyName,
-                        package.Id.Name,
-                        package.Id.Publisher,
-                        package.Id.PublisherId,
-                        package.Id.Version,
-                        package.InstalledDate,
-                        package.PublisherDisplayName,
-                        package.DisplayName,
-                        package.Logo.AbsoluteUri,
-                        package.InstalledLocation.Path);
+                    DateTimeOffset installedDate = DateTimeOffset.MinValue;
+                    try 
+                    { 
+                        installedDate = package.InstalledDate;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        string cn = GetCommonName(package.Id.Publisher);
+                        terminals[String.Format("{0, -36}  \t-> \"{1}\"", package.DisplayName, cn)] = new TerminalInfo(
+                            package.Id.FullName,
+                            package.Id.FamilyName,
+                            package.Id.Name,
+                            package.Id.Publisher,
+                            package.Id.PublisherId,
+                            package.Id.Version,
+                            installedDate,
+                            package.PublisherDisplayName,
+                            package.DisplayName,
+                            package.Logo.AbsoluteUri,
+                            package.InstalledLocation.Path);
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
             }
 

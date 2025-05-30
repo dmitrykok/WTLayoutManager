@@ -27,6 +27,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.link
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -128,6 +129,8 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+*.vcxproj[0123456789]
+~*.*
 
 # Chutzpah Test files
 _Chutzpah*
@@ -427,3 +430,4 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudio
 .qodo
+/maestrohistory.txt

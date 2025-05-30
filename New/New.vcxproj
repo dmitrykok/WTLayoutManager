@@ -254,6 +254,23 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="FileModel.cs.link">
+      <DependentUpon>new.cpp</DependentUpon>
+    </None>
+    <None Include="FolderModel.cs.link">
+      <DependentUpon>new.cpp</DependentUpon>
+    </None>
+    <None Include="settings.json.link">
+      <DependentUpon>new.cpp</DependentUpon>
+    </None>
+    <None Include="SettingsJson.cs.link">
+      <DependentUpon>new.cpp</DependentUpon>
+    </None>
+    <None Include="TabLayoutControl.xaml.cs.link">
+      <DependentUpon>new.cpp</DependentUpon>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

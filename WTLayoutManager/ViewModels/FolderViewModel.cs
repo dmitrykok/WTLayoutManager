@@ -224,10 +224,10 @@ namespace WTLayoutManager.ViewModels
         private string BuildCommandLine(TerminalInfo terminalInfo, string fileName)
         {
             var commandLine = $"\"{fileName}\"";
-            if (TerminalHasLocalStateParam(terminalInfo))
-            {
-                commandLine += $" --localstate \"{Path}\"";
-            }
+            //if (TerminalHasLocalStateParam(terminalInfo))
+            //{
+            //    commandLine += $" --localstate \"{Path}\"";
+            //}
             return commandLine;
         }
 
@@ -249,13 +249,14 @@ namespace WTLayoutManager.ViewModels
             //defaultFolderPath = "C:\\Users\\dmitr\\AppData\\Local\\Microsoft\\Windows Terminal";
 
             string envBlock = string.Empty;
-            if (TerminalHasLocalStateParam(terminalInfo))
-            {
-                // Single-null terminators per variable, ending with a double-null terminator.
-                envBlock += $";WT_BASE_SETTINGS_PATH={Path}";
-            }
+            //if (TerminalHasLocalStateParam(terminalInfo))
+            //{
+            //    // Single-null terminators per variable, ending with a double-null terminator.
+            //    envBlock += $";WT_BASE_SETTINGS_PATH={Path}";
+            //}
             envBlock += $";WT_DEFAULT_LOCALSTATE={defaultFolderPath}";
             envBlock += $";WT_REDIRECT_LOCALSTATE={Path}";
+            envBlock += $";WT_HOOK_DLL_PATH={_dstHookPath}";
             return envBlock.TrimStart(';');
         }
 

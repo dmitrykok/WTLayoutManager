@@ -269,6 +269,26 @@
   <ItemGroup>
     <Image Include="app.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include=".gitmodules.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="launchSettings.json.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="MainViewModel.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="PackageVersionEx.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="PackageVersionExtensions.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

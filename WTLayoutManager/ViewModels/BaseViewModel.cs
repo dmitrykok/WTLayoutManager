@@ -4,6 +4,13 @@ using WTLayoutManager.Services;
 
 namespace WTLayoutManager.ViewModels
 {
+    /// <summary>
+    /// Base view model that implements the INotifyPropertyChanged interface for property change notifications.
+    /// </summary>
+    /// <remarks>
+    /// Provides a common base implementation for view models in the WTLayoutManager application,
+    /// enabling automatic property change notifications and centralized message box service access.
+    /// </remarks>
     public class BaseViewModel : INotifyPropertyChanged
     {
         /// <summary>

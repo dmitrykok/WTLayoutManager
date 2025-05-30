@@ -13,10 +13,10 @@ using namespace WTLayoutManager::Services;
 // Trim leading / trailing spaces or tabs – optional, but handy.
 static inline void trim(std::wstring& s)
 {
-    auto notspace = [](wchar_t ch) { return ch != L' ' && ch != L'\t'; };
+    auto not_space = [](wchar_t ch) { return ch != L' ' && ch != L'\t'; };
 
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), notspace));         // left trim
-    s.erase(std::find_if(s.rbegin(), s.rend(), notspace).base(), s.end());  // right trim
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), not_space));         // left trim
+    s.erase(std::find_if(s.rbegin(), s.rend(), not_space).base(), s.end());  // right trim
 }
 
 // Decode "Name=Value;Name2=Value2" → vector<wstring>

@@ -22,6 +22,8 @@ namespace WTLayoutManager.Services
         /// </remarks>
         private static void Main(string[] args)
         {
+            //Dictionary<string, TerminalInfo> __packages = TerminalPackages.FindInstalledTerminals();
+
             if (args.Length < 1)
             {
                 Console.Error.WriteLine("No memory-mapped file name passed in.");

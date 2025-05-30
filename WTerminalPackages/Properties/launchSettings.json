@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WTerminalPackages": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
