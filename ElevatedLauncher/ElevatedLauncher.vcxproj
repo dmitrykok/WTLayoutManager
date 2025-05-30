@@ -275,6 +275,23 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="FileVersionInfoExtensions.cs.link">
+      <DependentUpon>ElevatedLauncher.cpp</DependentUpon>
+    </None>
+    <None Include="PackageVersionConverter.cs.link">
+      <DependentUpon>ElevatedLauncher.cpp</DependentUpon>
+    </None>
+    <None Include="PackageVersionEx.cs.link">
+      <DependentUpon>ElevatedLauncher.cpp</DependentUpon>
+    </None>
+    <None Include="SettingsJson.cs.link">
+      <DependentUpon>ElevatedLauncher.cpp</DependentUpon>
+    </None>
+    <None Include="StateJson.cs.link">
+      <DependentUpon>ElevatedLauncher.cpp</DependentUpon>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

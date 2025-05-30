@@ -165,7 +165,6 @@ namespace WTLayoutManager.ViewModels
 
         public bool IsDefault => _folder.IsDefault;
         public bool CanDelete => !_folder.IsDefault;
-
         public DateTime? LastRun
         {
             get => _folder.LastRun;

@@ -276,16 +276,31 @@
     <None Include=".gitmodules.link">
       <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
     </None>
+    <None Include="FileVersionInfoExtensions.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="IMessageBoxService.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
     <None Include="launchSettings.json.link">
       <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
     </None>
     <None Include="MainViewModel.cs.link">
       <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
     </None>
+    <None Include="PackageVersionConverter.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
     <None Include="PackageVersionEx.cs.link">
       <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
     </None>
     <None Include="PackageVersionExtensions.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="StateJson.cs.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
+    <None Include="StateJsonParser.cs.link">
       <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
     </None>
   </ItemGroup>
