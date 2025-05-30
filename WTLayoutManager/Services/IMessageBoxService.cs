@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WTLayoutManager.Services
+﻿namespace WTLayoutManager.Services
 {
     /// <summary>
     /// Represents the type of dialog to be displayed in message box interactions.

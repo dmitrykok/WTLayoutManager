@@ -20,15 +20,49 @@
 using namespace msclr::interop;
 using namespace WTLayoutManager::Services;
 
-// Helper function to format the process exit code.
+/**
+ * Formats a process exit code into a human-readable string.
+ *
+ * @param exitCode The exit code of the process.
+ *
+ * @return A string representation of the exit code in hexadecimal format.
+ */
 static std::wstring FormatProcessExitCode(int exitCode)
 {
+	// Create a string stream to build the formatted string
 	std::wstringstream ss;
+
+	// Format the string to include the exit code in hexadecimal format
 	ss << L"Process exited with code: 0x"
-		<< std::setw(8) << std::setfill(L'0')
-		<< std::uppercase << std::hex << exitCode;
+	   << std::setw(8) << std::setfill(L'0')  // Pad with zeros to a width of 8
+	   << std::uppercase << std::hex << exitCode;  // Convert to uppercase hexadecimal
+
+	// Return the formatted string
 	return ss.str();
 }
+
+/**
+ * Properly quotes an argument by escaping internal quotes.
+ *
+ * @param arg The argument to be quoted.
+ *
+ * @return The quoted argument as a wstring.
+ */
+static std::wstring QuoteArgument(const std::wstring& arg)
+{
+	std::wstringstream result;
+	result << L"\"";
+	for (wchar_t ch : arg) {
+		if (ch == L'\"') {
+			result << L"\\\"";
+		} else {
+			result << ch;
+		}
+	}
+	result << L"\"";
+	return result.str();
+}
+
 
 /**
  * Launches a process with a custom environment block.
@@ -50,7 +84,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 	std::unique_ptr<wchar_t[]> cmdLine(new wchar_t[cmdLen]);
 	if (FAILED(StringCchCopyW(cmdLine.get(), cmdLen, cmdRaw)))
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 
 	// 2. ----- SPLIT envBlock → vector<wstring> ---------------------------
@@ -98,7 +132,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 	std::wstring err = WinApiHelpers::GetLastErrorMessage();
 	if (!success)
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 
 	//success = DebugActiveProcess(pi.dwProcessId);
@@ -107,7 +141,7 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 	HandlePtr piHandle = WinApiHelpers::GetWindowsTerminalHandle(pi.pi.dwProcessId);
 	if (piHandle.get() == nullptr)
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 	//HandlePtr piHandle(pi.pi.hProcess);
 
@@ -120,12 +154,12 @@ int ProcessLauncher::LaunchProcess(System::String^ applicationPath, System::Stri
 	DWORD exitCode = 0;
 	if (!GetExitCodeProcess(piHandle.get(), &exitCode))
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 
 	if (exitCode != 0)
 	{
-		throw gcnew System::Exception(gcnew System::String(FormatProcessExitCode(exitCode).c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(FormatProcessExitCode(exitCode)));
 	}
 
 	return static_cast<int>(exitCode);
@@ -157,20 +191,20 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
 	std::wstring hook(_hook);
 
 	// Helper lambda to properly quote an argument by escaping internal quotes.
-	auto QuoteArgument = [](const std::wstring& arg) -> std::wstring {
-		std::wstringstream result;
-		result << L"\"";
-		for (wchar_t ch : arg) {
-			if (ch == L'\"') {
-				result << L"\\\"";
-			}
-			else {
-				result << ch;
-			}
-		}
-		result << L"\"";
-		return result.str();
-		};
+	//auto QuoteArgument = [](const std::wstring& arg) -> std::wstring {
+	//	std::wstringstream result;
+	//	result << L"\"";
+	//	for (wchar_t ch : arg) {
+	//		if (ch == L'\"') {
+	//			result << L"\\\"";
+	//		}
+	//		else {
+	//			result << ch;
+	//		}
+	//	}
+	//	result << L"\"";
+	//	return result.str();
+	//};
 
 	std::wstring parameters = QuoteArgument(appPath) + L" " + QuoteArgument(cmdLine) + L" " + QuoteArgument(env) + L" " + QuoteArgument(hook);
 
@@ -184,7 +218,7 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
 
 	if (!ShellExecuteEx((SHELLEXECUTEINFOW*)sei))
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 
 	// Wait for the launcher executable to complete.
@@ -193,16 +227,16 @@ int ProcessLauncher::LaunchProcessElevated(System::String^ launcherPath, System:
 	DWORD exitCode = 0;
 	if (!GetExitCodeProcess(sei.sei.hProcess, &exitCode))
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 
 	if (exitCode == -1)
 	{
-		throw gcnew System::Exception(gcnew System::String(WinApiHelpers::GetLastErrorMessage().c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(WinApiHelpers::GetLastErrorMessage()));
 	}
 	else if (exitCode != 0)
 	{
-		throw gcnew System::Exception(gcnew System::String(FormatProcessExitCode(exitCode).c_str()));
+		throw gcnew System::Exception(ctx->marshal_as<System::String^>(FormatProcessExitCode(exitCode)));
 	}
 
 	return static_cast<int>(exitCode);
