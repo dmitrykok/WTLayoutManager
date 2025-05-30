@@ -270,6 +270,9 @@
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore.link">
+      <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
+    </None>
     <None Include=".gitmodules.link">
       <DependentUpon>ProcessLauncherWrapper.cpp</DependentUpon>
     </None>
