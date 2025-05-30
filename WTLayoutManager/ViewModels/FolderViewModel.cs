@@ -209,6 +209,12 @@ namespace WTLayoutManager.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Checks whether the given terminal supports the "--localstate" option.
+        /// A terminal supports the option if its version is at least 1.24.53104.5 and the publisher is "CN=Dm17tryK".
+        /// </summary>
+        /// <param name="terminalInfo">The terminal information, including the version and publisher</param>
+        /// <returns>true if the terminal supports the "--localstate" option, false otherwise</returns>
         private bool TerminalHasLocalStateParam(TerminalInfo terminalInfo)
         {
             return (!IsDefault && terminalInfo.Version >= "1.24.53104.5" && terminalInfo.Publisher == "CN=Dm17tryK");
@@ -278,6 +284,13 @@ namespace WTLayoutManager.ViewModels
             return fileName;
         }
 
+        /// <summary>
+        /// Checks if two files are equal by comparing their file version and file size first,
+        /// and then by comparing their SHA256 hash if the file sizes are the same.
+        /// </summary>
+        /// <param name="a">First file path</param>
+        /// <param name="b">Second file path</param>
+        /// <returns>true if the two files are equal, false otherwise</returns>
         private static bool FilesEqual(string a, string b)
         {
             var infoA = FileVersionInfo.GetVersionInfo(a);
